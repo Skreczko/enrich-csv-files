@@ -1,0 +1,15 @@
+stages:
+  - check
+#  - tests
+
+check-job:
+  stage: check
+  image: python:3.11.4
+  script:
+    - pip install -r requirements/requirements-development.txt
+    - ./check.sh
+  cache:
+    paths:
+      - .cache/pip
+  artifacts:
+    when: always
