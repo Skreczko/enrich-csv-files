@@ -90,7 +90,7 @@ module.exports = {
           loader: 'file-loader',
           options: {
             name: '[name].[ext]',
-            publicPath: 'frontend/static/'
+            publicPath: '/frontend/static/'
           },
         }],
       },
