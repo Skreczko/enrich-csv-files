@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.http import HttpResponse
-from django.urls import path
+from django.urls import path, re_path
 from django.views.generic import TemplateView
 
 
@@ -28,7 +28,7 @@ def healthcheck(request):
 
 
 urlpatterns = [
-    path('', TemplateView.as_view(template_name='index.html')),
+    re_path(r'^.*$', TemplateView.as_view(template_name='index.html')),  # pass path to React Router
     path('healthcheck.json', healthcheck)
 ]
 
