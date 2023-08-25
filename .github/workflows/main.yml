@@ -26,6 +26,11 @@ jobs:
     - name: Run backend check script
       run: ./backend/check.sh
 
+    - name: Install Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '18.16'
+
     - name: Run frontend check script
       run: ./frontend/check.sh
 
