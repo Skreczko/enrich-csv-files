@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "jsx": "react",
+    "lib": ["es2021", "dom"],
+    "module": "es2022",
+    "moduleResolution": "node",
+    "noImplicitAny": true,
+    "outDir": "./static/bundles",
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "target": "es6",
+    "types": ["jest", "node"],
+  },
+  "include": [
+    "./static",
+  ],
+  "exclude": [
+    "./static/bundles"
+  ]
+}

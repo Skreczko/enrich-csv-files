@@ -1,0 +1,5 @@
+FROM node:18.16
+WORKDIR /frontend/code
+COPY ./frontend/package.json /frontend/code/package.json
+RUN npm install
+EXPOSE 3000

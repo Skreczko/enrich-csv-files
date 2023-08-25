@@ -1,0 +1,11 @@
+.git
+*.pyc
+media
+node_modules
+**/node_modules
+webpack-stats.json
+static/bundles
+**/env
+containers_data
+/env
+/.mypy_cache

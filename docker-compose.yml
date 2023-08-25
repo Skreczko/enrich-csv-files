@@ -2,59 +2,74 @@ version: "3.8"
 
 services:
   # Database service
-  database:
-    container_name: adverity-transformer-challenge-database
-    image: postgres:9.6-alpine
+  postgres:
+    container_name: atc-postgres
+    image: postgres:13
     environment:
+      POSTGRES_USER: postgres
       POSTGRES_DB: transformer
       POSTGRES_HOST_AUTH_METHOD: trust
     ports:
       - "5432:5432"
-    restart: unless-stopped
+    volumes:
+      - ./containers_data/db/postgres/data:/var/lib/postgresql/data
+
+  # Main backend application
+  django:
+    container_name: atc-django
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    image: atc-django
+    command: python3 manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    env_file:
+      - backend/.env
+    depends_on:
+      - postgres
+      - redis
+      - celery
+      - webpack
+    volumes:
+      - ./backend:/backend/code
+      - ./backend/pyproject.toml:/backend/tmp/pyproject.toml
+    restart: on-failure
 
   # Async tasks broker service
   redis:
-    container_name: adverity-transformer-challenge-redis
+    container_name: atc-redis
     image: redis:6
     ports:
       - "6379:6379"
     restart: unless-stopped
 
+  webpack:
+    image: webpack-node
+    container_name: atc-webpack
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile-node
+    command: npm run start
+    ports:
+      - '8001:8001'
+    volumes:
+      - ./frontend:/frontend/code
+      - /frontend/code/node_modules
+
   # Async tasks worker
   celery:
-    container_name: adverity-transformer-challenge-celery
+    container_name: atc-celery
     build:
-      context: ${PWD}/backend/
-      dockerfile: Dockerfile.development
-    image: adverity-transformer-challenge-backend
+      context: .
+      dockerfile: backend/Dockerfile
+    image: atc-django
     environment:
       BROKER_URL: redis://redis:6379
-      DATABASE_HOST: database
+      DATABASE_HOST: postgres
       DATABASE_USER: postgres
       DATABASE_NAME: transformer
     command: watchmedo auto-restart --pattern '*.py' --signal SIGINT --recursive -- celery -A transformer worker -l debug
     volumes:
-      - ${PWD}/backend/:/home/user/backend/:delegated
+      - ./backend:/backend/code
 
-  # Main backend application
-  backend:
-    container_name: adverity-transformer-challenge-backend
-    build:
-      context: ${PWD}/backend/
-      dockerfile: Dockerfile.development
-    image: adverity-transformer-challenge-backend
-    ports:
-      - "8000:8000"
-    environment:
-      BROKER_URL: redis://redis:6379
-      DATABASE_HOST: database
-      DATABASE_USER: postgres
-      DATABASE_NAME: transformer
-    volumes:
-      - ${PWD}/backend/:/home/user/backend/:delegated
-      - ${PWD}/frontend/:/home/user/frontend/:delegated
-    depends_on:
-      - database
-      - redis
-      - celery
-    restart: on-failure

@@ -14,7 +14,9 @@ import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+DATA_DIR = os.path.dirname(BASE_DIR)
+FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
 
 
 # Quick-start development settings - unsuitable for production
@@ -26,7 +28,7 @@ SECRET_KEY = 'django-insecure-8ew7hf41c8b__6r(p1*md@a-m=2%sq^)^an=awx7zr9saf4%)h
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['*'] + [os.environ.get("ALLOWED_HOSTS", "")]
 
 
 # Application definition
@@ -34,15 +36,14 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.staticfiles',
 ]
+INSTALLED_APPS += ["webpack_loader"]
 
 ROOT_URLCONF = 'transformer.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            BASE_DIR.parent / 'frontend' / 'dist'
-        ],
+        'DIRS': [os.path.join(FRONTEND_DIR, "templates")],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -58,18 +59,16 @@ WSGI_APPLICATION = 'transformer.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-DATABASE_HOST = os.environ['DATABASE_HOST']
-DATABASE_USER = os.environ['DATABASE_USER']
-DATABASE_NAME = os.environ['DATABASE_NAME']
+DATABASE_NAME = os.environ.get("DATABASE_NAME", "transformer")
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': DATABASE_NAME,
-        'HOST': DATABASE_HOST,
-        'USER': DATABASE_USER,
-        'PORT': '5432',
-        'TEST': {
-            'NAME': f'{DATABASE_NAME}_test',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "HOST": os.environ.get("POSTGRES_HOST", "postgres"),
+        "NAME": os.environ.get("POSTGRES_DB", "transformer"),
+        "USER": os.environ.get("POSTGRES_USER", "postgres"),
+        "PORT": os.environ.get("POSTGRES_PORT", "5432"),
+        "TEST": {
+            "NAME": f"{DATABASE_NAME}_test",
         },
     }
 }
@@ -86,10 +85,31 @@ USE_L10N = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
-STATIC_URL = '/static/'
+STATIC_URL = "frontend/static/"
+LOCAL_STATICFILES_DIR = os.path.join(FRONTEND_DIR, "static")
+
+STATIC_ROOT = os.path.join(DATA_DIR, "static")
+
 STATICFILES_DIRS = [
-    BASE_DIR.parent / 'frontend' / 'dist' / 'static'
+    os.path.join(FRONTEND_DIR, "static/bundles"),
+    # only for local purposes
+    LOCAL_STATICFILES_DIR,
 ]
+
+# MEDIA FILES
+MEDIA_URL = "frontend/media/"
+MEDIA_ROOT = os.path.join(FRONTEND_DIR, "media")
+
+# WEBPACK
+WEBPACK_LOADER_TEST_DISABLED = True
+WEBPACK_LOADER = {
+    "DEFAULT": {
+        "USE_DEV_SERVER": False,
+        "CACHE": not DEBUG,
+        "BUNDLE_DIR_NAME": "./",
+        "STATS_FILE": os.path.join(FRONTEND_DIR, "webpack-stats.json"),
+    }
+}
 
 
 # Celery

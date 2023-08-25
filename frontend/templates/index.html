@@ -1,0 +1,22 @@
+{% load static %}
+{% load webpack_static from webpack_loader %}
+{% load render_bundle from webpack_loader %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Adverity transformer challenge</title>
+    <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+    {% block css %}
+      <link rel="stylesheet" href="{% static 'css/semantic.css' %}"/>
+      {% render_bundle 'base-style' 'css' %}
+    {% endblock %}
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+    {% render_bundle 'runtime' 'js' %}
+    {% render_bundle 'vendors' 'js' %}
+    {% render_bundle 'main' 'js' %}
+</html>
