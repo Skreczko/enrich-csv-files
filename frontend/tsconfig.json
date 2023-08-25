@@ -13,9 +13,10 @@
     "sourceMap": true,
     "target": "es6",
     "types": ["jest", "node"],
+    "typeRoots": ["./static/js/types", "./node_modules/@types"]
   },
   "include": [
-    "./static",
+    "./static"
   ],
   "exclude": [
     "./static/bundles"
