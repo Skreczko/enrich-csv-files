@@ -23,12 +23,12 @@ FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-8ew7hf41c8b__6r(p1*md@a-m=2%sq^)^an=awx7zr9saf4%)h'
+SECRET_KEY = os.environ["SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*'] + [os.environ.get("ALLOWED_HOSTS", "")]
+ALLOWED_HOSTS = [os.environ.get("ALLOWED_HOSTS", "")]
 
 
 # Application definition
@@ -59,16 +59,16 @@ WSGI_APPLICATION = 'transformer.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-DATABASE_NAME = os.environ.get("DATABASE_NAME", "transformer")
+POSTGRES_NAME = os.environ.get("POSTGRES_NAME", "transformer")
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
         "HOST": os.environ.get("POSTGRES_HOST", "postgres"),
-        "NAME": os.environ.get("POSTGRES_DB", "transformer"),
+        "NAME": POSTGRES_NAME,
         "USER": os.environ.get("POSTGRES_USER", "postgres"),
         "PORT": os.environ.get("POSTGRES_PORT", "5432"),
         "TEST": {
-            "NAME": f"{DATABASE_NAME}_test",
+            "NAME": f"{POSTGRES_NAME}_test",
         },
     }
 }
@@ -87,9 +87,7 @@ USE_L10N = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 STATIC_URL = "frontend/static/"
 LOCAL_STATICFILES_DIR = os.path.join(FRONTEND_DIR, "static")
-
 STATIC_ROOT = os.path.join(DATA_DIR, "static")
-
 STATICFILES_DIRS = [
     os.path.join(FRONTEND_DIR, "static/bundles"),
     # only for local purposes

@@ -28,8 +28,8 @@ def healthcheck(request):
 
 
 urlpatterns = [
+    path('healthcheck.json', healthcheck),
     re_path(r'^.*$', TemplateView.as_view(template_name='index.html')),  # pass path to React Router
-    path('healthcheck.json', healthcheck)
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
