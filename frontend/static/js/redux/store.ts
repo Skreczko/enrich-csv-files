@@ -4,9 +4,7 @@ import { Reducer } from 'react';
 import { ReducersMapObject } from 'redux';
 import { setupListeners } from '@reduxjs/toolkit/query';
 
-export const storeReducer: Reducer<CombinedState<any>, any> | ReducersMapObject = {
-
-};
+export const storeReducer: Reducer<CombinedState<any>, any> | ReducersMapObject = {};
 
 export const store = configureStore({
   reducer: storeReducer,
