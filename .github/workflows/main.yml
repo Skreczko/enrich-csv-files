@@ -12,6 +12,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
+    # Backend dependencies caching
     - name: Cache pip packages
       uses: actions/cache@v2
       with:
@@ -20,16 +21,20 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pip-
 
-    - name: Install dependencies
+    - name: Install backend dependencies
       run: pip install -r backend/requirements/requirements-development.txt
 
     - name: Run backend check script
       run: ./backend/check.sh
 
-    - name: Install Node.js
-      uses: actions/setup-node@v2
+    # Frontend dependencies caching
+    - name: Cache frontend dependencies
+      uses: actions/cache@v2
       with:
-        node-version: '18.16'
+        path: frontend/node_modules
+        key: ${{ runner.os }}-node-${{ hashFiles('frontend/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
 
     - name: Install frontend dependencies
       run: |
@@ -39,6 +44,7 @@ jobs:
     - name: Run frontend check script
       run: ./frontend/check.sh
 
+    # Saving artifacts if any
     - name: Save artifacts (if necessary)
       uses: actions/upload-artifact@v2
       with:
