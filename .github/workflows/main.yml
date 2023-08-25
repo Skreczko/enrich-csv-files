@@ -1,0 +1,57 @@
+name: CI Check
+
+on: [push]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    container:
+      image: python:3.11.4
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    # Backend dependencies caching
+    - name: Cache pip packages
+      uses: actions/cache@v2
+      with:
+        path: .cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('backend/requirements/requirements-development.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install backend dependencies
+      run: pip install -r backend/requirements/requirements-development.txt
+
+    - name: Run backend check script
+      run: ./backend/check.sh
+
+    # Frontend dependencies caching
+    - name: Cache frontend dependencies
+      uses: actions/cache@v2
+      with:
+        path: frontend/node_modules
+        key: ${{ runner.os }}-node-${{ hashFiles('frontend/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+
+    - name: Install Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '18.16'
+
+    - name: Install frontend dependencies
+      run: |
+        cd frontend
+        npm install
+
+    - name: Run frontend check script
+      run: ./frontend/check.sh
+
+    # Saving artifacts if any
+    - name: Save artifacts (if necessary)
+      uses: actions/upload-artifact@v2
+      with:
+        name: artifacts
+        path: path-to-your-artifacts-if-any

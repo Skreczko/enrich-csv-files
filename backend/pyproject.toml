@@ -6,7 +6,7 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [tool.black]
-target-version = ['py311']
+target-version = ['py310']  # it must be 3.10
 exclude = '''
 /(
     \.eggs
