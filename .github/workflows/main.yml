@@ -23,8 +23,11 @@ jobs:
     - name: Install dependencies
       run: pip install -r backend/requirements/requirements-development.txt
 
-    - name: Run check script
-      run: ./check.sh
+    - name: Run backend check script
+      run: ./backend/check.sh
+
+    - name: Run frontend check script
+      run: ./frontend/check.sh
 
     - name: Save artifacts (if necessary)
       uses: actions/upload-artifact@v2

@@ -28,10 +28,4 @@ echo "* mypy"
 mypy $MYPY_ARGS
 
 
-# Npm, if installed
-
-if command -v npm > /dev/null; then
-  echo "* npm"
-  npm run $NPM_RUN_ARGS check
-fi
 exit 0

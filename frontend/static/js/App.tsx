@@ -6,7 +6,7 @@ import { AppWrapper, BodyWrapper } from './App.styled';
 
 export const App = (): ReactElement => (
   <AppWrapper>
-    <Toolbar />
+    <Toolbar   />
     <BodyWrapper>
       <Router />
       <Footer />

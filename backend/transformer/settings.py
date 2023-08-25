@@ -33,28 +33,28 @@ ALLOWED_HOSTS = [os.environ.get("ALLOWED_HOSTS", "")]
 
 # Application definition
 INSTALLED_APPS = [
-    'django.contrib.contenttypes',
-    'django.contrib.staticfiles',
+    "django.contrib.contenttypes",
+    "django.contrib.staticfiles",
 ]
 INSTALLED_APPS += ["webpack_loader"]
 
-ROOT_URLCONF = 'transformer.urls'
+ROOT_URLCONF = "transformer.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(FRONTEND_DIR, "templates")],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [os.path.join(FRONTEND_DIR, "templates")],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'transformer.wsgi.application'
+WSGI_APPLICATION = "transformer.wsgi.application"
 
 
 # Database
@@ -76,9 +76,9 @@ DATABASES = {
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 USE_TZ = True
-TIME_ZONE = 'UTC'
+TIME_ZONE = "UTC"
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 USE_I18N = True
 USE_L10N = True
 
@@ -111,7 +111,7 @@ WEBPACK_LOADER = {
 
 
 # Celery
-BROKER_URL = os.environ['BROKER_URL']
-CELERY_BROKER_URL = f'{BROKER_URL}/0'
-CELERY_RESULT_BACKEND = f'{BROKER_URL}/1'
+BROKER_URL = os.environ["BROKER_URL"]
+CELERY_BROKER_URL = f"{BROKER_URL}/0"
+CELERY_RESULT_BACKEND = f"{BROKER_URL}/1"
 CELERY_WORKER_CONCURRENCY = 1
