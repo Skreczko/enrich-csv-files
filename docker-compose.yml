@@ -64,6 +64,8 @@ services:
       context: .
       dockerfile: backend/Dockerfile
     image: atc-django
+    env_file:
+      - backend/.env
     environment:
       BROKER_URL: redis://redis:6379
       DATABASE_HOST: postgres
