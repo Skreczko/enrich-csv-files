@@ -26,6 +26,8 @@ services:
       - "8000:8000"
     env_file:
       - backend/.env
+    environment:
+      - DJANGO_SETTINGS_MODULE=transformer.settings
     depends_on:
       - postgres
       - redis
@@ -34,6 +36,9 @@ services:
     volumes:
       - ./backend:/backend/code
       - ./backend/pyproject.toml:/backend/tmp/pyproject.toml
+      - ./frontend/templates:/backend/frontend/templates
+      - ./frontend/static:/backend/frontend/static
+      - ./frontend/webpack-stats.json:/backend/frontend/webpack-stats.json
     restart: on-failure
 
   # Async tasks broker service
