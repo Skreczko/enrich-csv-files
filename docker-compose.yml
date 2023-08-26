@@ -36,8 +36,12 @@ services:
     volumes:
       - ./backend:/backend/code
       - ./backend/pyproject.toml:/backend/tmp/pyproject.toml
+#  IMPORTANT! adding only necessary elements from webpack container
+#  INCLUDE WHEN ADDING NEW FILES REQUIRED BY DJANGO
       - ./frontend/templates:/backend/frontend/templates
-      - ./frontend/static:/backend/frontend/static
+      - ./frontend/static/bundles:/backend/frontend/static/bundles
+      - ./frontend/static/css:/backend/frontend/static/css
+      - ./frontend/static/img/favicon.ico:/backend/frontend/static/img/favicon.ico
       - ./frontend/webpack-stats.json:/backend/frontend/webpack-stats.json
     restart: on-failure
 
