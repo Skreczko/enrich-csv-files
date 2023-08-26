@@ -1,0 +1,88 @@
+version: "3.8"
+
+services:
+  # Database service
+  postgres:
+    container_name: atc-postgres
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: transformer
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  # Main backend application
+  django:
+    container_name: atc-django
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    image: atc-django
+    command: python3 manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    env_file:
+      - backend/.env
+    environment:
+      - DJANGO_SETTINGS_MODULE=transformer.settings
+    depends_on:
+      - postgres
+      - redis
+      - celery
+      - webpack
+    volumes:
+      - ./backend:/backend/code
+      - ./backend/pyproject.toml:/backend/tmp/pyproject.toml
+#  IMPORTANT! adding only necessary elements from webpack container
+#  INCLUDE WHEN ADDING NEW FILES REQUIRED BY DJANGO
+      - ./frontend/templates:/backend/frontend/templates
+      - ./frontend/static/bundles:/backend/frontend/static/bundles
+      - ./frontend/static/css:/backend/frontend/static/css
+      - ./frontend/static/img/favicon.ico:/backend/frontend/static/img/favicon.ico
+      - ./frontend/webpack-stats.json:/backend/frontend/webpack-stats.json
+    restart: on-failure
+
+  # Async tasks broker service
+  redis:
+    container_name: atc-redis
+    image: redis:6
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  webpack:
+    image: webpack-node
+    container_name: atc-webpack
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile-node
+    command: npm run start
+    ports:
+      - '8001:8001'
+    volumes:
+      - ./frontend:/frontend/code
+      - /frontend/code/node_modules
+
+  # Async tasks worker
+  celery:
+    container_name: atc-celery
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    image: atc-django
+    env_file:
+      - backend/.env
+    environment:
+      BROKER_URL: redis://redis:6379
+      DATABASE_HOST: postgres
+      DATABASE_USER: postgres
+      DATABASE_NAME: transformer
+    command: watchmedo auto-restart --pattern '*.py' --signal SIGINT --recursive -- celery -A transformer worker -l debug
+    volumes:
+      - ./backend:/backend/code
+
+volumes:
+  pgdata:
