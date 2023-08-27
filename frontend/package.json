@@ -4,7 +4,7 @@
   "description": "adverity-transformer-challenge",
   "main": "index.js",
   "scripts": {
-    "build": "node_modules/.bin/webpack --progress --config webpack.prod.js --mode=production",
+    "build": "webpack --progress --config webpack.prod.js --mode=production",
     "watch": "webpack --watch --mode development",
     "check": "tsc --noemit && eslint ./static --ext .js --ext .jsx --ext .ts --ext .tsx",
     "prettier": "prettier --write ./static/js",
