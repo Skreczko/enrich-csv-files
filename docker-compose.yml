@@ -14,11 +14,33 @@ services:
     volumes:
       - ./containers_data/db/postgres/data:/var/lib/postgresql/data
 
+  # Async tasks broker service
+  redis:
+    container_name: atc-redis
+    image: redis:6
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  # Frontend
+  webpack:
+    image: webpack-node
+    container_name: atc-webpack
+    build:
+      context: ${PWD}
+      dockerfile: frontend/Dockerfile-node
+    command: npm run start
+    ports:
+      - '8001:8001'
+    volumes:
+      - ./frontend/:/home/user/frontend/
+      - /home/user/frontend/node_modules
+
   # Main backend application
   django:
     container_name: atc-django
     build:
-      context: .
+      context: ${PWD}
       dockerfile: backend/Dockerfile
     image: atc-django
     command: python3 manage.py runserver 0.0.0.0:8000
@@ -34,43 +56,16 @@ services:
       - celery
       - webpack
     volumes:
-      - ./backend:/backend/code
-      - ./backend/pyproject.toml:/backend/tmp/pyproject.toml
-#  IMPORTANT! adding only necessary elements from webpack container
-#  INCLUDE WHEN ADDING NEW FILES REQUIRED BY DJANGO
-      - ./frontend/templates:/backend/frontend/templates
-      - ./frontend/static/bundles:/backend/frontend/static/bundles
-      - ./frontend/static/css:/backend/frontend/static/css
-      - ./frontend/static/img/favicon.ico:/backend/frontend/static/img/favicon.ico
-      - ./frontend/webpack-stats.json:/backend/frontend/webpack-stats.json
+      - ${PWD}/backend/:/home/user/backend/:delegated
+      - ./frontend/:/home/user/frontend/
+      - ${PWD}/backend/pyproject.toml:/home/user/backend/tmp/pyproject.toml:delegated
     restart: on-failure
-
-  # Async tasks broker service
-  redis:
-    container_name: atc-redis
-    image: redis:6
-    ports:
-      - "6379:6379"
-    restart: unless-stopped
-
-  webpack:
-    image: webpack-node
-    container_name: atc-webpack
-    build:
-      context: .
-      dockerfile: frontend/Dockerfile-node
-    command: npm run start
-    ports:
-      - '8001:8001'
-    volumes:
-      - ./frontend:/frontend/code
-      - /frontend/code/node_modules
 
   # Async tasks worker
   celery:
     container_name: atc-celery
     build:
-      context: .
+      context: ${PWD}
       dockerfile: backend/Dockerfile
     image: atc-django
     env_file:
@@ -82,5 +77,4 @@ services:
       DATABASE_NAME: transformer
     command: watchmedo auto-restart --pattern '*.py' --signal SIGINT --recursive -- celery -A transformer worker -l debug
     volumes:
-      - ./backend:/backend/code
-
+      - ./backend/:/home/user/backend/

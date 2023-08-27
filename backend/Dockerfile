@@ -1,18 +1,19 @@
 FROM python:3.11
 
 ENV PYTHONUNBUFFERED 1
+RUN adduser --disabled-password --gecos '' user
 
 RUN apt-get update
 RUN apt-get install -y gettext postgresql-client imagemagick vim make libpq-dev && apt-get clean
-RUN mkdir -p /backend/code
+RUN mkdir -p /home/user/backend
 
 RUN pip install pip==23.1.2
 
-ADD ./backend/requirements /backend/code/requirements
-RUN pip install -r /backend/code/requirements/production.txt
+ADD ./backend/requirements /home/user/backend/requirements
+RUN pip install -r /home/user/backend/requirements/production.txt
 
-RUN pip install -r /backend/code/requirements/requirements-development.txt
+RUN pip install -r /home/user/backend/requirements/requirements-development.txt
 
-ADD .. /backend/code/
+ADD ./backend /home/user/backend
 
-WORKDIR /backend/code
+WORKDIR /home/user/backend

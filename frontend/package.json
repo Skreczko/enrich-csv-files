@@ -4,7 +4,7 @@
   "description": "adverity-transformer-challenge",
   "main": "index.js",
   "scripts": {
-    "build": "webpack --progress --config webpack.prod.js --mode=production",
+    "build": "node_modules/.bin/webpack --progress --config webpack.prod.js --mode=production",
     "watch": "webpack --watch --mode development",
     "check": "tsc --noemit && eslint ./static --ext .js --ext .jsx --ext .ts --ext .tsx",
     "prettier": "prettier --write ./static/js",
@@ -67,9 +67,9 @@
     "sass-loader": "^10.1.1",
     "semantic-ui-react": "^0.88.2",
     "style-loader": "^3.3.2",
-    "webpack": "^5.76.1",
+    "webpack": "^5.88.2",
     "webpack-bundle-tracker": "^0.4.3",
-    "webpack-cli": "^5.0.1",
+    "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^4.12.0"
   },
   "dependencies": {
