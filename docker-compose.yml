@@ -34,7 +34,7 @@ services:
       - '8001:8001'
     volumes:
       - ./frontend/:/home/user/frontend/
-      - /frontend/code/node_modules
+      - /home/user/frontend/node_modules
 
   # Main backend application
   django:
