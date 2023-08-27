@@ -43,11 +43,8 @@ module.exports = {
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
     new BundleTracker({
-      path: path.resolve(__dirname, './'),
-      filename: 'webpack-stats.json',
-      publicPath: '/frontend/static/'
-
-  }),
+        filename: "webpack-stats.json",
+    }),
     new MiniCssExtractPlugin({
       filename: '[name]-[contenthash].css',
     }),
