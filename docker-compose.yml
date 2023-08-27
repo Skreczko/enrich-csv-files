@@ -22,24 +22,6 @@ services:
       - "6379:6379"
     restart: unless-stopped
 
-  # Async tasks worker
-  celery:
-    container_name: atc-celery
-    build:
-      context: ${PWD}
-      dockerfile: backend/Dockerfile
-    image: atc-django
-    env_file:
-      - backend/.env
-    environment:
-      BROKER_URL: redis://redis:6379
-      DATABASE_HOST: postgres
-      DATABASE_USER: postgres
-      DATABASE_NAME: transformer
-    command: watchmedo auto-restart --pattern '*.py' --signal SIGINT --recursive -- celery -A transformer worker -l debug
-    volumes:
-      - ./backend/:/home/user/backend/
-
   # Frontend
   webpack:
     image: webpack-node
@@ -52,6 +34,7 @@ services:
       - '8001:8001'
     volumes:
       - ./frontend/:/home/user/frontend/
+      - /frontend/code/node_modules
 
   # Main backend application
   django:
@@ -78,3 +61,20 @@ services:
       - ${PWD}/backend/pyproject.toml:/home/user/backend/tmp/pyproject.toml:delegated
     restart: on-failure
 
+  # Async tasks worker
+  celery:
+    container_name: atc-celery
+    build:
+      context: ${PWD}
+      dockerfile: backend/Dockerfile
+    image: atc-django
+    env_file:
+      - backend/.env
+    environment:
+      BROKER_URL: redis://redis:6379
+      DATABASE_HOST: postgres
+      DATABASE_USER: postgres
+      DATABASE_NAME: transformer
+    command: watchmedo auto-restart --pattern '*.py' --signal SIGINT --recursive -- celery -A transformer worker -l debug
+    volumes:
+      - ./backend/:/home/user/backend/
