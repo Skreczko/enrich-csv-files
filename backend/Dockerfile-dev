@@ -11,6 +11,7 @@ RUN pip install pip==23.1.2
 
 ADD ./backend/requirements /home/user/backend/requirements
 RUN pip install -r /home/user/backend/requirements/production.txt
+RUN pip install -r /home/user/backend/requirements/requirements-development.txt
 
 ADD ./backend /home/user/backend
 

@@ -4,8 +4,9 @@
   "description": "adverity-transformer-challenge",
   "main": "index.js",
   "scripts": {
-    "build": "webpack --progress --config webpack.prod.js --mode=production",
-    "start": "webpack-dev-server --config webpack.config.js --mode=development --port 8001 --host 0.0.0.0",
+    "build": "webpack --progress --config webpack.config.prod.js --mode=production",
+    "build-dev": "webpack --progress --config webpack.config.dev.js --mode=development",
+    "start": "webpack-dev-server --config  webpack.config.dev.js --mode=development --port 8001 --host 0.0.0.0",
     "check": "tsc --noemit && eslint ./static --ext .js --ext .jsx --ext .ts --ext .tsx",
     "prettier": "prettier --write ./static/js",
     "test": "jest --collectCoverage"
