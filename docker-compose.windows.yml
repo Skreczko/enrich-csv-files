@@ -29,7 +29,7 @@ services:
     build:
       context: ${PWD}
       dockerfile: frontend/Dockerfile-node
-    command: npm run start
+    command: npm run build-dev
     ports:
       - '8001:8001'
     volumes:
@@ -41,7 +41,7 @@ services:
     container_name: atc-django
     build:
       context: ${PWD}
-      dockerfile: backend/Dockerfile
+      dockerfile: backend/Dockerfile-dev
     image: atc-django
     command: python3 manage.py runserver 0.0.0.0:8000
     ports:
@@ -58,7 +58,6 @@ services:
     volumes:
       - ${PWD}/backend/:/home/user/backend/:delegated
       - ./frontend/:/home/user/frontend/
-      - ${PWD}/backend/pyproject.toml:/home/user/backend/tmp/pyproject.toml:delegated
     restart: on-failure
 
   # Async tasks worker
@@ -66,7 +65,7 @@ services:
     container_name: atc-celery
     build:
       context: ${PWD}
-      dockerfile: backend/Dockerfile
+      dockerfile: backend/Dockerfile-dev
     image: atc-django
     env_file:
       - backend/.env

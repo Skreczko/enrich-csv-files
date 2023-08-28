@@ -5,3 +5,5 @@ djangorestframework==3.12.4
 psycopg2-binary==2.9.3
 python-dateutil==2.8.2
 redis==3.5.3
+watchdog[watchmedo]==2.1.5
+django-webpack-loader==0.6.0

@@ -4,11 +4,11 @@
   "description": "adverity-transformer-challenge",
   "main": "index.js",
   "scripts": {
-    "build": "webpack --progress --config webpack.prod.js --mode=production",
-    "watch": "webpack --watch --mode development",
+    "build": "webpack --progress --config webpack.config.prod.js --mode=production",
+    "build-dev": "webpack --progress --config webpack.config.dev.js --mode=development",
+    "start": "webpack-dev-server --config  webpack.config.dev.js --mode=development --port 8001 --host 0.0.0.0",
     "check": "tsc --noemit && eslint ./static --ext .js --ext .jsx --ext .ts --ext .tsx",
     "prettier": "prettier --write ./static/js",
-    "start": "webpack-dev-server --config webpack.config.js --mode=development --port 8001 --host 0.0.0.0",
     "test": "jest --collectCoverage"
   },
   "repository": {
@@ -40,6 +40,7 @@
     "babel-loader": "^8.1.0",
     "babel-polyfill": "^6.26.0",
     "browserslist": "^4.16.6",
+    "compression-webpack-plugin": "^10.0.0",
     "css-loader": "^6.7.3",
     "csstype": "^2.2.0",
     "eslint": "^7.32.0",
@@ -67,6 +68,7 @@
     "sass-loader": "^10.1.1",
     "semantic-ui-react": "^0.88.2",
     "style-loader": "^3.3.2",
+    "terser-webpack-plugin": "^5.3.9",
     "webpack": "^5.88.2",
     "webpack-bundle-tracker": "^0.4.3",
     "webpack-cli": "^5.1.4",

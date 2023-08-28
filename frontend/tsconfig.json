@@ -2,6 +2,7 @@
   "compilerOptions": {
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
+    "declaration": true,
     "esModuleInterop": true,
     "jsx": "react",
     "lib": ["es2021", "dom"],
@@ -12,8 +13,8 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "target": "es6",
+    "typeRoots": ["./static/js/types", "./node_modules/@types"],
     "types": ["jest", "node"],
-    "typeRoots": ["./static/js/types", "./node_modules/@types"]
   },
   "include": [
     "./static"
