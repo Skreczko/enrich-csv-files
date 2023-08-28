@@ -1,20 +1,13 @@
 /* eslint-disable */
 const path = require('path');
-const webpack = require('webpack');
-const BundleTracker = require('webpack-bundle-tracker')
-const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const BundleTracker = require('webpack-bundle-tracker');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
+const CompressionPlugin = require('compression-webpack-plugin');
 
 module.exports = {
+  mode: 'production',
   devtool: "source-map",
-  watch: true,
-  devServer: {
-    compress: true,
-    hot: true,
-    historyApiFallback: true,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-    },
-  },
   optimization: {
     moduleIds: 'deterministic',
     runtimeChunk: 'single',
@@ -27,6 +20,16 @@ module.exports = {
         },
       },
     },
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          compress: {
+            drop_console: true,
+          },
+        },
+      }),
+    ],
   },
 
   entry: {
@@ -41,12 +44,18 @@ module.exports = {
   },
 
   plugins: [
-    new webpack.HotModuleReplacementPlugin(),
     new BundleTracker({
         filename: "webpack-stats.json",
     }),
     new MiniCssExtractPlugin({
-      filename: '[name]-[contenthash].css',
+      filename: '[name].[contenthash].css',
+      chunkFilename: '[id].[contenthash].css',
+    }),
+    new CompressionPlugin({
+      algorithm: 'gzip',
+      test: /\.(js|css|html|svg)$/,
+      threshold: 10240,
+      minRatio: 0.8,
     }),
   ],
 
@@ -56,10 +65,6 @@ module.exports = {
         test: /\.(ts|tsx)$/,
         exclude: /node_modules/,
         use: 'ts-loader',
-      },
-      {
-        test: /\.css$/,
-        use: ['style-loader', 'css-loader'],
       },
       {
         test: /\.(js|jsx)$/,
@@ -75,9 +80,7 @@ module.exports = {
         test: /\.scss$/,
         use: [
             MiniCssExtractPlugin.loader,
-            {
-              loader: 'css-loader'
-            },
+            'css-loader',
             {
               loader: 'sass-loader',
               options: {
@@ -88,13 +91,15 @@ module.exports = {
       },
       {
         test: /\.(svg|jpg|png|jpeg)$/,
-        use: [{
-          loader: 'file-loader',
-          options: {
-            name: '[name].[ext]',
-            publicPath: '/frontend/static/'
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: '[name].[ext]',
+              publicPath: '/frontend/static/'
+            },
           },
-        }],
+        ],
       },
     ]
   },
@@ -113,5 +118,9 @@ module.exports = {
         '.woff',
         '.woff2',
     ]
+  },
+
+  cache: {
+    type: 'filesystem',
   },
 }

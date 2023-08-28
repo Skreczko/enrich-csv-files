@@ -1,29 +1,66 @@
-# BEFORE USE
-## .env file
+## Before first run
+### docker-compose up
+Before you do so, please rename file `.env.example` to `.env`. It is intentional behavior to provide `.env` file. 
 
-please change name of file ".env.example" to ".env"
-then, 
+## Run project
+### Production mode
+In terminal, type `docker-compose up`. Remember that changes in frontend will not be tracked.
 
-1.open terminal
+### Development mode
+In terminal, type `docker-compose -f docker-compose.dev.yml up`. Watch to frontend changes will be set. Use `ctrl` + `s`
+when you provide change in `.tsx`/`ts` file. In terminal, you should see something like
 
-2.run "docker-compose build"
+```js
+atc-webpack | <s> [webpack.Progress] 0% 
+atc-webpack | 
+atc-webpack | <s> [webpack.Progress] 1% setup before run
+atc-webpack | <s> [webpack.Progress] 1% setup before run NodeEnvironmentPlugin
+atc-webpack | <s> [webpack.Progress] 1% setup before run
+atc-webpack | <s> [webpack.Progress] 2% setup run
+atc-webpack | <s> [webpack.Progress] 2% setup run webpack-cli
+atc-webpack | <s> [webpack.Progress] 2% setup run
+atc-webpack | <s> [webpack.Progress] 4% setup normal module factory
+...
+atc-webpack | <s> [webpack.Progress] 100% 
+atc-webpack | 
+atc-django  | [28/Aug/2023 07:56:44] "GET / HTTP/1.1" 200 760
+atc-django  | [28/Aug/2023 07:56:44] "GET /frontend/static/main.c8dbe57ae25aa5633d91.js HTTP/1.1" 200 17050
+...
+```
 
-3.run "docker-compose up"
+### Using IDE (for development mode)
+If you are using IDE, ie. PyCharm, after you set up `Settings` / `Project interpreter`
 
-4.open new terminal and run "docker-compose exec webpack npm run build"
+and 
+
+`Run/Debug Configurations` / `Django server`,
+
+you need to open IDE terminal and provide `docker-compose -f docker-compose.dev.yml exec webpack npm run build-dev`. That will enable watch on frontend files.
+
+### For Windows users (only development mode)
+Please use `docker-compose.windows.yml`.
+
+## Python type check / Typescript + Code formatting
+
+Pipelines will not pass until you fix code formatting and type check errors both backend and frontend side.
+
+### Backend code
+Script to format backend code using `Ruff`, `black`, `mypy` is prepared in `backend/check.sh`.
+To run, type `docker exec -it atc-django bash` and inside shell run script `./check.sh`
+
+
+
+### Frontend code
+Script to format backend code using `npm run check` is prepared in `frontend/check.sh` and in `scripts` in `package.json`.
+To run, type `docker exec -it atc-webpack bash` and inside shell run script `./check.sh`
+
+
+## Please check EXPLAIN_CODE.md
 
 
 
 
-
-
-
-
-
-
-
-
-
+__________________________________________________________________
 
 
 # Template-Fullstack-Challenge
