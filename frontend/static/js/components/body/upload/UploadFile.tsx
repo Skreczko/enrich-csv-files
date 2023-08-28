@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { UploadFileDragAndDrop } from './UploadFileDragAndDrop';
 import { UploadFileButton } from './UploadFileButton';
+import { StyledP, UploadFileWrapper } from './UploadFile.styled';
 
 export const UploadFile: React.FC = () => {
   const [files, setFiles] = useState<File[]>([]);
@@ -27,8 +28,9 @@ export const UploadFile: React.FC = () => {
   };
 
   return (
-    <div>
+    <UploadFileWrapper>
       <UploadFileDragAndDrop onDrop={onFileAdd} />
+      <StyledP>or</StyledP>
       <UploadFileButton onAdd={onFileAdd} />
       {error && <div style={{ color: 'red', marginTop: '10px' }}>{error}</div>}
       <div>
@@ -39,6 +41,6 @@ export const UploadFile: React.FC = () => {
           </div>
         ))}
       </div>
-    </div>
+    </UploadFileWrapper>
   );
 };

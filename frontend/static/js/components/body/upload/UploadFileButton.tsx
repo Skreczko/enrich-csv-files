@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import { HiddenUploadInput, UploadButton } from './UploadFileButton.styled';
 
 type Props = {
   onAdd: (file: File[]) => void;
@@ -22,17 +23,9 @@ export const UploadFileButton: React.FC<Props> = ({ onAdd }) => {
   };
 
   return (
-    <div>
-      <button onClick={handleClick} style={{ marginTop: '10px' }}>
-        Add CSV file
-      </button>
-      <input
-        ref={inputRef}
-        type='file'
-        multiple
-        onChange={handleFileInput}
-        style={{ display: 'none' }}
-      />
-    </div>
+    <UploadButton onClick={handleClick}>
+      <p>Click to upload</p>
+      <HiddenUploadInput ref={inputRef} type='file' multiple onChange={handleFileInput} />
+    </UploadButton>
   );
 };

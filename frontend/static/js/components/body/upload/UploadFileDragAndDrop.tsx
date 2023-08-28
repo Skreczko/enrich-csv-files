@@ -1,5 +1,7 @@
 import React, { useState, useRef } from 'react';
-import { DragAndDropWrapper, DropWrapper } from './UploadFileDragAndDrop.styled';
+import { DragAndDropWrapper, DragWrapper, DropWrapper } from './UploadFileDragAndDrop.styled';
+import dragImage from '../../../../img/body/upload/drag.png';
+import dropImage from '../../../../img/body/upload/drop.png';
 
 type Props = {
   onDrop: (file: File[]) => void;
@@ -41,10 +43,14 @@ export const UploadFileDragAndDrop: React.FC<Props> = ({ onDrop }) => {
     >
       {isDragging ? (
         <DropWrapper>
+          <img src={dropImage} alt={'drop'} />
           <p>Drop here</p>
         </DropWrapper>
       ) : (
-        <p>Drag & drop CSV files</p>
+        <DragWrapper>
+          <img src={dragImage} alt={'drag'} />
+          <p>Drag and drop CSV files</p>
+        </DragWrapper>
       )}
     </DragAndDropWrapper>
   );

@@ -2,14 +2,16 @@ import React, { ReactElement } from 'react';
 import { Toolbar } from './components/toolbar/Toolbar';
 import { Footer } from './components/footer/Footer';
 import { Router } from './router/Router';
-import { AppWrapper, BodyWrapper } from './App.styled';
+import { AppWrapper, BodyWrapper, MiddleSectionWrapper } from './App.styled';
 
 export const App = (): ReactElement => (
   <AppWrapper>
     <Toolbar />
-    <BodyWrapper>
-      <Router />
+    <MiddleSectionWrapper>
+      <BodyWrapper>
+        <Router />
+      </BodyWrapper>
       <Footer />
-    </BodyWrapper>
+    </MiddleSectionWrapper>
   </AppWrapper>
 );
