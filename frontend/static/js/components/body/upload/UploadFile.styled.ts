@@ -8,4 +8,4 @@ export const UploadFileWrapper = styled.div`
 
 export const StyledP = styled.p`
   font-size: 32px;
-`
+`;
