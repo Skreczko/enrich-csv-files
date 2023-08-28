@@ -7,8 +7,14 @@ import {
   setNotificationPopupTimeoutId,
 } from '../redux/NotificationPopupSlice';
 import { RootState } from '../redux/store';
-import { MessageHeaderWrapper, NotificationWrapper } from './NotificationPopup.styled';
+import {
+  MessageHeaderWrapper,
+  NotificationCloseButton,
+  NotificationContentWrapper,
+  NotificationWrapper,
+} from './NotificationPopup.styled';
 import { Message } from 'semantic-ui-react';
+import { NotificationAppearance } from './NotificationPopup.enums';
 
 export const NotificationPopup: React.FC = () => {
   const dispatch = useDispatch();
@@ -50,8 +56,13 @@ export const NotificationPopup: React.FC = () => {
         >
           <Message.Header>
             <MessageHeaderWrapper>
-              <p>{content}</p>
-              <div onClick={(): void => removeNotification(id)}>Close</div>
+              <NotificationContentWrapper>
+                <img src={NotificationAppearance[appearance].imgSrc} alt={appearance} />
+                <p>{content}</p>
+              </NotificationContentWrapper>
+              <NotificationCloseButton onClick={(): void => removeNotification(id)}>
+                <p>Close</p>
+              </NotificationCloseButton>
             </MessageHeaderWrapper>
           </Message.Header>
         </Message>

@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { NotificationAppearance } from '../components/utils/enums';
+import { NotificationAppearanceEnum } from '../components/NotificationPopup.enums';
 
 const NOTIFICATION_MAX_MESSAGES = 5;
 
@@ -7,7 +7,7 @@ export const getId = (): string => Math.random().toString(36).substr(2, 9);
 
 export interface NotificationPopupData {
   content: string;
-  appearance: NotificationAppearance;
+  appearance: NotificationAppearanceEnum;
   id?: string;
   timeoutId?: NodeJS.Timeout;
 }

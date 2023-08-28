@@ -22,14 +22,27 @@ export const NotificationWrapper = styled.div<{ open: boolean }>`
 
 export const MessageHeaderWrapper = styled.div`
   display: flex;
-  justify-content: space-between;
   align-items: center;
   p {
     margin: 0 !important; // force override semantic style
   }
-  div {
-    padding: 5px 15px;
-    border: 2px solid currentColor;
-    cursor: pointer;
+`;
+
+export const NotificationContentWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+  cursor: pointer;
+
+  img {
+    height: 30px;
+    width: 30px;
+    margin-right: 10px;
   }
+`;
+
+export const NotificationCloseButton = styled.div`
+  padding: 5px 15px;
+  border: 2px solid currentColor;
+  cursor: pointer;
 `;
