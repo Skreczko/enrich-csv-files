@@ -1,18 +1,10 @@
 # BEFORE USE
 ## .env file
 
-please change name of file ".env.example" to ".env"
-then, 
+please change name of file ".env.example" to ".env" 
 
-1.open terminal
-
-2.run "docker-compose build"
-
-3.run "docker-compose up"
-
-4.open new terminal and run "docker-compose exec webpack npm run build"
-
-
+## Run project
+In terminal type "docker-compose up".
 
 
 

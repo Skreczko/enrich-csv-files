@@ -29,7 +29,7 @@ services:
     build:
       context: ${PWD}
       dockerfile: frontend/Dockerfile-node
-    command: npm run start
+    command: npm run build
     ports:
       - '8001:8001'
     volumes:

@@ -1,5 +1,16 @@
 FROM node:18.16
+
 WORKDIR /home/user/frontend/
-COPY ./frontend/package.json ./package.json
+COPY ./frontend/package.json ./frontend/package-lock.json* ./
 RUN npm install
+
+# Add everything to container
+COPY ./frontend/ ./
+
+# Create bundle files and webpack-stats.json
+RUN npm run build
+
+# Add bundled files and webpack-stats.json
+COPY ./frontend/ ./
+
 EXPOSE 3000

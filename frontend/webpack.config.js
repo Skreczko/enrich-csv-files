@@ -5,6 +5,7 @@ const BundleTracker = require('webpack-bundle-tracker')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 
 module.exports = {
+  mode: 'development',
   devtool: "source-map",
   watch: true,
   devServer: {
