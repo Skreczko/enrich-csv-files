@@ -57,8 +57,9 @@ To run, type `docker exec -it atc-webpack bash` and inside shell run script `./c
 
 ## Please check EXPLAIN_CODE.md
 
+__________________________________________________________________
 
-
+icons downloaded from https://www.flaticon.com/
 
 __________________________________________________________________
 

@@ -3,18 +3,18 @@ import { NavLink, ToolbarWrapper } from './Toolbar.styled';
 import routes from '../../router/config/routes';
 import { useNavigate } from 'react-router-dom';
 import { NavLinkType } from './Toolbar.types';
-import listImage from '../../../img/toolbar/list.png';
-import downloadImage from '../../../img/toolbar/download.png';
+import ListImage from '../../../img/toolbar/list.png';
+import DownloadImage from '../../../img/toolbar/download.png';
 
 const navLinks: NavLinkType[] = [
   {
     link: '/',
-    imgSrc: listImage,
+    imgSrc: ListImage,
     name: 'Uploaded CSV files',
   },
   {
     link: routes.UPLOAD,
-    imgSrc: downloadImage,
+    imgSrc: DownloadImage,
     name: 'Upload CSV',
   },
 ];

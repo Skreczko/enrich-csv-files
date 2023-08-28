@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 
 export const ToolbarWrapper = styled.div`
+  position: fixed;
   width: 200px;
   min-height: 100vh;
   background-color: #1b2028;
