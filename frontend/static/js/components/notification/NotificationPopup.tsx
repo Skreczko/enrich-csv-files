@@ -36,7 +36,7 @@ export const NotificationPopup: React.FC = () => {
           timeoutArray.push({
             timeoutId: setTimeout(() => {
               removeNotification(id);
-              }, 10000),
+            }, 10000),
             componentId: id,
           });
         }
