@@ -1,9 +1,13 @@
 import styled from 'styled-components';
 
 export const UploadFileWrapper = styled.div`
-  display: grid;
-  place-items: center;
-  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+`;
+
+export const UploadFileSection = styled(UploadFileWrapper)`
+  align-items: center;
 `;
 
 export const StyledP = styled.p`

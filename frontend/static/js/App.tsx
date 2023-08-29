@@ -3,7 +3,7 @@ import { Toolbar } from './components/toolbar/Toolbar';
 import { Footer } from './components/footer/Footer';
 import { Router } from './router/Router';
 import { AppWrapper, BodyWrapper, MiddleSectionWrapper } from './App.styled';
-import { NotificationPopup } from './components/NotificationPopup';
+import { NotificationPopup } from './components/notification/NotificationPopup';
 
 export const App = (): ReactElement => (
   <AppWrapper>

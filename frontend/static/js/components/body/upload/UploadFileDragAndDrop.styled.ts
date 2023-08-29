@@ -23,6 +23,7 @@ export const DragAndDropWrapper = styled.div`
   width: 50vw;
   border: 2px dashed;
   line-height: 100px;
+  margin-top: 50px;
 `;
 
 export const DragWrapper = styled.div`

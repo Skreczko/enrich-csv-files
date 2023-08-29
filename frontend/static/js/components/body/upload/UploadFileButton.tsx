@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { HiddenUploadInput, UploadButton } from './UploadFileButton.styled';
+import { CustomButton, HiddenUploadInput } from '../../utils/CustomButton.styled';
 
 type Props = {
   onAdd: (file: File[]) => void;
@@ -23,9 +23,9 @@ export const UploadFileButton: React.FC<Props> = ({ onAdd }) => {
   };
 
   return (
-    <UploadButton onClick={handleClick}>
-      <p>Click to upload</p>
+    <CustomButton onClick={handleClick} margin={'50px 0 0 0'}>
+      <p>add file</p>
       <HiddenUploadInput ref={inputRef} type='file' multiple onChange={handleFileInput} />
-    </UploadButton>
+    </CustomButton>
   );
 };
