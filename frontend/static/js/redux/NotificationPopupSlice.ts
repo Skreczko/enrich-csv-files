@@ -1,14 +1,16 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { NotificationAppearanceEnum } from '../components/NotificationPopup.enums';
+import { NotificationAppearanceEnum } from '../components/notification/NotificationPopup.enums';
 
 const NOTIFICATION_MAX_MESSAGES = 5;
 
 export const getId = (): string => Math.random().toString(36).substr(2, 9);
 
 export interface NotificationPopupData {
-  content: string;
+  additionalContent?: string;
   appearance: NotificationAppearanceEnum;
+  content: string;
   id?: string;
+  permanent?: boolean;
   timeoutId?: NodeJS.Timeout;
 }
 
@@ -40,15 +42,19 @@ const notificationPopupSlice = createSlice({
   reducers: {
     setNotificationPopupOpen: (
       state,
-      { payload: { content, appearance } }: PayloadAction<NotificationPopupData>,
+      {
+        payload: { content, appearance, additionalContent = '', permanent = false },
+      }: PayloadAction<NotificationPopupData>,
     ) => {
       validateDuplicatedMessages(content, state);
       validateOldestNotification(state);
 
       state.push({
-        content,
+        additionalContent,
         appearance,
+        content,
         id: getId(),
+        permanent,
         timeoutId: undefined,
       });
     },

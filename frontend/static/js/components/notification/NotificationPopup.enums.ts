@@ -1,7 +1,7 @@
-import ErrorImage from '../../img/notification/error.png';
-import InfoImage from '../../img/notification/info.png';
-import SuccessImage from '../../img/notification/success.png';
-import WarningImage from '../../img/notification/warning.png';
+import ErrorImage from '../../../img/notification/error.png';
+import InfoImage from '../../../img/notification/info.png';
+import SuccessImage from '../../../img/notification/success.png';
+import WarningImage from '../../../img/notification/warning.png';
 
 export enum NotificationAppearanceEnum {
   // https://react.semantic-ui.com/collections/message/

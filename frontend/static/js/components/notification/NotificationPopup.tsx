@@ -5,8 +5,8 @@ import {
   NotificationPopupData,
   setNotificationPopupClose,
   setNotificationPopupTimeoutId,
-} from '../redux/NotificationPopupSlice';
-import { RootState } from '../redux/store';
+} from '../../redux/NotificationPopupSlice';
+import { RootState } from '../../redux/store';
 import {
   MessageHeaderWrapper,
   NotificationCloseButton,
@@ -15,6 +15,7 @@ import {
 } from './NotificationPopup.styled';
 import { Message } from 'semantic-ui-react';
 import { NotificationAppearance } from './NotificationPopup.enums';
+import { HTML } from '../utils/HTML';
 
 export const NotificationPopup: React.FC = () => {
   const dispatch = useDispatch();
@@ -30,13 +31,12 @@ export const NotificationPopup: React.FC = () => {
         timeoutId: any; // when clearing the timeout the type needs to be Timeout but when setting the timeout it returns type number.
         componentId: string;
       }[] = [];
-      data.forEach(({ id, timeoutId }) => {
-        if (!timeoutId) {
+      data.forEach(({ id, timeoutId, permanent }) => {
+        if (!permanent && !timeoutId) {
           timeoutArray.push({
             timeoutId: setTimeout(() => {
               removeNotification(id);
-            }, 10000),
-            // }, 999999),
+              }, 10000),
             componentId: id,
           });
         }
@@ -47,7 +47,7 @@ export const NotificationPopup: React.FC = () => {
 
   return (
     <NotificationWrapper open={!!data.length}>
-      {data?.map(({ appearance, content, id }) => (
+      {data?.map(({ appearance, content, additionalContent, id }) => (
         <Message
           {...{ [appearance]: true }}
           key={id}
@@ -65,6 +65,11 @@ export const NotificationPopup: React.FC = () => {
               </NotificationCloseButton>
             </MessageHeaderWrapper>
           </Message.Header>
+          <Message.Content>
+            {additionalContent && (
+              <HTML text={additionalContent} style={{ fontSize: '90%', marginTop: '5px' }} />
+            )}
+          </Message.Content>
         </Message>
       ))}
     </NotificationWrapper>
