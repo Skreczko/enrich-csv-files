@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import { UploadFileDragAndDrop } from './UploadFileDragAndDrop';
 import { UploadFileButton } from './UploadFileButton';
-import { UploadFileWrapper } from './UploadFile.styled';
+import { UploadFileSection, UploadFileWrapper } from './UploadFile.styled';
 import { useDispatch } from 'react-redux';
 import { setNotificationPopupOpen } from '../../../redux/NotificationPopupSlice';
 import { NotificationAppearanceEnum } from '../../notification/NotificationPopup.enums';
+import { UploadedFileList } from './UploadedFileList';
 
 export const UploadFile: React.FC = () => {
   const dispatch = useDispatch();
   const [files, setFiles] = useState<File[]>([]);
 
-  const handleRemove = (fileName: string): void => {
+  const onFileRemove = (fileName: string): void => {
     setFiles(prevFiles => prevFiles.filter(file => file.name !== fileName));
   };
 
@@ -22,7 +23,10 @@ export const UploadFile: React.FC = () => {
     }[] = [];
     uploadedFiles.forEach(file => {
       if (file.type !== 'text/csv') {
-        incorrectFileDetailList.push({ file, reason: `Incorrect file type (${file.type})` });
+        incorrectFileDetailList.push({
+          file,
+          reason: `Incorrect file type (${file.type ? file.type : 'unknown or folder'})`,
+        });
       } else if (files.some(f => f.name === file.name)) {
         incorrectFileDetailList.push({ file, reason: `File already added` });
       } else {
@@ -58,16 +62,11 @@ export const UploadFile: React.FC = () => {
 
   return (
     <UploadFileWrapper>
-      <UploadFileDragAndDrop onDrop={onFileAdd} />
-      <UploadFileButton onAdd={onFileAdd} />
-      <div>
-        {files.map(file => (
-          <div key={file.name}>
-            {file.name}
-            <button onClick={(): void => handleRemove(file.name)}>Remove</button>
-          </div>
-        ))}
-      </div>
+      <UploadFileSection>
+        <UploadFileDragAndDrop onDrop={onFileAdd} />
+        <UploadFileButton onAdd={onFileAdd} />
+      </UploadFileSection>
+      {!!files.length && <UploadedFileList files={files} onFileRemove={onFileRemove} />}
     </UploadFileWrapper>
   );
 };
