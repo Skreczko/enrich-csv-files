@@ -6,6 +6,19 @@ import { useDispatch } from 'react-redux';
 import { setNotificationPopupOpen } from '../../../redux/NotificationPopupSlice';
 import { NotificationAppearanceEnum } from '../../notification/NotificationPopup.enums';
 import { UploadedFileList } from './UploadedFileList';
+import { upload_csv } from '../../../api/action';
+
+enum FileStatusEnum = {
+  IN_UPLOAD_PROGRESS: 'in_upload_progress';
+  LOADED: 'loaded';
+  UPLOADED: 'uploaded';
+  UPLOAD_ERROR: 'upload_error';
+}
+
+type FileType = {
+  file: File[],
+  status:
+}
 
 export const UploadFile: React.FC = () => {
   const dispatch = useDispatch();
@@ -55,18 +68,33 @@ export const UploadFile: React.FC = () => {
     return correctFiles;
   };
 
-  const onFileAdd = (uploadedFiles: File[]): void => {
+  const onFilesAdd = (uploadedFiles: File[]): void => {
     const validatedFiles = getValidatedFiles(uploadedFiles);
     setFiles(prevFiles => [...prevFiles, ...validatedFiles]);
+  };
+
+  const onFilesSend = async (): Promise<void> => {
+    const uploadPromises = files.map(async file => {
+      try {
+        const response = await upload_csv(file);
+        console.log(file.name, 'ok', response.data);
+        return response;
+      } catch (e) {
+        console.error(file.name, 'error', e);
+      }
+    });
+    await Promise.all(uploadPromises);
   };
 
   return (
     <UploadFileWrapper>
       <UploadFileSection>
-        <UploadFileDragAndDrop onDrop={onFileAdd} />
-        <UploadFileButton onAdd={onFileAdd} />
+        <UploadFileDragAndDrop onDrop={onFilesAdd} />
+        <UploadFileButton onAdd={onFilesAdd} />
       </UploadFileSection>
-      {!!files.length && <UploadedFileList files={files} onFileRemove={onFileRemove} />}
+      {!!files.length && (
+        <UploadedFileList files={files} onFileRemove={onFileRemove} onSend={onFilesSend} />
+      )}
     </UploadFileWrapper>
   );
 };

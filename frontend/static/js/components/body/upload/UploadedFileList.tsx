@@ -6,9 +6,10 @@ import DeleteImage from '../../../../img/body/upload/delete.png';
 interface Props {
   files: File[];
   onFileRemove: (name: string) => void;
+  onSend: () => void;
 }
 
-export const UploadedFileList: React.FC<Props> = ({ files, onFileRemove }) => {
+export const UploadedFileList: React.FC<Props> = ({ files, onFileRemove, onSend }) => {
   console.log(files);
   return (
     <UploadedFileListWrapper>
@@ -24,11 +25,7 @@ export const UploadedFileList: React.FC<Props> = ({ files, onFileRemove }) => {
           </>
         ))}
       </FileListWrapper>
-      <CustomButton
-        onClick={(): void => {
-          console.log(1);
-        }}
-      >
+      <CustomButton onClick={onSend}>
         <p>upload</p>
       </CustomButton>
     </UploadedFileListWrapper>

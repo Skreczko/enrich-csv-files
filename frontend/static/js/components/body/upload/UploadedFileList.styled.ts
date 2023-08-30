@@ -6,6 +6,7 @@ export const UploadedFileListWrapper = styled.div`
   margin-top: 50px;
   overflow: auto;
   flex-grow: 1;
+  padding-left: 10px;
 `;
 
 export const FileListWrapper = styled.div`
