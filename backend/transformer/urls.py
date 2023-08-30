@@ -1,8 +1,10 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.http import HttpResponse
-from django.urls import path, re_path
+from django.urls import include, path, re_path
 from django.views.generic import TemplateView
+
+from csv_manager.urlpatterns import lazy_function_view
 
 
 def healthcheck(request):
@@ -32,8 +34,21 @@ def healthcheck(request):
 urlpatterns = [
     path("healthcheck.json", healthcheck),
     re_path(
-        r"^.*$", TemplateView.as_view(template_name="index.html")
-    ),  # pass path to React Router
+        r"^api/_internal/",
+        include(
+            [
+                path(
+                    "upload_csv/",
+                    lazy_function_view(
+                        "csv_manager.views.api_internal.upload_csv.upload_csv"
+                    ),
+                    name="upload_csv",
+                ),
+            ],
+        ),
+    ),
+    # redirect rest paths to React Router
+    re_path(r"^.*$", TemplateView.as_view(template_name="index.html")),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
