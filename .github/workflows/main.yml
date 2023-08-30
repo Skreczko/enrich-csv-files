@@ -26,6 +26,8 @@ jobs:
 
     - name: Run backend check script
       working-directory: ./backend
+#      env:
+#        SECRET_KEY: random_secret_key
       run: ./check.sh
 
     # Frontend dependencies caching
