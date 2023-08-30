@@ -4,7 +4,7 @@ set -eux
 
 BLACK_ARGS=". --config ./pyproject.toml"
 RUFF_ARGS=". "
-MYPY_ARGS="."
+MYPY_ARGS=""
 NPM_RUN_ARGS=""
 CI=false
 
@@ -18,7 +18,7 @@ ruff $RUFF_ARGS
 
 # Black
 
-echo "* black"
+echo "* black ."
 black $BLACK_ARGS
 
 

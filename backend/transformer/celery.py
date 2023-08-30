@@ -4,8 +4,7 @@ https://docs.celeryproject.org/en/stable/django/first-steps-with-django.html#usi
 """
 import os
 
-from celery import Celery
-
+from celery import Celery, Task
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "transformer.settings")
 app = Celery("transformer")
@@ -14,5 +13,6 @@ app.autodiscover_tasks()
 
 
 @app.task(bind=True)
-def debug_task(self):
+def debug_task(self: Task) -> None:
     print(f"Hello world!")  # noqa
+    return
