@@ -25,7 +25,11 @@ jobs:
       run: pip install -r backend/requirements/requirements-development.txt
 
     - name: Run backend check script
-      run: ./backend/check.sh
+      working-directory: ./backend
+      env:
+        SECRET_KEY: random_secret_key
+        BROKER_URL: random_broker_url
+      run: ./check.sh
 
     # Frontend dependencies caching
     - name: Cache frontend dependencies
@@ -47,7 +51,8 @@ jobs:
         npm install
 
     - name: Run frontend check script
-      run: ./frontend/check.sh
+      working-directory: ./frontend
+      run: ./check.sh
 
     # Saving artifacts if any
     - name: Save artifacts (if necessary)

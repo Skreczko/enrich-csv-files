@@ -1,13 +1,30 @@
 ## Before first run
-### docker-compose up
-Before you do so, please rename file `.env.example` to `.env`. It is intentional behavior to provide `.env` file. 
+* Before you do so, please rename file `backend/.env.example` to `backend/.env`. It is intentional behavior to provide `.env` file. 
+* To manage containers, you can use 
+```
+docker-compose run --rm django bash
+```
+or
+```
+docker exec -it atc-django bash
+```
+
+Below, second option will be used.
 
 ## Run project
 ### Production mode
-In terminal, type `docker-compose up`. Remember that changes in frontend will not be tracked.
+In terminal, type 
+```
+docker-compose up
+```
+Remember that changes in frontend will not be tracked.
 
 ### Development mode
-In terminal, type `docker-compose -f docker-compose.dev.yml up`. Watch to frontend changes will be set. Use `ctrl` + `s`
+In terminal, type 
+```
+docker-compose -f docker-compose.dev.yml up
+```
+Watch to frontend changes will be set. Use `ctrl` + `s`
 when you provide change in `.tsx`/`ts` file. In terminal, you should see something like
 
 ```js
@@ -29,30 +46,67 @@ atc-django  | [28/Aug/2023 07:56:44] "GET /frontend/static/main.c8dbe57ae25aa563
 ```
 
 ### Using IDE (for development mode)
-If you are using IDE, ie. PyCharm, after you set up `Settings` / `Project interpreter`
 
-and 
+#### Pycharm
+* Set up `Project interpreter`, using `docker-compose.dev.yml` file. Use `django` service.
 
-`Run/Debug Configurations` / `Django server`,
+* Set up `Project structure`, as `Source Folders`(blue) select `backend`, as `Template Folders` use `frontend/templates`
 
-you need to open IDE terminal and provide `docker-compose -f docker-compose.dev.yml exec webpack npm run build-dev`. That will enable watch on frontend files.
+* From toolbar select `Run/Debug Configurations` / `Django server`,
+
+* Correctly set up `Working directory` (its input), as `<your_project_directory_root>/Fullstack-Challenge-DawidS/backend`
+
+* To confirm, run `Django server` and use command below,
+Type 
+```
+* docker exec -it atc-django bash
+```
+you should see something like `root@868056ecf804:/opt/project/backend# `
+
+<u><b>Important:</b></u>
+
+
+In the Docker configuration, the `node_modules` directory is set as an anonymous volume, which means it's isolated from the host system and changes inside the container won't affect the local `node_modules` directory and vice versa.
+
+* goto `package.json`
+* you got hint to install packages
+* if error occurred (permissions to add), please remove `node_modules` file which were created automatically (and which is empty) OR change permissions on that directory (`sudo chmod 777 node_modules/`)
+
 
 ### For Windows users (only development mode)
 Please use `docker-compose.windows.yml`.
 
-## Python type check / Typescript + Code formatting
+
+## First steps
+
+
+* Goto http://localhost:8000 in your browser, check if all files (png/js/css) were imported correctly
+
+## Commands
 
 Pipelines will not pass until you fix code formatting and type check errors both backend and frontend side.
 
 ### Backend code
 Script to format backend code using `Ruff`, `black`, `mypy` is prepared in `backend/check.sh`.
-To run, type `docker exec -it atc-django bash` and inside shell run script `./check.sh`
-
-
+Run `atc-django` container
+```
+docker exec -it atc-django bash
+``` 
+and inside shell run script 
+```
+./check.sh
+```
 
 ### Frontend code
 Script to format backend code using `npm run check` is prepared in `frontend/check.sh` and in `scripts` in `package.json`.
-To run, type `docker exec -it atc-webpack bash` and inside shell run script `./check.sh`
+Run `atc-webpack` container
+```
+docker exec -it atc-webpack bash
+``` 
+and inside shell run script 
+```
+./check.sh
+```
 
 
 ## Please check EXPLAIN_CODE.md

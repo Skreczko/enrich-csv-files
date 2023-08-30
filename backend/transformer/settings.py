@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 import os
+import sys
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -18,10 +19,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 DATA_DIR = os.path.dirname(BASE_DIR)
 FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
 
+MYPY = "mypy" in sys.argv[0]
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
-
+TEST: str = 1
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ["SECRET_KEY"]
 
@@ -36,7 +38,18 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.staticfiles",
 ]
-INSTALLED_APPS += ["webpack_loader"]
+
+# When doing type checking via mypy, disable third-party plugins as
+# we can avoid installing all third party dependencies
+if not MYPY:
+    INSTALLED_APPS += [
+        "webpack_loader",
+        "django_extensions",
+    ]
+
+INSTALLED_APPS += [
+    "csv_manager",
+]
 
 ROOT_URLCONF = "transformer.urls"
 

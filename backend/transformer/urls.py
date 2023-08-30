@@ -1,11 +1,15 @@
+from celery.app.control import Control
 from django.conf import settings
 from django.conf.urls.static import static
 from django.http import HttpResponse
-from django.urls import path, re_path
+from django.urls import include, path, re_path
 from django.views.generic import TemplateView
+from requests import Request
+
+from csv_manager.url_patterns import lazy_function_view
 
 
-def healthcheck(request):
+def healthcheck(request: Request) -> HttpResponse:
     from django.db import connection
     from .celery import app
     import json
@@ -18,8 +22,9 @@ def healthcheck(request):
         status["DB"] = f"error, {e}"
 
     try:
-        celery_status = app.control.broadcast("ping", reply=True, limit=1)
-        tasks = list(app.control.inspect().registered_tasks().values())[0]
+        control = Control(app)
+        celery_status = control.broadcast("ping", reply=True, limit=1)
+        tasks = list(control.inspect().registered_tasks().values())[0]  # type: ignore
         status["CELERY"] = (
             f"ok, tasks: {', '.join(tasks)}" if celery_status else "error"
         )
@@ -32,8 +37,21 @@ def healthcheck(request):
 urlpatterns = [
     path("healthcheck.json", healthcheck),
     re_path(
-        r"^.*$", TemplateView.as_view(template_name="index.html")
-    ),  # pass path to React Router
+        r"^api/_internal/",
+        include(
+            [
+                path(
+                    "upload_csv/",
+                    lazy_function_view(
+                        "csv_manager.views.api_internal.upload_csv.upload_csv"
+                    ),
+                    name="upload_csv",
+                ),
+            ],
+        ),
+    ),
+    # redirect rest paths to React Router
+    re_path(r"^.*$", TemplateView.as_view(template_name="index.html")),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
