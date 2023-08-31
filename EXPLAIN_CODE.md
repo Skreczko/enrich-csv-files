@@ -26,3 +26,5 @@ Remove that file details from redux after getting info other than "in_progress"
 ### Frontend
 * During upload process, pushing file details to redux. That allows us to unnessesary request for list of files during
 * User cannot duplicate files in same uploading process - that means, if user upload file, same file can be added in next turn. In future development, additional request to check if that file exists in database may be required (comparing by file name, size and type). Not implemented.
+* OPTIMIZATION -> I would use resumable.js with petl to send file in chunck. But, that require additinal logic on progress bar, additional png, css, endpoint on backed side
+* Applied throttle as optimization for updating redux state. Stayed with default axios behavior
