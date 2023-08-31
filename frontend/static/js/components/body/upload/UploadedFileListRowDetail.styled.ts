@@ -10,12 +10,14 @@ export const ProgressBar = styled.div`
   z-index: 2;
   border: 1px solid black;
 `;
+
 export const FileName = styled.p<{ color: string }>`
   z-index: 2;
   color: ${({ color }): string => `${color}`};
   padding: 2px 0 2px 10px;
   word-break: break-word;
 `;
+
 export const ProgressBarFiller = styled.div<{ width: number }>`
   height: 100%;
   background-color: #4bc5ac;
@@ -24,7 +26,9 @@ export const ProgressBarFiller = styled.div<{ width: number }>`
   top: 0;
   width: ${({ width }): string => `${width}%`};
   z-index: 1;
+  transition: 1s linear;
 `;
+
 export const UploadStatusImageWrapper = styled.div`
   display: flex;
   align-items: center;
