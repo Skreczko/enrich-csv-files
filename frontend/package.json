@@ -32,6 +32,7 @@
     "@types/js-beautify": "^1.13.1",
     "@types/react-datepicker": "^3.1.7",
     "@types/react-jsonschema-form": "^1.7.4",
+    "@types/uuid": "^9.0.3",
     "@typescript-eslint/eslint-plugin": "^4.29.3",
     "@typescript-eslint/parser": "^4.29.3",
     "axios": "^0.27.2",
@@ -80,6 +81,7 @@
     "@babel/runtime-corejs3": "^7.10.2",
     "@eslint/eslintrc": "^0.4.3",
     "@reduxjs/toolkit": "^1.8.0",
+    "@types/axios": "^0.14.0",
     "@types/jest": "^26.0.23",
     "@types/jquery": "^3.5.4",
     "@types/node": "^15.12.4",
@@ -94,6 +96,7 @@
     "rest-hooks": "^2.2.1",
     "styled-components": "^5.3.9",
     "ts-loader": "^8.4.0",
-    "typescript": "^4.3.5"
+    "typescript": "^4.3.5",
+    "uuid": "^9.0.0"
   }
 }

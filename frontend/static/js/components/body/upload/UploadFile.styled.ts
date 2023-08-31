@@ -5,11 +5,3 @@ export const UploadFileWrapper = styled.div`
   flex-direction: column;
   min-height: 100%;
 `;
-
-export const UploadFileSection = styled(UploadFileWrapper)`
-  align-items: center;
-`;
-
-export const StyledP = styled.p`
-  font-size: 32px;
-`;

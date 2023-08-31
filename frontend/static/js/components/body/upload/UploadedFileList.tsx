@@ -1,36 +1,56 @@
 import React from 'react';
 import { CustomButton } from '../../utils/CustomButton.styled';
-import { FileListWrapper, UploadedFileListWrapper } from './UploadedFileList.styled';
-import DeleteImage from '../../../../img/body/upload/delete.png';
+import {
+  FileListWrapper,
+  UploadButtonWrapper,
+  UploadedFileListWrapper,
+} from './UploadedFileList.styled';
+import { FileType, UploadStateEnum } from './UploadFile';
+import { UploadedFileListRowDetail } from './UploadedFileListRowDetail';
 
-interface Props {
-  files: File[];
+type Props = {
+  files: FileType[];
   onFileRemove: (name: string) => void;
-}
+  onSend: () => void;
+  uploadState: UploadStateEnum;
+  shouldClear: boolean;
+};
 
-export const UploadedFileList: React.FC<Props> = ({ files, onFileRemove }) => {
-  console.log(files);
+export const UploadedFileList: React.FC<Props> = ({
+  files,
+  onFileRemove,
+  onSend,
+  uploadState,
+  shouldClear,
+}) => {
+  const isSending = uploadState == UploadStateEnum.SENDING;
+  // user should not be able to send exactly same file stack one more time or during uploading process
+  const isLocked = shouldClear || isSending;
+
+  const handleClick = (): void => {
+    if (!shouldClear && !isSending) {
+      onSend();
+    }
+    return;
+  };
+
   return (
     <UploadedFileListWrapper>
       <FileListWrapper>
-        {files.map(({ name, size }) => (
-          <>
-            <div key={name}>{name}</div>
-            <div>({(size / 1024 ** 2).toFixed(2)} MB)</div>
-
-            <div onClick={(): void => onFileRemove(name)}>
-              <img src={DeleteImage} alt={'delete'} />
-            </div>
-          </>
+        {files.map(fileElement => (
+          <UploadedFileListRowDetail
+            key={fileElement.uuid}
+            fileElement={fileElement}
+            isSending={isSending}
+            onFileRemove={onFileRemove}
+          />
         ))}
       </FileListWrapper>
-      <CustomButton
-        onClick={(): void => {
-          console.log(1);
-        }}
-      >
-        <p>upload</p>
-      </CustomButton>
+      <UploadButtonWrapper>
+        <CustomButton onClick={handleClick} disabled={isLocked}>
+          <p>upload</p>
+        </CustomButton>
+      </UploadButtonWrapper>
     </UploadedFileListWrapper>
   );
 };
