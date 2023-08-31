@@ -1,43 +1,83 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { UploadFileDragAndDrop } from './UploadFileDragAndDrop';
 import { UploadFileButton } from './UploadFileButton';
 import { UploadFileSection, UploadFileWrapper } from './UploadFile.styled';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setNotificationPopupOpen } from '../../../redux/NotificationPopupSlice';
 import { NotificationAppearanceEnum } from '../../notification/NotificationPopup.enums';
 import { UploadedFileList } from './UploadedFileList';
 import { upload_csv } from '../../../api/action';
+import { v4 as uuidv4 } from 'uuid';
+import {
+  FileDetailsType,
+  FileStatusEnum,
+  setFileDetails,
+  updateFileDetail,
+} from '../../../redux/FileDetailsManagementSlice';
+import { RootState } from '../../../redux/store';
 
-enum FileStatusEnum {
-  IN_UPLOAD_PROGRESS = 'in_upload_progress',
-  LOADED = 'loaded',
-  UPLOADED = 'uploaded',
-  UPLOAD_ERROR = 'upload_error',
-}
-
-export type FileType = {
+export type FileType = FileDetailsType & { file: File };
+type IncorrectFileDetailsType = {
+  reason: string;
   file: File;
-  status: FileStatusEnum;
-  temp_id?: string; // used to recognize file during FileStatusEnum.IN_UPLOAD_PROGRESS to update streaming_value
-  streaming_value?: number; // max 100
 };
-
-export type StreamingDetails = Partial<Omit<FileType, 'file'>>;
+export enum UploadStateEnum {
+  IN_ADDING = 'in_adding',
+  SENDING = 'sending',
+}
 
 export const UploadFile: React.FC = () => {
   const dispatch = useDispatch();
   const [fileElements, setFileElements] = useState<FileType[]>([]);
+  const [uploadState, setUploadState] = useState<UploadStateEnum>(UploadStateEnum.IN_ADDING);
+  // true when user already uploaded files and "fileElements" state should be cleared before next use
+  const [shouldClear, setShouldClear] = useState(false);
 
-  const onFileRemove = (fileName: string): void => {
-    // setFileElements(prevFiles => prevFiles.filter(file => file.name !== fileName));
+  useEffect(() => {
+    // pushing to redux without "file" property
+    dispatch(setFileDetails(fileElements.map(({ file, ...fileDetails }) => fileDetails)));
+    // after click on "upload", we should clear fileElements for next use
+    setShouldClear(false);
+  }, [fileElements]);
+
+  useEffect(() => {
+    // setting uploading state
+    (async (): Promise<void> => {
+      if (uploadState === UploadStateEnum.SENDING) {
+        await onFilesSend();
+        setUploadState(UploadStateEnum.IN_ADDING);
+        setShouldClear(true);
+      }
+    })();
+  }, [uploadState]);
+
+  const onFileRemove = (uuid: string): void => {
+    setFileElements(prevFiles => prevFiles.filter(file => file.uuid !== uuid));
   };
 
-  const getValidatedFiles = (uploadedFiles: File[]): FileType[] => {
+  const setIncorrectFileNotification = (incorrectFilesList: IncorrectFileDetailsType[]): void => {
+    const incorrectFileDetailsToHtml = incorrectFilesList
+      .map(
+        ({ file, reason }) =>
+          `<div style="font-weight: bold">${file.name}</div><div>${reason}</div>`,
+      )
+      .join('');
+
+    dispatch(
+      setNotificationPopupOpen({
+        appearance: NotificationAppearanceEnum.ERROR,
+        content: 'An error occurred during the upload process',
+        additionalContent: `<div style="display: grid; grid-template-columns: max-content 1fr; grid-column-gap: 30px">${incorrectFileDetailsToHtml}</div>`,
+        permanent: true,
+      }),
+    );
+  };
+
+  const getValidatedFiles = (
+    uploadedFiles: File[],
+  ): { correctFiles: FileType[]; incorrectFileDetailList: IncorrectFileDetailsType[] } => {
     const correctFiles: FileType[] = [];
-    const incorrectFileDetailList: {
-      reason: string;
-      file: File;
-    }[] = [];
+    const incorrectFileDetailList: IncorrectFileDetailsType[] = [];
     uploadedFiles.forEach(file => {
       if (file.type !== 'text/csv') {
         incorrectFileDetailList.push({
@@ -52,104 +92,69 @@ export const UploadFile: React.FC = () => {
       ) {
         incorrectFileDetailList.push({ file, reason: `File already added` });
       } else {
-        correctFiles.push({ file, status: FileStatusEnum.LOADED });
+        correctFiles.push({
+          file,
+          fileName: file.name,
+          status: FileStatusEnum.LOADED,
+          uuid: uuidv4(),
+          size: file.size,
+        });
       }
     });
 
-    if (incorrectFileDetailList.length) {
-      const incorrectFileDetailsToHtml = incorrectFileDetailList
-        .map(
-          ({ file, reason }) =>
-            `<div style="font-weight: bold">${file.name}</div><div>${reason}</div>`,
-        )
-        .join('');
-
-      dispatch(
-        setNotificationPopupOpen({
-          appearance: NotificationAppearanceEnum.ERROR,
-          content: 'An error occurred during the upload process',
-          additionalContent: `<div style="display: grid; grid-template-columns: max-content 1fr; grid-column-gap: 30px">${incorrectFileDetailsToHtml}</div>`,
-          permanent: true,
-        }),
-      );
-    }
-
-    return correctFiles;
+    return { correctFiles, incorrectFileDetailList };
   };
 
   const onFilesAdd = (uploadedFiles: File[]): void => {
-    const validatedFiles = getValidatedFiles(uploadedFiles);
-    setFileElements(prevFiles => [...prevFiles, ...validatedFiles]);
-  };
-
-  const setStreamingValue = ({ streaming_value, temp_id, status }: StreamingDetails): void => {
-    console.log(
-      'setStreamingValue',
-      `streaming_value:${streaming_value} temp_id:${temp_id} status:${status}`,
-    );
-    setFileElements(prevState => {
-      return [
-        ...prevState.map(fileElement => {
-          if (fileElement.temp_id === temp_id) {
-            console.log(111111111111111111111);
-            return {
-              ...fileElement,
-              // used during uploading process - status will not change
-              streaming_value: streaming_value && fileElement.streaming_value,
-              // used when upload is finished - streaming_value will not change (100)
-              status: status && fileElement.status,
-            };
-          }
-          return fileElement;
-        }),
-      ];
+    const { correctFiles, incorrectFileDetailList } = getValidatedFiles(uploadedFiles);
+    setFileElements(prevFiles => {
+      // we should check if user already uploaded files. if yes, we should not include previous state
+      if (shouldClear) {
+        return [...correctFiles];
+      }
+      return [...prevFiles, ...correctFiles];
     });
+    if (incorrectFileDetailList.length) {
+      // check if does exists in redux fileDetailsManagement (for fileDetails on FileStatusEnum.LOADED status)
+      // compare file by name and size
+      // if exists - that file was already uploaded and was in state only for display details (ie. progress bar)
+      // if does not exists - file has been already added
+
+      // fetch from redux
+      const reduxFileDetailList: FileDetailsType[] = useSelector(
+        (state: RootState) => state.fileDetailsManagement,
+      );
+      // filter list from redux by status (if its uploaded - its added "to upload"
+      const filteredByStateReduxDetailList = reduxFileDetailList.filter(
+        file => file.status !== FileStatusEnum.LOADED,
+      );
+
+      // compare by name and filesize
+      const verifiedIncorrectFileList = incorrectFileDetailList.filter(
+        incorrectFile =>
+          !filteredByStateReduxDetailList.some(
+            reduxFile =>
+              reduxFile.fileName === incorrectFile.file.name &&
+              reduxFile.size === incorrectFile.file.size,
+          ),
+      );
+
+      // if list exists - that means user duplicated files
+      verifiedIncorrectFileList.length && setIncorrectFileNotification(verifiedIncorrectFileList);
+    }
   };
 
   const onFilesSend = async (): Promise<void> => {
-    // set up temp_id for all files
-    // set up temp_id for all files
-    setFileElements(prevState => {
-      const updatedFiles = prevState.map(fileElement => ({
-        ...fileElement,
-        status: FileStatusEnum.IN_UPLOAD_PROGRESS,
-        streaming_value: 0,
-        temp_id: Math.random().toString(36).substr(2, 9),
-      }));
-
-      // here we start the upload for each file
-      updatedFiles.forEach(async fileElement => {
-        try {
-          const response = await upload_csv({
-            fileElement,
-            onStreamingValueChange: setStreamingValue,
-          });
-          console.log(fileElement.file.name, 'ok', response.data);
-          setStreamingValue({ temp_id: fileElement.temp_id, status: FileStatusEnum.UPLOADED });
-        } catch (e) {
-          setStreamingValue({ temp_id: fileElement.temp_id, status: FileStatusEnum.UPLOAD_ERROR });
-          console.error(fileElement.file.name, 'error', e);
-        }
-      });
-
-      return updatedFiles; // this is the new state
-    });
-    console.log(111111111111111111, fileElements);
     const uploadPromises = fileElements.map(async fileElement => {
       try {
-        const response = await upload_csv({
-          fileElement,
-          onStreamingValueChange: setStreamingValue,
-        });
-        console.log(fileElement.file.name, 'ok', response.data);
-        setStreamingValue({ temp_id: fileElement.temp_id, status: FileStatusEnum.UPLOADED });
+        const response = await upload_csv(fileElement);
+        dispatch(updateFileDetail({ uuid: fileElement.uuid, status: FileStatusEnum.UPLOADED }));
         return response;
       } catch (e) {
-        setStreamingValue({ temp_id: fileElement.temp_id, status: FileStatusEnum.UPLOAD_ERROR });
-
-        console.error(fileElement.file.name, 'error', e);
+        dispatch(updateFileDetail({ uuid: fileElement.uuid, status: FileStatusEnum.UPLOAD_ERROR }));
       }
     });
+    // setUploadState(UploadStateEnum.IN_ADDING);
     await Promise.all(uploadPromises);
   };
 
@@ -159,8 +164,16 @@ export const UploadFile: React.FC = () => {
         <UploadFileDragAndDrop onDrop={onFilesAdd} />
         <UploadFileButton onAdd={onFilesAdd} />
       </UploadFileSection>
+      {fileElements.map(fileElement => fileElement.streaming_value)}
       {!!fileElements.length && (
-        <UploadedFileList files={fileElements} onFileRemove={onFileRemove} onSend={onFilesSend} />
+        <UploadedFileList
+          files={fileElements}
+          onFileRemove={onFileRemove}
+          onSend={(): void => {
+            setUploadState(UploadStateEnum.SENDING);
+          }}
+          uploadState={uploadState}
+        />
       )}
     </UploadFileWrapper>
   );

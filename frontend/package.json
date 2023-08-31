@@ -32,6 +32,7 @@
     "@types/js-beautify": "^1.13.1",
     "@types/react-datepicker": "^3.1.7",
     "@types/react-jsonschema-form": "^1.7.4",
+    "@types/uuid": "^9.0.3",
     "@typescript-eslint/eslint-plugin": "^4.29.3",
     "@typescript-eslint/parser": "^4.29.3",
     "axios": "^0.27.2",
@@ -95,6 +96,7 @@
     "rest-hooks": "^2.2.1",
     "styled-components": "^5.3.9",
     "ts-loader": "^8.4.0",
-    "typescript": "^4.3.5"
+    "typescript": "^4.3.5",
+    "uuid": "^9.0.0"
   }
 }

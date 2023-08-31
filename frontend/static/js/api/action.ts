@@ -1,28 +1,22 @@
 import axios from 'axios';
-import { FileType, StreamingDetails } from '../components/body/upload/UploadFile';
+import { FileType } from '../components/body/upload/UploadFile';
+import { updateFileDetail } from '../redux/FileDetailsManagementSlice';
+import { store } from '../redux/store';
 
 const api = axios.create();
 
-interface UploadCsvRequest {
-  fileElement: FileType;
-  onStreamingValueChange: ({ streaming_value, temp_id }: StreamingDetails) => void;
-}
-
-export async function upload_csv({
-  fileElement,
-  onStreamingValueChange,
-}: UploadCsvRequest): Promise<any> {
+export async function upload_csv(fileElement: FileType): Promise<any> {
   const formData = new FormData();
 
-  const { file, temp_id } = fileElement;
-  console.log("action", temp_id)
+  const { file, uuid } = fileElement;
+  console.log('action', uuid);
 
   formData.append('file', file);
 
   const config = {
     onUploadProgress: function (progressEvent: any): void {
       const streaming_value = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-      onStreamingValueChange({ streaming_value, temp_id });
+      store.dispatch(updateFileDetail({ uuid, streaming_value }));
     },
     headers: {
       'Content-Type': 'multipart/form-data',

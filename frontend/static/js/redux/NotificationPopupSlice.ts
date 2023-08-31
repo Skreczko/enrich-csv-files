@@ -3,8 +3,6 @@ import { NotificationAppearanceEnum } from '../components/notification/Notificat
 
 const NOTIFICATION_MAX_MESSAGES = 5;
 
-export const getId = (): string => Math.random().toString(36).substr(2, 9);
-
 export interface NotificationPopupData {
   additionalContent?: string;
   appearance: NotificationAppearanceEnum;
@@ -53,7 +51,7 @@ const notificationPopupSlice = createSlice({
         additionalContent,
         appearance,
         content,
-        id: getId(),
+        id: Math.random().toString(36).substr(2, 9),
         permanent,
         timeoutId: undefined,
       });
