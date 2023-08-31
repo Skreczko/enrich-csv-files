@@ -26,7 +26,7 @@ export const ProgressBarFiller = styled.div<{ width: number }>`
   top: 0;
   width: ${({ width }): string => `${width}%`};
   z-index: 1;
-  transition: 100s linear;
+  transition: 1s linear;
 `;
 
 export const UploadStatusImageWrapper = styled.div`
