@@ -11,9 +11,7 @@ export type FileDetailsType = {
   status: FileStatusEnum;
   streaming_value?: number; // max 100
   uuid: string;
-  size: number;
 };
-
 
 const fileDetailsManagementSlice = createSlice({
   name: 'fileDetailsManagementReducer',

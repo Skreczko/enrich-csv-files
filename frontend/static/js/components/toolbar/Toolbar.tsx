@@ -2,9 +2,14 @@ import React from 'react';
 import { NavLink, ToolbarWrapper } from './Toolbar.styled';
 import routes from '../../router/config/routes';
 import { useNavigate } from 'react-router-dom';
-import { NavLinkType } from './Toolbar.types';
 import ListImage from '../../../img/toolbar/list.png';
 import DownloadImage from '../../../img/toolbar/download.png';
+
+export type NavLinkType = {
+  link: string;
+  imgSrc: string;
+  name: string;
+};
 
 const navLinks: NavLinkType[] = [
   {

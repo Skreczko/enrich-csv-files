@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { UploadFileDragAndDrop } from './UploadFileDragAndDrop';
-import { UploadFileButton } from './UploadFileButton';
-import { UploadFileSection, UploadFileWrapper } from './UploadFile.styled';
-import { useDispatch, useSelector } from 'react-redux';
+import { UploadFileWrapper } from './UploadFile.styled';
+import { useDispatch } from 'react-redux';
 import { setNotificationPopupOpen } from '../../../redux/NotificationPopupSlice';
-import { NotificationAppearanceEnum } from '../../notification/NotificationPopup.enums';
 import { UploadedFileList } from './UploadedFileList';
 import { upload_csv } from '../../../api/action';
 import { v4 as uuidv4 } from 'uuid';
@@ -14,7 +11,8 @@ import {
   setFileDetails,
   updateFileDetail,
 } from '../../../redux/FileDetailsManagementSlice';
-import { RootState } from '../../../redux/store';
+import { FileUploadControls } from './FileUploadControls';
+import { NotificationAppearanceEnum } from '../../notification/NotificationPopup';
 
 export type FileType = FileDetailsType & { file: File };
 type IncorrectFileDetailsType = {
@@ -35,7 +33,8 @@ export const UploadFile: React.FC = () => {
 
   useEffect(() => {
     // pushing to redux without "file" property
-    dispatch(setFileDetails(fileElements.map(({ file, ...fileDetails }) => fileDetails)));
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    dispatch(setFileDetails(fileElements.map(({ file: _, ...fileDetails }) => fileDetails)));
     // after click on "upload", we should clear fileElements for next use
     setShouldClear(false);
   }, [fileElements]);
@@ -78,26 +77,38 @@ export const UploadFile: React.FC = () => {
   ): { correctFiles: FileType[]; incorrectFileDetailList: IncorrectFileDetailsType[] } => {
     const correctFiles: FileType[] = [];
     const incorrectFileDetailList: IncorrectFileDetailsType[] = [];
+
     uploadedFiles.forEach(file => {
+      const isDuplicate = fileElements.some(
+        ({ file: f }) => f.name === file.name && f.size === file.size && f.type === file.type,
+      );
+
       if (file.type !== 'text/csv') {
         incorrectFileDetailList.push({
           file,
           reason: `Incorrect file type (${file.type ? file.type : 'unknown or folder'})`,
         });
-      } else if (
-        // find if file already exists by comparing file properties
-        fileElements.some(
-          ({ file: f }) => f.name === file.name && f.size === file.size && f.type === file.type,
-        )
-      ) {
-        incorrectFileDetailList.push({ file, reason: `File already added` });
+      } else if (isDuplicate) {
+        // User cannot duplicate files in same uploading process -
+        // that means, if user upload file, same file can be added in next turn.
+        // In future development, additional request to check if that file exists
+        // in database may be required (comparing by file name, size and type). Not implemented.
+        if (shouldClear) {
+          correctFiles.push({
+            file,
+            fileName: file.name,
+            status: FileStatusEnum.LOADED,
+            uuid: uuidv4(),
+          });
+        } else {
+          incorrectFileDetailList.push({ file, reason: 'File already added' });
+        }
       } else {
         correctFiles.push({
           file,
           fileName: file.name,
           status: FileStatusEnum.LOADED,
           uuid: uuidv4(),
-          size: file.size,
         });
       }
     });
@@ -108,40 +119,12 @@ export const UploadFile: React.FC = () => {
   const onFilesAdd = (uploadedFiles: File[]): void => {
     const { correctFiles, incorrectFileDetailList } = getValidatedFiles(uploadedFiles);
     setFileElements(prevFiles => {
-      // we should check if user already uploaded files. if yes, we should not include previous state
       if (shouldClear) {
         return [...correctFiles];
       }
       return [...prevFiles, ...correctFiles];
     });
-    if (incorrectFileDetailList.length) {
-      // check if does exists in redux fileDetailsManagement (for fileDetails on FileStatusEnum.LOADED status)
-      // compare file by name and size
-      // if exists - that file was already uploaded and was in state only for display details (ie. progress bar)
-      // if does not exists - file has been already added
-
-      // fetch from redux
-      const reduxFileDetailList: FileDetailsType[] = useSelector(
-        (state: RootState) => state.fileDetailsManagement,
-      );
-      // filter list from redux by status (if its uploaded - its added "to upload"
-      const filteredByStateReduxDetailList = reduxFileDetailList.filter(
-        file => file.status !== FileStatusEnum.LOADED,
-      );
-
-      // compare by name and filesize
-      const verifiedIncorrectFileList = incorrectFileDetailList.filter(
-        incorrectFile =>
-          !filteredByStateReduxDetailList.some(
-            reduxFile =>
-              reduxFile.fileName === incorrectFile.file.name &&
-              reduxFile.size === incorrectFile.file.size,
-          ),
-      );
-
-      // if list exists - that means user duplicated files
-      verifiedIncorrectFileList.length && setIncorrectFileNotification(verifiedIncorrectFileList);
-    }
+    incorrectFileDetailList.length && setIncorrectFileNotification(incorrectFileDetailList);
   };
 
   const onFilesSend = async (): Promise<void> => {
@@ -149,22 +132,18 @@ export const UploadFile: React.FC = () => {
       try {
         const response = await upload_csv(fileElement);
         dispatch(updateFileDetail({ uuid: fileElement.uuid, status: FileStatusEnum.UPLOADED }));
+        // TODO assign task_id from celery from response to that redux state
         return response;
       } catch (e) {
         dispatch(updateFileDetail({ uuid: fileElement.uuid, status: FileStatusEnum.UPLOAD_ERROR }));
       }
     });
-    // setUploadState(UploadStateEnum.IN_ADDING);
     await Promise.all(uploadPromises);
   };
 
   return (
     <UploadFileWrapper>
-      <UploadFileSection>
-        <UploadFileDragAndDrop onDrop={onFilesAdd} />
-        <UploadFileButton onAdd={onFilesAdd} />
-      </UploadFileSection>
-      {fileElements.map(fileElement => fileElement.streaming_value)}
+      <FileUploadControls onFilesAdd={onFilesAdd} />
       {!!fileElements.length && (
         <UploadedFileList
           files={fileElements}
@@ -173,6 +152,7 @@ export const UploadFile: React.FC = () => {
             setUploadState(UploadStateEnum.SENDING);
           }}
           uploadState={uploadState}
+          shouldClear={shouldClear}
         />
       )}
     </UploadFileWrapper>

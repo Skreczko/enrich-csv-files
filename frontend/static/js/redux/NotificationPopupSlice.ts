@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { NotificationAppearanceEnum } from '../components/notification/NotificationPopup.enums';
+import { NotificationAppearanceEnum } from '../components/notification/NotificationPopup';
 
 const NOTIFICATION_MAX_MESSAGES = 5;
 

@@ -7,9 +7,7 @@ const api = axios.create();
 
 export async function upload_csv(fileElement: FileType): Promise<any> {
   const formData = new FormData();
-
   const { file, uuid } = fileElement;
-  console.log('action', uuid);
 
   formData.append('file', file);
 

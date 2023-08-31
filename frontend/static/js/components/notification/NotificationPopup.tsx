@@ -7,16 +7,43 @@ import {
   setNotificationPopupTimeoutId,
 } from '../../redux/NotificationPopupSlice';
 import { RootState } from '../../redux/store';
-import {
-  MessageHeaderWrapper,
-  NotificationCloseButton,
-  NotificationContentWrapper,
-  NotificationWrapper,
-} from './NotificationPopup.styled';
+import { NotificationWrapper } from './NotificationPopup.styled';
 import { Message } from 'semantic-ui-react';
-import { NotificationAppearance } from './NotificationPopup.enums';
 import { HTML } from '../utils/HTML';
+import ErrorImage from '../../../img/notification/error.png';
+import SuccessImage from '../../../img/notification/success.png';
+import WarningImage from '../../../img/notification/warning.png';
+import InfoImage from '../../../img/notification/info.png';
+import { NotificationPopupHeader } from './NotificationPopupHeader';
 
+export enum NotificationAppearanceEnum {
+  // https://react.semantic-ui.com/collections/message/
+  ERROR = 'negative',
+  SUCCESS = 'positive',
+  WARNING = 'warning',
+  INFO = 'info',
+}
+
+type NotificationAppearanceType = {
+  imgSrc: string;
+};
+export const NotificationAppearance: Record<
+  NotificationAppearanceEnum,
+  NotificationAppearanceType
+> = {
+  [NotificationAppearanceEnum.ERROR]: {
+    imgSrc: ErrorImage,
+  },
+  [NotificationAppearanceEnum.SUCCESS]: {
+    imgSrc: SuccessImage,
+  },
+  [NotificationAppearanceEnum.WARNING]: {
+    imgSrc: WarningImage,
+  },
+  [NotificationAppearanceEnum.INFO]: {
+    imgSrc: InfoImage,
+  },
+};
 export const NotificationPopup: React.FC = () => {
   const dispatch = useDispatch();
   const data: NotificationPopupData[] = useSelector((state: RootState) => state.notificationPopup);
@@ -54,17 +81,11 @@ export const NotificationPopup: React.FC = () => {
           size='tiny'
           style={{ width: '100%', height: '100%' }}
         >
-          <Message.Header>
-            <MessageHeaderWrapper>
-              <NotificationContentWrapper>
-                <img src={NotificationAppearance[appearance].imgSrc} alt={appearance} />
-                <p>{content}</p>
-              </NotificationContentWrapper>
-              <NotificationCloseButton onClick={(): void => removeNotification(id)}>
-                <p>Close</p>
-              </NotificationCloseButton>
-            </MessageHeaderWrapper>
-          </Message.Header>
+          <NotificationPopupHeader
+            appearance={appearance}
+            content={content}
+            removeNotification={(): void => removeNotification(id)}
+          />
           <Message.Content>
             {additionalContent && (
               <HTML text={additionalContent} style={{ fontSize: '90%', marginTop: '5px' }} />

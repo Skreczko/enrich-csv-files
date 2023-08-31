@@ -21,6 +21,7 @@ export const CustomButton = styled.div<CustomButtonProps>`
   background-color: ${({ disabled }): string => (disabled ? 'lightgrey' : '#4bc5ac')};
   color: white;
 `;
+
 export const HiddenUploadInput = styled.input`
   display: none;
 `;
