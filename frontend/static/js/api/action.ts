@@ -16,8 +16,7 @@ export async function upload_csv(fileElement: FileType): Promise<any> {
     const streaming_value = Math.round((progressEvent.loaded * 100) / progressEvent.total);
     store.dispatch(updateFileDetail({ uuid, streaming_value }));
   }, 1000);
-  // OPTIMIZATION -> I would use resumable.js with petl to send file in chunck. But, that require additinal logic on
-  // progress bar,
+  // OPTIMIZATION -> I would use resumable.js with petl to send file in chunk. But, that require additional logic. Check EXPLAIN_CODE.md
   const config = {
     onUploadProgress: throttledUpdate,
     headers: {
