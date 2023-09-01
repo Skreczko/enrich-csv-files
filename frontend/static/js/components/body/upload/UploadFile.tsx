@@ -136,6 +136,7 @@ export const UploadFile: React.FC = () => {
         return response;
       } catch (e) {
         dispatch(updateFileDetail({ uuid: fileElement.uuid, status: FileStatusEnum.UPLOAD_ERROR }));
+        setIncorrectFileNotification([{ file: fileElement.file, reason: e.message }]);
       }
     });
     await Promise.all(uploadPromises);

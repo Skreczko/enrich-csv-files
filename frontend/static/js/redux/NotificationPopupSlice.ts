@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { NotificationAppearanceEnum } from '../components/notification/NotificationPopup';
 
-const NOTIFICATION_MAX_MESSAGES = 5;
+const NOTIFICATION_MAX_MESSAGES = 3;
 
 export interface NotificationPopupData {
   additionalContent?: string;
@@ -13,17 +13,6 @@ export interface NotificationPopupData {
 }
 
 type InitialState = NotificationPopupData;
-
-const validateDuplicatedMessages = (content: string, state: InitialState[]): void => {
-  // omit if message content is same
-  const index = state.findIndex(data => data.content === content);
-  if (index != -1) {
-    if (state[index].timeoutId) {
-      clearTimeout(state[index].timeoutId);
-    }
-    state.splice(index, 1);
-  }
-};
 
 const validateOldestNotification = (state: InitialState[]): void => {
   if (state.length >= NOTIFICATION_MAX_MESSAGES) {
@@ -44,7 +33,6 @@ const notificationPopupSlice = createSlice({
         payload: { content, appearance, additionalContent = '', permanent = false },
       }: PayloadAction<NotificationPopupData>,
     ) => {
-      validateDuplicatedMessages(content, state);
       validateOldestNotification(state);
 
       state.push({
