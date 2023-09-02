@@ -5,7 +5,7 @@ from django.views.decorators.http import require_POST
 
 from csv_manager.forms import CSVUploadFileRequestForm
 from csv_manager.models import CSVFile
-from transformer.forms import validate_request_form
+from transformer.form_validator import validate_request_form
 
 
 # csrf missing - no user. For future development

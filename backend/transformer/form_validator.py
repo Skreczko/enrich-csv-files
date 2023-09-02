@@ -1,5 +1,6 @@
+from collections.abc import Callable
 from http import HTTPStatus
-from typing import TypeVar, Callable
+from typing import TypeVar
 from django.http import JsonResponse, HttpRequest, HttpResponse
 from django import forms
 
