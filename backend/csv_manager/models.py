@@ -2,6 +2,17 @@ import uuid
 from django.db import models
 
 
+def csv_upload_path(instance: "CSVFile", filename: str) -> str:
+    import os
+
+    # for future development: create folder per user
+    folder_name = "no_user"
+
+    file_extension = os.path.splitext(filename)[1]
+    file_name = f"{instance.uuid}{file_extension}"
+    return os.path.join("csv_files", folder_name, file_name)
+
+
 class CSVFile(models.Model):
     """
     This model stores csv file and basic information about it.
@@ -22,9 +33,11 @@ class CSVFile(models.Model):
         on_delete=models.CASCADE,
         related_name="enriched_instances",
     )
-
     created = models.DateTimeField(auto_now_add=True)
-    file = models.FileField(upload_to="csvs/")
+    # Files and folders will not be deleted after instance deletion.
+    # Depending on business needs, additional logic may be required
+    # Ie signals, functions, bulk_delete, overriding def delete...
+    file = models.FileField(upload_to=csv_upload_path)
     updated = models.DateTimeField(auto_now=True, null=True)
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 

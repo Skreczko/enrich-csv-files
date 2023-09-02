@@ -37,20 +37,34 @@ def healthcheck(request: Request) -> HttpResponse:
 urlpatterns = [
     path("healthcheck.json", healthcheck),
     re_path(
-        r"^api/_internal/",
+        # for every endpoint - user validation should be provided by using token which should be appended for every request using axios
+        # in this case, using django and put react to django template we can
+        # 1. create additional endpoint to obtain token
+        # 2. provide token in django template, ie we have `<div id="root" data-token="{{ api_token}}"></div>` in tem
+        #   where api_token should be attached ie. to context_processor in middleware
+        #   on frontend side (in index.js), we should fetch that token, dispatch it to redux state and then create wrapper
+        #   for axios to provide that token in every request in header
+        r"^api/_internal",
         include(
             [
                 path(
-                    "upload_csv/",
+                    "/csv_upload",
                     lazy_function_view(
-                        "csv_manager.views.api_internal.upload_csv.upload_csv"
+                        "csv_manager.views.api_internal.csv_upload.csv_upload"
                     ),
-                    name="upload_csv",
+                    name="csv_upload",
+                ),
+                path(
+                    "/csv_list",
+                    lazy_function_view(
+                        "csv_manager.views.api_internal.csv_list.csv_list"
+                    ),
+                    name="csv_list",
                 ),
             ],
         ),
     ),
-    # redirect rest paths to React Router
+    # redirect rest paths to React Router, as path above MUST be handled by django
     re_path(r"^.*$", TemplateView.as_view(template_name="index.html")),
 ]
 
