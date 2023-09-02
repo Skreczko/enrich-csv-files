@@ -100,7 +100,7 @@ USE_L10N = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 STATIC_URL = "frontend/static/"
 LOCAL_STATICFILES_DIR = os.path.join(FRONTEND_DIR, "static")
-STATIC_ROOT = os.path.join(DATA_DIR, "static")
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 STATICFILES_DIRS = [
     os.path.join(FRONTEND_DIR, "static/bundles"),
     # only for local purposes
@@ -108,8 +108,8 @@ STATICFILES_DIRS = [
 ]
 
 # MEDIA FILES
-MEDIA_URL = "frontend/media/"
-MEDIA_ROOT = os.path.join(FRONTEND_DIR, "media")
+MEDIA_URL = "media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # WEBPACK
 WEBPACK_LOADER_TEST_DISABLED = True
