@@ -6,7 +6,7 @@ import { store } from '../redux/store';
 
 const api = axios.create();
 
-export async function upload_csv(fileElement: FileType): Promise<any> {
+export async function uploadFile(fileElement: FileType): Promise<{ name: string }> {
   const formData = new FormData();
   const { file, uuid } = fileElement;
 
@@ -16,7 +16,9 @@ export async function upload_csv(fileElement: FileType): Promise<any> {
     const streaming_value = Math.round((progressEvent.loaded * 100) / progressEvent.total);
     store.dispatch(updateFileDetail({ uuid, streaming_value }));
   }, 1000);
+
   // OPTIMIZATION -> I would use resumable.js with petl to send file in chunk. But, that require additional logic. Check EXPLAIN_CODE.md
+
   const config = {
     onUploadProgress: throttledUpdate,
     headers: {
@@ -24,7 +26,7 @@ export async function upload_csv(fileElement: FileType): Promise<any> {
     },
   };
 
-  const { data } = await api.post(`/api/_internal/upload_csv/`, formData, config);
+  const { data } = await api.post(`/api/_internal/csv_upload`, formData, config);
 
   return data;
 }

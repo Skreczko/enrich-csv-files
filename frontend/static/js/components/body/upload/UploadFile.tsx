@@ -3,7 +3,7 @@ import { UploadFileWrapper } from './UploadFile.styled';
 import { useDispatch } from 'react-redux';
 import { setNotificationPopupOpen } from '../../../redux/NotificationPopupSlice';
 import { UploadedFileList } from './UploadedFileList';
-import { upload_csv } from '../../../api/action';
+import { uploadFile } from '../../../api/action';
 import { v4 as uuidv4 } from 'uuid';
 import {
   FileDetailsType,
@@ -13,6 +13,7 @@ import {
 } from '../../../redux/FileDetailsManagementSlice';
 import { FileUploadControls } from './FileUploadControls';
 import { NotificationAppearanceEnum } from '../../notification/NotificationPopup';
+import { ErrorType, generateHTMLErrorMessages } from '../../notification/helpers';
 
 export type FileType = FileDetailsType & { file: File };
 type IncorrectFileDetailsType = {
@@ -54,19 +55,24 @@ export const UploadFile: React.FC = () => {
     setFileElements(prevFiles => prevFiles.filter(file => file.uuid !== uuid));
   };
 
-  const setIncorrectFileNotification = (incorrectFilesList: IncorrectFileDetailsType[]): void => {
-    const incorrectFileDetailsToHtml = incorrectFilesList
-      .map(
-        ({ file, reason }) =>
-          `<div style="font-weight: bold">${file.name}</div><div>${reason}</div>`,
-      )
-      .join('');
+  const convertToErrorType = (incorrectFileDetails: IncorrectFileDetailsType[]): ErrorType => {
+    // function which convert IncorrectFileDetailsType to axios error messages response structure
+    const errorObject: ErrorType = {};
 
+    incorrectFileDetails.forEach(detail => {
+      const key = detail.file.name;
+      errorObject[key] = [detail.reason];
+    });
+
+    return errorObject;
+  };
+
+  const setIncorrectFileNotification = (additionalContent: string): void => {
     dispatch(
       setNotificationPopupOpen({
         appearance: NotificationAppearanceEnum.ERROR,
         content: 'An error occurred during the upload process',
-        additionalContent: `<div style="display: grid; grid-template-columns: max-content 1fr; grid-column-gap: 30px">${incorrectFileDetailsToHtml}</div>`,
+        additionalContent,
         permanent: true,
       }),
     );
@@ -124,19 +130,34 @@ export const UploadFile: React.FC = () => {
       }
       return [...prevFiles, ...correctFiles];
     });
-    incorrectFileDetailList.length && setIncorrectFileNotification(incorrectFileDetailList);
+
+    // set error notifications
+    if (incorrectFileDetailList.length) {
+      // convert to axios error messages response structure (ErrorType)
+      const convertedMessages = convertToErrorType(incorrectFileDetailList);
+      // generate error message as string it will be pushed to dangerouslySetInnerHTML
+      const stringErrorMessage = generateHTMLErrorMessages(convertedMessages);
+
+      setIncorrectFileNotification(stringErrorMessage);
+    }
   };
 
   const onFilesSend = async (): Promise<void> => {
     const uploadPromises = fileElements.map(async fileElement => {
       try {
-        const response = await upload_csv(fileElement);
+        const response = await uploadFile(fileElement);
         dispatch(updateFileDetail({ uuid: fileElement.uuid, status: FileStatusEnum.UPLOADED }));
-        // TODO assign task_id from celery from response to that redux state
-        return response;
+        dispatch(
+          setNotificationPopupOpen({
+            appearance: NotificationAppearanceEnum.SUCCESS,
+            content: `${response.name} file has been uploaded successfully`,
+          }),
+        );
       } catch (e) {
         dispatch(updateFileDetail({ uuid: fileElement.uuid, status: FileStatusEnum.UPLOAD_ERROR }));
-        setIncorrectFileNotification([{ file: fileElement.file, reason: e.message }]);
+        setIncorrectFileNotification(
+          generateHTMLErrorMessages(e.response.data.error, fileElement.fileName),
+        );
       }
     });
     await Promise.all(uploadPromises);
