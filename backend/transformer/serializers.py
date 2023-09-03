@@ -17,14 +17,16 @@ def serialize_queryset(*, queryset: type[T], fields: list[str] | None = None) ->
     If field value does not exist in model, ValueError will be raised
     """
     if fields:
+        #TODO relations to other table in database not handled.
         model_fields = [f.name for f in queryset.model._meta.fields]
-        unknown_fields = [field for field in fields if field not in model_fields]
+        annotation_fields = queryset.query.annotations.keys()
+        known_fields = set(model_fields + list(annotation_fields))
+        unknown_fields = [field for field in fields if field not in known_fields]
         if unknown_fields:
             raise ValueError(f"Unknown fields: {', '.join(unknown_fields)}")
-        query_list = queryset.values(*fields)
-    else:
-        query_list = queryset.values()
-    return {"data": list(query_list) }
+
+        queryset = queryset.only(*fields)
+    return {"data": list(queryset.values(*fields)) }
 
 
 def serialize_instance(instance: type[U], fields: list[str] | None = None) -> dict[str, Any]:
