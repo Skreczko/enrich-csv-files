@@ -21,16 +21,16 @@ def csv_list(
     page_size = request_form.cleaned_data["page_size"]
     sort = request_form.cleaned_data["sort"]
     search = request_form.cleaned_data["search"]
-    
+
     queryset = CSVFile.objects.all()
-    
+
     if search:
         # todo created_from / created_to
         queryset = queryset.filter()
-    
-    if sort:
-        queryset = queryset.order_by(search)
 
-    data = serialize_queryset(queryset=CSVFile.objects.all())
+    if sort:
+        queryset = queryset.order_by(*search)
+
+    data = serialize_queryset(queryset=queryset, fields=["id", "created", "file"])
 
     return JsonResponse(data, status=HTTPStatus.OK)

@@ -11,7 +11,16 @@ class SerializeQuerysetType(TypedDict):
 
 
 def serialize_queryset(*, queryset: type[T], fields: list[str] | None = None) -> SerializeQuerysetType:
+    """
+    function used to serialize queryset with/without list of fields to serialize
+
+    If field value does not exist in model, ValueError will be raised
+    """
     if fields:
+        model_fields = [f.name for f in queryset.model._meta.fields]
+        unknown_fields = [field for field in fields if field not in model_fields]
+        if unknown_fields:
+            raise ValueError(f"Unknown fields: {', '.join(unknown_fields)}")
         query_list = queryset.values(*fields)
     else:
         query_list = queryset.values()

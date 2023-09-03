@@ -30,6 +30,7 @@ def validate_request_form(
                 )
 
             if not form.is_valid():
+                #TODO not sure if frontend should see which form field failed -> raise ValueError instead
                 return JsonResponse(
                     {"error": form.errors}, status=HTTPStatus.BAD_REQUEST
                 )
