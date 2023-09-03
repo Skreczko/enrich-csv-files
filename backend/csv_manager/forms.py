@@ -13,6 +13,7 @@ class CSVUploadFileRequestForm(forms.Form):
             raise forms.ValidationError(f"Incorrect file type ({file.content_type})")
         return file
 
+
 class CSVListFileRequestForm(forms.Form):
     page_number = forms.IntegerField(required=False, initial=1)
     page_size = forms.IntegerField(required=False, initial=100)
