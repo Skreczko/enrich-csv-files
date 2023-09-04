@@ -41,9 +41,6 @@ class CSVFile(models.Model):
     updated = models.DateTimeField(auto_now=True, null=True)
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
-    def __str__(self) -> str:
-        return f"name:{self.file.name} id:{self.id}"
-
 
 class EnrichDetails(models.Model):
     """

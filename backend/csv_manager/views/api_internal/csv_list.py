@@ -27,9 +27,10 @@ def csv_list(
 
     Note:
     - OPTIMIZATION: Use DRF. Avoid custom serialize ie. FileField, relations with other database tables etc.
+    - missing csrf
     """
 
-    page_number = request_form.cleaned_data["page_number"]
+    page_number = request_form.cleaned_data["page_number"] or 1
     page_size = request_form.cleaned_data["page_size"]
     sort = request_form.cleaned_data["sort"]
     search = request_form.cleaned_data["search"]
