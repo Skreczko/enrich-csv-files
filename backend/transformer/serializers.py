@@ -15,18 +15,19 @@ class ModelFieldType(TypedDict):
     url: str
     size: int
 
+
 # django serializer https://docs.djangoproject.com/en/3.2/topics/serialization/
 # is not enough to serialize queryset in needed way. Decided to write custom queryset serializer
 def serialize_queryset(
-        queryset: QuerySet[T],
-        select_related_models: dict[str, Any] | None = None,
-        fields: list[str] | None = None,
+    queryset: QuerySet[T],
+    select_related_model_mapping: dict[str, Any] | None = None,
+    fields: list[str] | None = None,
 ) -> list[dict[str, Any]]:
     """
     Serializes a Django QuerySet into a list of dictionaries with optional fields.
 
     :param queryset: Django QuerySet to be serialized. (may include annotations / left join on table)
-    :param select_related_models: Dictionary of TypedDicts for related models.
+    :param select_related_model_mapping: Dictionary of TypedDicts for related models.
                                   Keys should be the 'related_name' of the related models.
     :param fields: Optional list of field names to include in the serialized output.
                    If not provided, all fields will be included.
@@ -83,7 +84,9 @@ def serialize_queryset(
 
     serialized_data = []
     annotation_fields = queryset.query.annotations.keys()
-    select_related_model_keys = select_related_models.keys() if select_related_models else []
+    select_related_model_keys = (
+        select_related_model_mapping.keys() if select_related_model_mapping else []
+    )
 
     for obj in queryset:
         serialized_obj = {}
@@ -96,16 +99,19 @@ def serialize_queryset(
                 except ObjectDoesNotExist:
                     serialized_obj[field] = None
                     continue
-
                 if related_obj:
-                    related_typeddict = select_related_models[field]
+                    related_typeddict = select_related_model_mapping[field]
                     typeddict_fields = list(get_type_hints(related_typeddict).keys())
                     try:
-                        serialized_obj[field] = serialize_instance(instance=related_obj, fields=typeddict_fields)
+                        serialized_obj[field] = serialize_instance(
+                            instance=related_obj, fields=typeddict_fields
+                        )
                     except AttributeError as e:
                         return e
             elif isinstance(getattr(obj, field), FieldFile):
-                serialized_obj[field] = ModelFieldType(url=getattr(obj, field).url, size=getattr(obj, field).size)
+                serialized_obj[field] = ModelFieldType(
+                    url=getattr(obj, field).url, size=getattr(obj, field).size
+                )
             else:
                 serialized_obj[field] = getattr(obj, field)
 
@@ -132,6 +138,7 @@ def serialize_instance_list(
             instance_list,
         )
     )
+
 
 # `django.core.serializers` is not so good, ie it has problem to serialize primary_keys.
 #  Also, FileField is serialized by django in not expected way.

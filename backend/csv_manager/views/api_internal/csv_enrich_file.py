@@ -6,7 +6,7 @@ from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_POST
 
 from csv_manager.forms import CSVEnrichFileRequestForm
-from csv_manager.models import CSVFile, EnrichDetail
+from csv_manager.models import EnrichDetail
 from transformer.form_validator import validate_request_form
 
 
@@ -19,7 +19,7 @@ def csv_enrich_file(
     Note:
         - As we enrich CSV file, I assume that response from external_url will contain list of dicts. There might be a need to handle other cases
     """
-    a = 1
+
     external_url = request_form.cleaned_data["external_url"]
     external_response = requests.get(external_url)
     try:
@@ -31,13 +31,11 @@ def csv_enrich_file(
 
     data_json_keys = list(data_json[0].keys()) if data_json else []
 
-
     enrich_model, _ = EnrichDetail.objects.get_or_create(
-        csv_file_id= uuid,
-        external_url = external_url,
-        external_response=data_json
+        csv_file_id=uuid, external_url=external_url, external_response=data_json
     )
 
-
-
-    return JsonResponse({"external_url_keys": data_json_keys, "enrich_detail_id": enrich_model.id}, status=HTTPStatus.OK)
+    return JsonResponse(
+        {"external_url_keys": data_json_keys, "enrich_detail_id": enrich_model.id},
+        status=HTTPStatus.OK,
+    )

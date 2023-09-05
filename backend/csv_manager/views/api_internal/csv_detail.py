@@ -6,8 +6,7 @@ from django.views.decorators.http import require_GET
 from csv_manager.forms import CSVLDetailFileRequestForm
 from csv_manager.models import CSVFile
 from transformer.form_validator import validate_request_form
-from transformer.paginator import CustomPaginator
-from transformer.serializers import serialize_instance, serialize_instance_list
+from transformer.serializers import serialize_instance
 
 
 @require_GET
@@ -17,7 +16,7 @@ def csv_detail(
 ) -> JsonResponse:
     """ """
 
-    page_number = request_form.cleaned_data["page_number"] or 1
+    # page_number = request_form.cleaned_data["page_number"] or 1
 
     instance = (
         CSVFile.objects.filter(uuid=uuid)

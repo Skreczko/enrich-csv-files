@@ -2,7 +2,6 @@ from datetime import date
 from http import HTTPStatus
 from typing import TypedDict
 
-from django.db.models import F
 from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_GET
 
@@ -20,6 +19,7 @@ class EnrichDetailSerializerType(TypedDict):
     external_url: str
     id: int
     selected_key: str
+
 
 @require_GET
 @validate_request_form(CSVListFileRequestForm)
@@ -67,7 +67,9 @@ def csv_list(
     queryset = paginator.paginate_queryset(page_number)
     try:
         result = serialize_queryset(
-            queryset=queryset, fields=["uuid", "created", "file", "enrich_detail"], select_related_models={"enrich_detail": EnrichDetailSerializerType}
+            queryset=queryset,
+            fields=["uuid", "created", "file", "enrich_detail"],
+            select_related_model_mapping={"enrich_detail": EnrichDetailSerializerType},
         )
     except SerializationError as e:
         return JsonResponse(

@@ -17,7 +17,10 @@ class CSVFile(models.Model):
     """
     This model stores csv file and basic information about it.
     """
-    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, primary_key=True)
+
+    uuid = models.UUIDField(
+        default=uuid.uuid4, editable=False, unique=True, primary_key=True
+    )
 
     source_instance = models.ForeignKey(
         "self",
@@ -37,6 +40,7 @@ class EnrichDetail(models.Model):
     """
     This model stores information about enrich process using CSVFile models and external API
     """
+
     csv_file = models.OneToOneField(
         "CSVFile",
         on_delete=models.CASCADE,
@@ -55,4 +59,3 @@ class EnrichDetail(models.Model):
     # 3. Create CSVFile instance (id=3) using field "source_instance=2" -> enrich_level=2
     enrich_level = models.IntegerField(default=1)
     created = models.DateTimeField(auto_now_add=True)
-
