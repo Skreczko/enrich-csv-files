@@ -61,7 +61,7 @@ atc-django  | [28/Aug/2023 07:56:44] "GET /frontend/static/main.c8dbe57ae25aa563
 * To confirm, run `Django server` and use command below,
 Type 
 ```
-* docker exec -it atc-django bash
+docker exec -it atc-django bash
 ```
 you should see something like `root@868056ecf804:/opt/project/backend# `
 
@@ -74,6 +74,24 @@ In the Docker configuration, the `node_modules` directory is set as an anonymous
 * you got hint to install packages
 * if error occurred (permissions to add), please remove `node_modules` file which were created automatically (and which is empty) OR change permissions on that directory (`sudo chmod 777 node_modules/`)
 
+<u><b>Important2:</b></u>
+* there is an isssue with celery for running server using pycharm's django server. You need to run celery/celery-beat manually in container after you run this project with django server
+- run your project with green arrow
+- Type
+```
+docker exec -it atc-django bash
+```
+then type
+```
+watchmedo auto-restart --pattern '*.py' --signal SIGINT --recursive -- celery -A transformer worker -l debug
+```
+
+do same for celery-beat in other terminal:
+```
+watchmedo auto-restart --pattern '*.py' --signal SIGINT --recursive -- celery -A transformer beat -l debug
+```
+
+<u>that issue will be fixed in future development</u>
 
 ### For Windows users (only development mode)
 Please use `docker-compose.windows.yml`.

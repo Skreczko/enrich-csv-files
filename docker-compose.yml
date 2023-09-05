@@ -95,7 +95,7 @@ services:
       DATABASE_HOST: postgres
       DATABASE_USER: postgres
       DATABASE_NAME: transformer
-    command: celery -A transformer beat -l debug
+    command: watchmedo auto-restart --pattern '*.py' --signal SIGINT --recursive -- celery -A transformer beat -l debug
     volumes:
       - ${PWD}/backend/:/home/user/backend/:delegated
       - ${PWD}/media/:/home/user/media/:delegated
