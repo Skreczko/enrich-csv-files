@@ -34,6 +34,7 @@ services:
       - '8001:8001'
     volumes:
       - ./frontend/:/home/user/frontend/
+      - ${PWD}/media/:/home/user/media/:delegated
       - /home/user/frontend/node_modules
 
   # Main backend application
@@ -77,3 +78,4 @@ services:
     command: watchmedo auto-restart --pattern '*.py' --signal SIGINT --recursive -- celery -A transformer worker -l debug
     volumes:
       - ./backend/:/home/user/backend/
+      - ${PWD}/media/:/home/user/media/:delegated
