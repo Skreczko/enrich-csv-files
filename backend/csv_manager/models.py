@@ -17,15 +17,8 @@ class CSVFile(models.Model):
     """
     This model stores csv file and basic information about it.
     """
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, primary_key=True)
 
-    # separated as we should load enrich_data on demand (to not attach to every model instance)
-    enrich_details = models.OneToOneField(
-        "EnrichDetails",
-        null=True,
-        blank=True,
-        on_delete=models.CASCADE,
-        related_name="source",
-    )
     source_instance = models.ForeignKey(
         "self",
         null=True,
@@ -38,24 +31,23 @@ class CSVFile(models.Model):
     # Depending on business needs, additional logic may be required
     # Ie signals, functions, bulk_delete, overriding def delete...
     file = models.FileField(upload_to=csv_upload_path)
-    updated = models.DateTimeField(auto_now=True, null=True)
-    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
 
-class EnrichDetails(models.Model):
+class EnrichDetail(models.Model):
     """
     This model stores information about enrich process using CSVFile models and external API
     """
-
-    api_url = models.URLField(
+    csv_file = models.OneToOneField(
+        "CSVFile",
+        on_delete=models.CASCADE,
+        related_name="enrich_detail",
+    )
+    external_url = models.URLField(
         help_text="The origin URL which was used to enrich",
     )
-    api_response = models.JSONField()
-    source_column = models.TextField(
-        help_text="Merged column selected from CSVFile",
-    )
-    api_column = models.TextField(
-        help_text="Merged column selected from external API",
+    external_response = models.JSONField()
+    selected_key = models.TextField(
+        help_text="Selected json key to be used to merge with CSVFile",
     )
     # Contains information enrich deep level, ie.
     # 1. Create CSVFile instance (id=1) -> EnrichDetails instance does not exists
@@ -64,5 +56,3 @@ class EnrichDetails(models.Model):
     enrich_level = models.IntegerField(default=1)
     created = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self) -> str:
-        return f"{self.id}-{self.api_url}"

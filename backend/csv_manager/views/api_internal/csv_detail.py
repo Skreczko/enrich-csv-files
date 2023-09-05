@@ -13,7 +13,7 @@ from transformer.serializers import serialize_instance, serialize_instance_list
 @require_GET
 @validate_request_form(CSVLDetailFileRequestForm)
 def csv_detail(
-    request: HttpRequest, request_form: CSVLDetailFileRequestForm, uuid
+    request: HttpRequest, request_form: CSVLDetailFileRequestForm, uuid: str
 ) -> JsonResponse:
     """ """
 
@@ -21,7 +21,7 @@ def csv_detail(
 
     instance = (
         CSVFile.objects.filter(uuid=uuid)
-        .select_related("enrich_details", "source_instance")
+        .select_related("enrich_detail", "source_instance")
         .first()
     )
 

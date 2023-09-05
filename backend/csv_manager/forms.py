@@ -43,4 +43,4 @@ class CSVEnrichFileRequestForm(forms.Form):
     - Additional logic may be required, ie. validation on max size of file.
     """
 
-    url_to_enrich = forms.URLField()
+    external_url = forms.URLField()
