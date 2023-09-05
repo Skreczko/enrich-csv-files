@@ -1,7 +1,8 @@
 from datetime import date
 from http import HTTPStatus
-from typing import TypedDict
+from typing import Any, TypedDict
 
+from django.db.models import F
 from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_GET
 
@@ -18,13 +19,14 @@ class EnrichDetailSerializerType(TypedDict):
     enrich_level: int
     external_url: str
     id: int
-    selected_key: str
 
 
 @require_GET
 @validate_request_form(CSVListFileRequestForm)
 def csv_list(
-    request: HttpRequest, request_form: CSVListFileRequestForm
+    request: HttpRequest,
+    request_form: CSVListFileRequestForm,
+    *args: Any,  # args needed for mypy, because in some endpoints we pass args, ie uuid as url parameter.
 ) -> JsonResponse:
     """
     Endpoint to list CSV files.
@@ -48,8 +50,9 @@ def csv_list(
     date_from = request_form.cleaned_data["date_from"]
     date_to = request_form.cleaned_data["date_to"]
 
-    # queryset = CSVFile.objects.annotate(external_url=F("enrich_detail__external_url"))
-    queryset = CSVFile.objects.select_related("enrich_detail")
+    queryset = CSVFile.objects.select_related("enrich_detail").annotate(
+        source_instance_uuid=F("source_instance__uuid")
+    )
     filter_kwargs: dict = {}
 
     if search:
@@ -68,7 +71,15 @@ def csv_list(
     try:
         result = serialize_queryset(
             queryset=queryset,
-            fields=["uuid", "created", "file", "enrich_detail"],
+            fields=[
+                "uuid",
+                "created",
+                "file",
+                "file_row_count",
+                "file_headers",
+                "source_instance_uuid",
+                "enrich_detail",
+            ],
             select_related_model_mapping={"enrich_detail": EnrichDetailSerializerType},
         )
     except SerializationError as e:

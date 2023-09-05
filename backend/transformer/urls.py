@@ -66,18 +66,18 @@ urlpatterns = [
                                 name="csv_list",
                             ),
                             path(
-                                "/<uuid:uuid>",
+                                "/<uuid:uuid>/read_chunk",
                                 lazy_function_view(
-                                    "csv_manager.views.api_internal.csv_detail.csv_detail"
+                                    "csv_manager.views.api_internal.csv_read_file_chunk.csv_read_file_chunk"
                                 ),
-                                name="csv_detail",
+                                name="csv_read_chunk",
                             ),
                             path(
-                                "/<uuid:uuid>/enrich",
+                                "/<uuid:uuid>/enrich_detail_create",
                                 lazy_function_view(
-                                    "csv_manager.views.api_internal.csv_enrich_file.csv_enrich_file"
+                                    "csv_manager.views.api_internal.csv_enrich_detail_create.csv_enrich_detail_create"
                                 ),
-                                name="csv_enrich_file",
+                                name="csv_enrich_detail_create",
                             ),
                         ],
                     ),

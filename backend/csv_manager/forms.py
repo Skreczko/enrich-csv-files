@@ -32,7 +32,7 @@ class CSVListFileRequestForm(forms.Form):
 
 
 class CSVLDetailFileRequestForm(forms.Form):
-    page_number = forms.IntegerField(required=False)
+    chunk_number = forms.IntegerField(required=False)
 
 
 class CSVEnrichFileRequestForm(forms.Form):

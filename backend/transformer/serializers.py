@@ -1,6 +1,5 @@
 from typing import Any, TypeVar, TypedDict, get_type_hints
 
-from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Model, QuerySet
 from django.db.models.fields.files import FieldFile
 from django.forms import model_to_dict
@@ -20,8 +19,8 @@ class ModelFieldType(TypedDict):
 # is not enough to serialize queryset in needed way. Decided to write custom queryset serializer
 def serialize_queryset(
     queryset: QuerySet[T],
+    fields: list[str],
     select_related_model_mapping: dict[str, Any] | None = None,
-    fields: list[str] | None = None,
 ) -> list[dict[str, Any]]:
     """
     Serializes a Django QuerySet into a list of dictionaries with optional fields.
@@ -29,8 +28,7 @@ def serialize_queryset(
     :param queryset: Django QuerySet to be serialized. (may include annotations / left join on table)
     :param select_related_model_mapping: Dictionary of TypedDicts for related models.
                                   Keys should be the 'related_name' of the related models.
-    :param fields: Optional list of field names to include in the serialized output.
-                   If not provided, all fields will be included.
+    :param fields: List of field names to include in the serialized output.
 
                    Serialize annotation fields can be provided directly
 
@@ -89,37 +87,41 @@ def serialize_queryset(
     )
 
     for obj in queryset:
-        serialized_obj = {}
+        serialized_obj: dict[str, Any] = {}
         for field in fields:
-            if field in annotation_fields:
-                serialized_obj[field] = getattr(obj, field)
-            elif field in select_related_model_keys:
+            object_field = getattr(obj, field, None)
+            if isinstance(object_field, FieldFile):
                 try:
-                    related_obj = getattr(obj, field)
-                except ObjectDoesNotExist:
+                    serialized_obj[field] = ModelFieldType(
+                        url=object_field.url, size=object_field.size
+                    )
+                except ValueError:
+                    # that means user selected file to enrich, made a request with external_url but didnt select columns to merge.
+                    # this instance will be deleted with user (frontend show that this instance is not valid or removed with celery schedule task)
                     serialized_obj[field] = None
-                    continue
-                if related_obj:
-                    related_typeddict = select_related_model_mapping[field]
+            elif field in annotation_fields:
+                serialized_obj[field] = object_field
+            elif field in select_related_model_keys:
+                if object_field:
+                    related_typeddict = select_related_model_mapping[field]  # type: ignore  # error: Value of type "Optional[Dict[str, Any]]" is not indexable - mypy incorrect mark that because if we loop over select_related_model_keys, that means select_related_model_mapping exists and is indexable
                     typeddict_fields = list(get_type_hints(related_typeddict).keys())
                     try:
                         serialized_obj[field] = serialize_instance(
-                            instance=related_obj, fields=typeddict_fields
+                            instance=object_field, fields=typeddict_fields
                         )
                     except AttributeError as e:
-                        return e
-            elif isinstance(getattr(obj, field), FieldFile):
-                serialized_obj[field] = ModelFieldType(
-                    url=getattr(obj, field).url, size=getattr(obj, field).size
-                )
+                        return e  # type: ignore  # needed to do that, as this return will be fetched in upper function and displayed to user. Changing return type is not recommended
+                else:
+                    serialized_obj[field] = object_field
             else:
-                serialized_obj[field] = getattr(obj, field)
+                serialized_obj[field] = object_field
 
         serialized_data.append(serialized_obj)
 
     return serialized_data
 
 
+# TODO to remove
 def serialize_instance_list(
     *, instance_list: list[T], fields: FieldsType = None
 ) -> list[dict[str, Any]]:
