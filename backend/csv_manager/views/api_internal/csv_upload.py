@@ -41,7 +41,7 @@ def csv_upload(
 
     celery_task = cast(
         Task, process_csv_metadata
-    )  # mypy has problem because it does not recognize that process_csv_metadata is Task. Fix to future development
+    )  # mypy has problem because it does not recognize that process_csv_metadata as Task. TODO Fix to future development
     celery_task.apply_async(
         args=(),
         kwargs={

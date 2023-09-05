@@ -41,5 +41,24 @@ def process_csv_metadata(self: Task, uuid: str, *args: Any, **kwargs: Any) -> No
     return
 
 
-# TODO crontib to remove CSVFile instance and related EnrichDetail instance, where file does not exist.
-# That means user provided selected source CSVFile, provided external url but didnt select columns to merge
+@shared_task()
+def clear_csvfile() -> None:
+    """
+    Asynchronously delete CSVFile instances with empty or null file fields.
+
+    This task queries the database for CSVFile instances where the file field is either empty or null.
+    Any matching instances are then deleted from the database.
+
+    :return: None
+
+    Note:
+    - This task is designed to be run periodically to clean up any CSVFile records without associated files.
+    - It's recommended to run this task during off-peak hours to minimize potential database contention.
+    """
+
+    from csv_manager.models import CSVFile
+    from django.db.models import Q
+
+    CSVFile.objects.filter(Q(file="") | Q(file__isnull=True)).delete()
+
+    return

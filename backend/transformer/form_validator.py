@@ -26,7 +26,7 @@ def validate_request_form(
     """
 
     def decorator(func: GenericFunc) -> WrapperFunc:
-        def wrapper(request: HttpRequest, *args: Any) -> HttpResponse:
+        def wrapper(request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
             if request.method == "POST":
                 form = request_serializer(data=request.POST, files=request.FILES)
             elif request.method == "GET":
@@ -42,7 +42,7 @@ def validate_request_form(
                     {"error": form.errors}, status=HTTPStatus.BAD_REQUEST
                 )
 
-            return func(request, form, *args)
+            return func(request, form, *args, **kwargs)
 
         return wrapper
 
