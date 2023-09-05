@@ -19,6 +19,8 @@ docker-compose up
 ```
 Remember that changes in frontend will not be tracked.
 
+the name of `docker-compose.yml` should be `docker-compose.prod.yml` - to rename in future development
+
 ### Development mode
 In terminal, type 
 ```
