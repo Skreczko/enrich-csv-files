@@ -9,3 +9,4 @@ redis==3.5.3
 requests==2.27.1
 uuid==1.30
 watchdog[watchmedo]==2.1.5
+fsspec==2023.9.0
