@@ -151,12 +151,12 @@ def serialize_instance(*, instance: T, fields: FieldsType = None) -> dict[str, A
     """
 
     if fields:
-        try:
-            serialized = {}
-            for field in fields:
+        serialized = {}
+        for field in fields:
+            try:
                 serialized.update({field: getattr(instance, field)})
-        except AttributeError:
-            raise SerializationError(instance, field)
+            except AttributeError:
+                raise SerializationError(instance, field)
     else:
         serialized = model_to_dict(instance)
 
