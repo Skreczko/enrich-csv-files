@@ -29,7 +29,8 @@ Remove that file details from redux after getting info other than "in_progress"
 * Notifications will emerge when enriched file status has been changed.
 
 ### Backend
-* Custom serializer functions (as DRF is restricted to use). Not every cases are handled. Ie there is a custom serializer for serialize FieldFile
+* Custom serializer functions (as DRF is restricted to use). `django.core.serializers` is not so good, ie it has problem to serialize primary_keys. Also, FileField is serialized in not expected way.
+In my custom serializer, not every case is handled.
 * Custom paginator (from django) also adapted to met conditions from project.
 
 ## Upload file section

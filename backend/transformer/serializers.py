@@ -1,8 +1,10 @@
-from typing import Any, TypeVar, TypedDict
+from typing import Any, TypeVar, TypedDict, get_type_hints
 
 from django.db.models import Model, QuerySet
 from django.db.models.fields.files import FieldFile
 from django.forms import model_to_dict
+
+from transformer.exceptions import SerializationError
 
 T = TypeVar("T", bound=Model)
 FieldsType = list[str] | None
@@ -13,37 +15,113 @@ class ModelFieldType(TypedDict):
     size: int
 
 
+# django serializer https://docs.djangoproject.com/en/3.2/topics/serialization/
+# is not enough to serialize queryset in needed way. Decided to write custom queryset serializer
 def serialize_queryset(
-    *, queryset: QuerySet[T], fields: FieldsType = None
+    queryset: QuerySet[T],
+    fields: list[str],
+    select_related_model_mapping: dict[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
     """
     Serializes a Django QuerySet into a list of dictionaries with optional fields.
 
-    :param queryset: Django QuerySet to be serialized.
-    :param fields: Optional list of field names to include in the serialized output.
-                   If not provided, all fields will be included.
-    :raises ValueError: If any field in the 'fields' list does not exist in the model.
+    :param queryset: Django QuerySet to be serialized. (may include annotations / left join on table)
+    :param select_related_model_mapping: Dictionary of TypedDicts for related models.
+                                  Keys should be the 'related_name' of the related models.
+    :param fields: List of field names to include in the serialized output.
+
+                   Serialize annotation fields can be provided directly
+
+                   Example:
+                   :queryset MyModel.objects.annotate(example=...)
+                   :fields fields=["example", ...],
+
+                   serialize_queryset(..., fields=["example", ...], ...)
+
+                   ______________________________________________________________________________________________
+
+                   Serialize fields from select_related must include select_related value in :fields
+                   TypedDict (type[U]) must include exact fields as in related model
+
+                   Example:
+
+                   Models:
+                       class MyModel:
+                            ...
+
+                       class SRModel:
+                            csv_file = models.OneToOneField(
+                                "MyModel",
+                                on_delete=models.CASCADE,
+                                related_name="related_connection_name",  <--- important!
+                            )
+                            foo = models.TextField(...)
+                            ...
+
+                   TypedDict
+                       class SRModelType(TypedDict):
+                            foo: str
+                            ...
+
+                   :queryset MyModel.objects.select_related("related_connection_name")
+
+
+                    serialize_queryset(...,
+                        fields=["related_connection_name", ...],
+                        related_models={
+                            'related_connection_name': SRModelType
+                        }
+                    )
+
+    :raises AttributeError: If any field in the 'fields' list does not exist in the model or instance.
     :return: List of dictionaries representing the serialized QuerySet.
 
     Note:
-    - Relations to other tables in the database are not handled.
-    - FieldFile type fields are not handled.
+    - This implementation does not handle nested relations e.g., `Author -> Book -> Publisher` or prefetch_related
     """
 
-    if fields:
-        # TODO relations to other table in database not handled.
-        # TODO FieldFile
-        model_fields = [f.name for f in queryset.model._meta.fields]
-        annotation_fields = queryset.query.annotations.keys()
-        known_fields = set(model_fields + list(annotation_fields))
-        unknown_fields = [field for field in fields if field not in known_fields]
-        if unknown_fields:
-            raise ValueError(f"Unknown fields: {', '.join(unknown_fields)}")
+    serialized_data = []
+    annotation_fields = queryset.query.annotations.keys()
+    select_related_model_keys = (
+        select_related_model_mapping.keys() if select_related_model_mapping else []
+    )
 
-        return list(queryset.only(*fields).values(*fields))
-    return list(queryset.values())
+    for obj in queryset:
+        serialized_obj: dict[str, Any] = {}
+        for field in fields:
+            object_field = getattr(obj, field, None)
+            if isinstance(object_field, FieldFile):
+                try:
+                    serialized_obj[field] = ModelFieldType(
+                        url=object_field.url, size=object_field.size
+                    )
+                except ValueError:
+                    # that means user selected file to enrich, made a request with external_url but didnt select columns to merge.
+                    # this instance will be deleted with user (frontend show that this instance is not valid or removed with celery schedule task)
+                    serialized_obj[field] = None
+            elif field in annotation_fields:
+                serialized_obj[field] = object_field
+            elif field in select_related_model_keys:
+                if object_field:
+                    related_typeddict = select_related_model_mapping[field]  # type: ignore  # error: Value of type "Optional[Dict[str, Any]]" is not indexable - mypy incorrect mark that because if we loop over select_related_model_keys, that means select_related_model_mapping exists and is indexable
+                    typeddict_fields = list(get_type_hints(related_typeddict).keys())
+                    try:
+                        serialized_obj[field] = serialize_instance(
+                            instance=object_field, fields=typeddict_fields
+                        )
+                    except AttributeError as e:
+                        return e  # type: ignore  # needed to do that, as this return will be fetched in upper function and displayed to user. Changing return type is not recommended
+                else:
+                    serialized_obj[field] = object_field
+            else:
+                serialized_obj[field] = object_field
+
+        serialized_data.append(serialized_obj)
+
+    return serialized_data
 
 
+# TODO to remove
 def serialize_instance_list(
     *, instance_list: list[T], fields: FieldsType = None
 ) -> list[dict[str, Any]]:
@@ -64,6 +142,8 @@ def serialize_instance_list(
     )
 
 
+# `django.core.serializers` is not so good, ie it has problem to serialize primary_keys.
+#  Also, FileField is serialized by django in not expected way.
 def serialize_instance(*, instance: T, fields: FieldsType = None) -> dict[str, Any]:
     """
     Serializes a single Django model instance into a dictionary with optional fields.
@@ -73,12 +153,19 @@ def serialize_instance(*, instance: T, fields: FieldsType = None) -> dict[str, A
                    If not provided, all fields will be included.
     :return: Dictionary representing the serialized instance.
 
+    :raises SerializationError: If any field in the 'fields' list does not exist in the instance.
+
     Note:
     - If a field is of type FieldFile, the output will include the URL and size of the file.
     """
 
     if fields:
-        serialized = {field: getattr(instance, field) for field in fields}
+        serialized = {}
+        for field in fields:
+            try:
+                serialized.update({field: getattr(instance, field)})
+            except AttributeError:
+                raise SerializationError(instance, field)
     else:
         serialized = model_to_dict(instance)
 

@@ -42,15 +42,13 @@ class CustomPaginator:
             page_size=self.page_size,
         )
 
-    def paginate_queryset(self, page_number: int) -> list[T]:
+    def paginate_queryset(self, page_number: int) -> QuerySet[T]:
         """
-        Paginate the queryset and return a list of model instances for the given page number.
+        Paginate the queryset and return a queryset for the given page number.
         An error will be raised for an empty page or an invalid page number.
         """
         page = self.paginator.page(page_number or self.page_number)
         try:
-            return list(
-                page.object_list
-            )  # that is list of Model Instances, but mypy treat it like QuerySet, so that is why it is wrapped in "list"
+            return page.object_list
         except (EmptyPage, InvalidPage):
             raise InvalidPage("Invalid page number")

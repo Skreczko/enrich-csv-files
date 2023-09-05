@@ -54,12 +54,33 @@ urlpatterns = [
                     ),
                     name="csv_upload",
                 ),
-                path(
-                    "/csv_list",
-                    lazy_function_view(
-                        "csv_manager.views.api_internal.csv_list.csv_list"
+                re_path(
+                    r"^/csv_list",
+                    include(
+                        [
+                            path(
+                                "",
+                                lazy_function_view(
+                                    "csv_manager.views.api_internal.csv_list.csv_list"
+                                ),
+                                name="csv_list",
+                            ),
+                            path(
+                                "/<uuid:uuid>/read_chunk",
+                                lazy_function_view(
+                                    "csv_manager.views.api_internal.csv_read_file_chunk.csv_read_file_chunk"
+                                ),
+                                name="csv_read_chunk",
+                            ),
+                            path(
+                                "/<uuid:uuid>/enrich_detail_create",
+                                lazy_function_view(
+                                    "csv_manager.views.api_internal.csv_enrich_detail_create.csv_enrich_detail_create"
+                                ),
+                                name="csv_enrich_detail_create",
+                            ),
+                        ],
                     ),
-                    name="csv_list",
                 ),
             ],
         ),
