@@ -46,14 +46,14 @@ def clear_csvfile() -> None:
     """
     Asynchronously delete CSVFile instances with empty or null file fields.
 
-    This task queries the database for CSVFile instances where the file field is either empty or null.
-    Any matching instances are then deleted from the database.
+    This task is designed to periodically clean up CSVFile records that lack associated files.
+    Such empty CSVFile instances are typically created when a user selects a CSVFile for enrichment,
+    provides an external_url with a JSON response, but does not select columns to join between them.
 
     :return: None
 
-    Note:
-    - This task is designed to be run periodically to clean up any CSVFile records without associated files.
-    - It's recommended to run this task during off-peak hours to minimize potential database contention.
+    Notes:
+    - It's recommended to schedule this task during off-peak hours to minimize potential database contention.
     """
 
     from csv_manager.models import CSVFile

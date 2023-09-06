@@ -1,13 +1,13 @@
 from collections.abc import Callable
+from functools import wraps
 from http import HTTPStatus
 from typing import Any, TypeVar
 from django.http import JsonResponse, HttpRequest, HttpResponse
 from django import forms
 
-T = TypeVar("T", bound=forms.Form)
+from decorators.types import GenericFunc, WrapperFunc
 
-GenericFunc = Callable[[HttpRequest, T, Any], HttpResponse]
-WrapperFunc = Callable[[HttpRequest], HttpResponse]
+T = TypeVar("T", bound=forms.Form)
 
 
 def validate_request_form(
@@ -23,9 +23,16 @@ def validate_request_form(
 
     :param request_serializer: Form class (subclass of forms.Form) used for validating the request data.
     :return: Callable wrapper function.
+
+    Usage:
+    ------
+    @validate_request_form(request_serializer=ExampleForm)
+    def my_view(request, request_form=ExampleForm, *args, **kwargs):
+        ...
     """
 
     def decorator(func: GenericFunc) -> WrapperFunc:
+        @wraps(func)  # to keep metadata
         def wrapper(request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
             if request.method == "POST":
                 form = request_serializer(data=request.POST, files=request.FILES)

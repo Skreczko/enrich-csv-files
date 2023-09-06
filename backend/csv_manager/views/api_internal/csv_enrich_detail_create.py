@@ -7,7 +7,7 @@ from django.views.decorators.http import require_POST
 
 from csv_manager.forms import CSVEnrichFileRequestForm
 from csv_manager.models import CSVFile, EnrichDetail
-from transformer.form_validator import validate_request_form
+from decorators.form_validator import validate_request_form
 
 
 @require_POST

@@ -8,7 +8,7 @@ from django.views.decorators.http import require_GET
 
 from csv_manager.forms import CSVListFileRequestForm
 from csv_manager.models import CSVFile
-from transformer.form_validator import validate_request_form
+from decorators.form_validator import validate_request_form
 from transformer.paginator import CustomPaginator
 from transformer.serializers import serialize_queryset
 from transformer.exceptions import SerializationError
