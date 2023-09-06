@@ -86,6 +86,29 @@ DATABASES = {
     }
 }
 
+
+# Celery
+BROKER_URL = os.environ["BROKER_URL"]
+CELERY_BROKER_URL = f"{BROKER_URL}/0"
+CELERY_RESULT_BACKEND = f"{BROKER_URL}/1"
+CELERY_WORKER_CONCURRENCY = 1
+
+
+# Cache https://docs.djangoproject.com/en/3.2/topics/cache/
+# https://pypi.org/project/django-redis/
+CACHE_BACKEND = os.environ.get("CACHE_BACKEND", "django_redis.cache.RedisCache")
+CACHE_LOCATION = os.environ.get("CACHE_LOCATION", "redis://redis:6379/1")
+CACHES = {
+    "default": {"BACKEND": CACHE_BACKEND, "LOCATION": CACHE_LOCATION,},
+}
+if CACHE_LOCATION.startswith("redis://"):
+    # only required when using redis
+    CACHES["default"]["OPTIONS"] = {"CLIENT_CLASS": "django_redis.client.DefaultClient"}
+SESSION_CACHE_ALIAS = "default"
+
+#TODO add cache for local-memory cachong
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 USE_TZ = True
@@ -123,8 +146,3 @@ WEBPACK_LOADER = {
 }
 
 
-# Celery
-BROKER_URL = os.environ["BROKER_URL"]
-CELERY_BROKER_URL = f"{BROKER_URL}/0"
-CELERY_RESULT_BACKEND = f"{BROKER_URL}/1"
-CELERY_WORKER_CONCURRENCY = 1
