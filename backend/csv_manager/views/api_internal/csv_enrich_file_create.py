@@ -9,20 +9,23 @@ from csv_manager.models import CSVFile, EnrichDetail
 from decorators.form_validator import validate_request_form
 
 
+
 def validate_merge_params(
     external_keys_list: list[str],
-    selected_merge_key: str,
     headers_list: list[str],
-    selected_merge_header: str,
+    user_selections: dict[str,str]
 ) -> JsonResponse | None:
-    if selected_merge_key not in external_keys_list:
+    selected_key = user_selections["selected_key"]
+    if selected_key not in external_keys_list:
         return JsonResponse(
-            {"error": f"'{selected_merge_key}' not in {external_keys_list}"},
+            {"error": f"'{selected_key}' not in {external_keys_list}"},
             status=HTTPStatus.BAD_REQUEST,
         )
-    if selected_merge_header not in headers_list:
+
+    selected_header = user_selections["selected_header"]
+    if selected_header not in headers_list:
         return JsonResponse(
-            {"error": f"'{selected_merge_header}' not in {headers_list}"},
+            {"error": f"'{selected_header}' not in {headers_list}"},
             status=HTTPStatus.BAD_REQUEST,
         )
 
@@ -41,29 +44,36 @@ def csv_enrich_file_create(
 
     """
 
+    from csv_manager.tasks import process_csv_enrichment
+    from celery import Task
+
+    enrich_detail_id = request_form.cleaned_data["enrich_detail_id"]
     try:
         enrich_detail_instance = (
             EnrichDetail.objects.select_related("csv_file__source_instance")
             .only(
                 "external_elements_key_list", "csv_file__source_instance__file_headers"
             )
-            .get(id=request_form.cleaned_data["enrich_detail_id"])
+            .get(id=enrich_detail_id)
         )
     except EnrichDetail.DoesNotExist:
         return JsonResponse(
-            {"error": f"EnrichDetail matching query does not exist"},
+            {
+                "error": f"EnrichDetail ({enrich_detail_id=}) matching query does not exist"
+            },
             status=HTTPStatus.INTERNAL_SERVER_ERROR,
         )
     source_csvfile_instance: "CSVFile" = enrich_detail_instance.csv_file.source_instance
 
-    selected_merge_key = request_form.cleaned_data["selected_merge_key"]
-    selected_merge_header = request_form.cleaned_data["selected_merge_header"]
+    user_selections = {
+        "selected_key": request_form.cleaned_data["selected_merge_key"],
+        "selected_header": request_form.cleaned_data["selected_merge_header"]
+    }
 
     validation_response = validate_merge_params(
         external_keys_list=enrich_detail_instance.external_keys,
-        selected_merge_key=selected_merge_key,
         headers_list=source_csvfile_instance.headers,
-        selected_merge_header=selected_merge_header,
+        user_selections=user_selections
     )
     if validation_response:
         return validation_response
@@ -74,15 +84,19 @@ def csv_enrich_file_create(
     # )
     #
     #
-    # celery_task = cast(
-    #     Task, process_csv_metadata
-    # )  # mypy has problem because it does not recognize that process_csv_metadata as Task. TODO Fix to future development
-    # celery_task.apply_async(
-    #     args=(),
-    #     kwargs={
-    #         "uuid": str(instance.uuid),
-    #     },
-    #     serializer="json",
-    # )
+    from csv_manager.enums import EnrichmentStatus
 
-    return JsonResponse({"name": file.name}, status=HTTPStatus.OK)
+
+    EnrichDetail.objects.filter(id=enrich_detail_id).update(status=EnrichmentStatus.IN_PROGRESS.value, **user_selections)
+    celery_task = cast(
+        Task, process_csv_enrichment
+    )  # mypy has problem because it does not recognize that process_csv_metadata as Task. TODO Fix to future development
+    task = celery_task.apply_async(
+        args=(),
+        kwargs={
+            "enrich_detail_id": enrich_detail_id,
+        },
+        serializer="json",  # didn't use pickle (which could reduce database requests) due to security concerns.
+    )
+
+    return JsonResponse({"task_id": task.id}, status=HTTPStatus.OK)

@@ -4,7 +4,6 @@ from celery import Task, shared_task
 from django.db.models import F
 
 
-
 @shared_task(
     bind=True,
     autoretry_for=(Exception,),
@@ -50,7 +49,7 @@ def clear_csvfile() -> None:
 
     This task is designed to periodically clean up CSVFile records that:
     1. Lack associated files (i.e., the file field is empty or null).
-    2. Have an associated enrichment detail with a status of "IN_PROGRESS" and were created more than 7 days ago.
+    2. Have an associated enrichment detail with a status of "INITIATED" and were created more than 3 days ago. (same as for schedule)
 
     Such empty CSVFile instances can be created under various circumstances, including when a user initiates an enrichment process but does not complete it.
 
@@ -64,10 +63,9 @@ def clear_csvfile() -> None:
     from django.db.models import Q
     from datetime import timedelta
 
-
     from csv_manager.enums import EnrichmentStatus
 
-    check_date = F("enrich_detail__created") - timedelta(days=7)
+    check_date = F("enrich_detail__created") - timedelta(days=3)
 
     CSVFile.objects.only(
         "file", "enrich_detail__status", "enrich_detail__created"
@@ -75,21 +73,32 @@ def clear_csvfile() -> None:
         # check if file exists
         (Q(file="") | Q(file__isnull=True))
         # check status and date
-        &
-        Q(enrich_detail__status=EnrichmentStatus.IN_PROGRESS, created__lt=check_date)
+        & Q(enrich_detail__status=EnrichmentStatus.INITIATED, created__lte=check_date)
     ).delete()
 
     return
 
+
 @shared_task(bind=True)
-def process_csv_enrichment(self: Task, enrich_detail_id: int, selected_merge_key: str, selected_merge_header:str, *args: Any, **kwargs: Any) -> None:
+def process_csv_enrichment(
+    self: Task,
+    enrich_detail_id: int,
+    selected_merge_key: str,
+    selected_merge_header: str,
+    *args: Any,
+    **kwargs: Any,
+) -> None:
     import petl as etl
 
     from csv_manager.models import EnrichDetail
     from csv_manager.models import CSVFile
 
     enrich_detail_instance = (
-        EnrichDetail.objects.select_related("csv_file", "csv_file__source_instance", "csv_file__source_instance__enrich_detail")
+        EnrichDetail.objects.select_related(
+            "csv_file",
+            "csv_file__source_instance",
+            "csv_file__source_instance__enrich_detail",
+        )
         # .only(
         #     "external_elements_key_list", "csv_file__source_instance__file_headers"
         # )
@@ -97,13 +106,13 @@ def process_csv_enrichment(self: Task, enrich_detail_id: int, selected_merge_key
     )
 
     source_csvfile_instance: "CSVFile" = enrich_detail_instance.csv_file.source_instance
-    source_enrich_detail_instance: "EnrichDetail" = enrich_detail_instance.csv_file.enrich_detail
+    source_enrich_detail_instance: "EnrichDetail" = (
+        enrich_detail_instance.csv_file.enrich_detail
+    )
 
     table = etl.fromcsv(csv_path)
 
-
     external_table = etl.fromdicts(external_response)
-
 
     merged_table = etl.leftjoin(
         table, external_table, key=selected_merge_header, lprefix="csv_", rprefix="api_"

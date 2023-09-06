@@ -10,3 +10,4 @@ class EnrichmentStatus(StrEnum):
     IN_PROGRESS = auto()
     FINISHED = auto()
     FAILED = auto()
+    INITIATED = auto()

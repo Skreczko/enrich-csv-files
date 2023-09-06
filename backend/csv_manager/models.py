@@ -80,7 +80,7 @@ class EnrichDetail(models.Model):
     status = models.CharField(
         max_length=50,
         choices=[(e, e.value) for e in EnrichmentStatus],
-        default=EnrichmentStatus.IN_PROGRESS,
+        default=EnrichmentStatus.INITIATED,
         help_text="Status of process of enrichment csv file",
     )
     external_url = models.URLField(

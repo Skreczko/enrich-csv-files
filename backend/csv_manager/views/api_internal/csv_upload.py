@@ -45,7 +45,7 @@ def csv_upload(
         kwargs={
             "uuid": str(instance.uuid),
         },
-        serializer="json",
+        serializer="json",  # didn't use pickle (which could reduce database requests) due to security concerns.
     )
 
     return JsonResponse({"name": file.name}, status=HTTPStatus.OK)
