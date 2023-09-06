@@ -1,5 +1,6 @@
 import uuid
 from django.db import models
+from django.utils.functional import cached_property
 
 
 def csv_upload_path(instance: "CSVFile", filename: str) -> str:
@@ -52,7 +53,10 @@ class CSVFile(models.Model):
         help_text="List of headers from file. Use this field instead using file to get headers",
     )
 
-    @property
+    class Meta:
+        ordering = ["created"]
+
+    @cached_property
     def headers(self) -> list[str]:
         import json
 
@@ -99,7 +103,7 @@ class EnrichDetail(models.Model):
     # 3. Create CSVFile instance (id=3) using field "source_instance=2" -> enrich_level=2
     enrich_level = models.IntegerField(default=1)
 
-    @property
+    @cached_property
     def external_keys(self) -> list[str]:
         import json
 
