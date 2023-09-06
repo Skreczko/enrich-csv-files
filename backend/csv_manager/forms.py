@@ -1,9 +1,9 @@
 from django import forms
 
-from transformer.constants import CsvListSortColumn
+from csv_manager.enums import CsvListSortColumn
 
 
-class CSVUploadFileRequestForm(forms.Form):
+class CSVUploadRequestForm(forms.Form):
     """
     Note:
     - Additional logic may be required, ie. validation on max size of file.
@@ -35,10 +35,16 @@ class CSVLDetailFileRequestForm(forms.Form):
     chunk_number = forms.IntegerField(required=False)
 
 
-class CSVEnrichFileRequestForm(forms.Form):
+class CSVEnrichDetailCreateRequestForm(forms.Form):
     """
     Note:
     - Additional logic may be required, ie. validation on max size of file.
     """
 
     external_url = forms.URLField()
+
+
+class CSVEnrichFileRequestForm(forms.Form):
+    enrich_detail_id = forms.IntegerField()
+    selected_merge_key = forms.CharField()
+    selected_merge_header = forms.CharField()

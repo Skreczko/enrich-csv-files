@@ -54,6 +54,13 @@ urlpatterns = [
                     ),
                     name="csv_upload",
                 ),
+                path(
+                    "/enrich_file_create",
+                    lazy_function_view(
+                        "csv_manager.views.api_internal.csv_enrich_file_create.csv_enrich_file_create"
+                    ),
+                    name="csv_enrich_file_create",
+                ),
                 re_path(
                     r"^/csv_list",
                     include(
@@ -74,13 +81,6 @@ urlpatterns = [
                             ),
                             path(
                                 "/<uuid:uuid>/enrich_detail_create",
-                                lazy_function_view(
-                                    "csv_manager.views.api_internal.csv_enrich_detail_create.csv_enrich_detail_create"
-                                ),
-                                name="csv_enrich_detail_create",
-                            ),
-                            path(
-                                "/enrich_file_create",
                                 lazy_function_view(
                                     "csv_manager.views.api_internal.csv_enrich_detail_create.csv_enrich_detail_create"
                                 ),

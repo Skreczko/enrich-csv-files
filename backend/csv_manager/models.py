@@ -2,6 +2,8 @@ import uuid
 from django.db import models
 from django.utils.functional import cached_property
 
+from csv_manager.enums import EnrichmentStatus
+
 
 def csv_upload_path(instance: "CSVFile", filename: str) -> str:
     import os
@@ -32,12 +34,13 @@ class CSVFile(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     # Files and folders will not be deleted after instance deletion.
     # Depending on business needs, additional logic may be required
-    # Ie signals, functions, bulk_delete, overriding def delete...
+    # Ie signals, functions, bulk_delete, overriding def delete, scheduled task...
     file = models.FileField(
         upload_to=csv_upload_path,
         null=True,
         blank=True,
     )
+    original_file_name = models.TextField()
 
     # Filled in celery
     # optimization for keeping row_count instead count them - as file will not change
@@ -47,6 +50,7 @@ class CSVFile(models.Model):
         blank=True,
         help_text="Number of table rows excluding table header",
     )
+    # For future development - that should include type of data related to column. check docstring for csv_enrich_file_create view for more details
     file_headers = models.JSONField(
         null=True,
         blank=True,
@@ -73,6 +77,12 @@ class EnrichDetail(models.Model):
         on_delete=models.CASCADE,
         related_name="enrich_detail",
     )
+    status = models.CharField(
+        max_length=50,
+        choices=[(e, e.value) for e in EnrichmentStatus],
+        default=EnrichmentStatus.IN_PROGRESS,
+        help_text="Status of process of enrichment csv file",
+    )
     external_url = models.URLField(
         help_text="The origin URL which was used to enrich",
     )
@@ -89,6 +99,7 @@ class EnrichDetail(models.Model):
         blank=True,
         help_text="Number of dict elements",
     )
+    # For future development - that should include type of data related to key. check docstring for csv_enrich_file_create view for more details
     external_elements_key_list = models.JSONField(
         blank=True,
         null=True,
@@ -97,10 +108,14 @@ class EnrichDetail(models.Model):
     selected_key = models.TextField(
         help_text="Selected json key to be used to merge with CSVFile",
     )
+    selected_header = models.TextField(
+        help_text="Selected header to be used to merge with external_response",
+    )
     # Contains information enrich deep level, ie.
     # 1. Create CSVFile instance (id=1) -> EnrichDetails instance does not exists
     # 2. Create CSVFile instance (id=2) using field "source_instance=1" -> enrich_level=1
     # 3. Create CSVFile instance (id=3) using field "source_instance=2" -> enrich_level=2
+    # needed to create tree list view
     enrich_level = models.IntegerField(default=1)
 
     @cached_property

@@ -6,6 +6,7 @@ from django.db.models import F
 from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_GET
 
+from csv_manager.enums import EnrichmentStatus
 from csv_manager.forms import CSVListFileRequestForm
 from csv_manager.models import CSVFile
 from decorators.form_validator import validate_request_form
@@ -16,6 +17,7 @@ from transformer.exceptions import SerializationError
 
 class EnrichDetailSerializerType(TypedDict):
     created: date
+    status: EnrichmentStatus
     enrich_level: int
     external_url: str
     id: int
