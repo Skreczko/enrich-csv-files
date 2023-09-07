@@ -36,11 +36,6 @@ class CSVLDetailFileRequestForm(forms.Form):
 
 
 class CSVEnrichDetailCreateRequestForm(forms.Form):
-    """
-    Note:
-    - Additional logic may be required, ie. validation on max size of file.
-    """
-
     external_url = forms.URLField()
 
 

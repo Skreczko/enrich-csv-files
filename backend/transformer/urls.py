@@ -6,7 +6,7 @@ from django.urls import include, path, re_path
 from django.views.generic import TemplateView
 from requests import Request
 
-from csv_manager.url_patterns import lazy_function_view
+from transformer.url_patterns import lazy_function_view
 
 
 def healthcheck(request: Request) -> HttpResponse:

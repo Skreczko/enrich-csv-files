@@ -6,6 +6,18 @@ from csv_manager.enums import EnrichmentStatus
 
 
 def csv_upload_path(instance: "CSVFile", filename: str) -> str:
+    """
+    Generate a unique upload path for CSV files.
+
+    This function constructs a unique file path for uploaded CSV files based on the instance's UUID.
+    The path is structured to place the file inside a directory per user (currently named "no_user"), which
+    serves as a placeholder for potential future development where files might be organized into user-specific folders.
+
+    :param instance: The instance of the CSVFile model for which the file is being uploaded.
+    :param filename: The original name of the uploaded file.
+    :return: A unique file path for the uploaded CSV file.
+    """
+
     import os
 
     # for future development: create folder per user
@@ -62,9 +74,43 @@ class CSVFile(models.Model):
 
     @cached_property
     def headers(self) -> list[str]:
+        """
+        Retrieve the headers of the associated CSV file.
+
+        This method returns the headers of the CSV file, which are stored in the `file_headers` field.
+        The headers are returned as a list of strings. The use of `cached_property` ensures that
+        the headers are fetched from the database only once and then cached for subsequent accesses,
+        improving performance.
+
+        :return: A list of header strings from the associated CSV file.
+        """
+
         import json
 
         return json.loads(self.file_headers)
+
+    def update_csv_metadata(self) -> None:
+        """
+        Update the CSV file's metadata stored in the model.
+
+        This method reads the associated CSV file to extract its metadata, including:
+        - The number of rows (excluding the header), which is then stored in the `file_row_count` field.
+        - The headers of the CSV, which are stored in the `file_headers` field.
+
+        It's designed to be used whenever there's a need to refresh or initially set the metadata of the CSV file
+        without manually parsing the file elsewhere.
+
+        Note: This method performs file I/O operations and might be time-consuming for large files.
+        """
+
+        import json
+        import petl as etl
+
+        table = etl.fromcsv(self.file.path)
+
+        self.file_row_count = etl.nrows(table)
+        self.file_headers = json.dumps(etl.header(table))
+        self.save(update_fields=("file_row_count", "file_headers"))
 
 
 class EnrichDetail(models.Model):
@@ -106,10 +152,10 @@ class EnrichDetail(models.Model):
         help_text="List of main keys from external_response. Use this field instead using external_response to get keys",
     )
     selected_key = models.TextField(
-        help_text="Selected json key to be used to merge with CSVFile",
+        help_text="Selected json key from 'external_elements_key_list' to be used to merge with 'CSVFile.file_headers'",
     )
     selected_header = models.TextField(
-        help_text="Selected header to be used to merge with external_response",
+        help_text="Selected header from 'CSVFile.file_headers' to be used to merge with 'external_elements_key_list'",
     )
     # Contains information enrich deep level, ie.
     # 1. Create CSVFile instance (id=1) -> EnrichDetails instance does not exists
@@ -120,6 +166,17 @@ class EnrichDetail(models.Model):
 
     @cached_property
     def external_keys(self) -> list[str]:
+        """
+        Retrieve the main keys from the external response.
+
+        This method returns the main keys of the external response, which are stored in the
+        `external_elements_key_list` field. The keys are returned as a list of strings.
+        The use of `cached_property` ensures that the keys are fetched from the database
+        only once and then cached for subsequent accesses, improving performance.
+
+        :return: A list of key strings from the associated external response.
+        """
+
         import json
 
         return json.loads(self.external_elements_key_list)

@@ -3,6 +3,8 @@ from typing import Any, cast
 from celery import Task, shared_task
 from django.db.models import F
 
+from csv_manager.models import CSVFile
+
 
 @shared_task(
     bind=True,
@@ -28,22 +30,13 @@ def process_csv_metadata(self: Task, uuid: str, *args: Any, **kwargs: Any) -> No
     - Logger needed - ie. Datadog or django logging
     """
 
-    from csv_manager.models import CSVFile
-    import json
-    import petl as etl
-
-    instance = CSVFile.objects.get(uuid=uuid)
-    table = etl.fromcsv(instance.file.path)
-
-    instance.file_row_count = etl.nrows(table)
-    instance.file_headers = json.dumps(etl.header(table))
-    instance.save(update_fields=("file_row_count", "file_headers"))
+    CSVFile.objects.get(uuid=uuid).update_csv_metadata()
 
     return
 
 
 @shared_task()
-def clear_csvfile() -> None:
+def clear_empty_csvfile() -> None:
     """
     Asynchronously delete CSVFile instances based on specific criteria.
 
@@ -59,7 +52,6 @@ def clear_csvfile() -> None:
     - It's recommended to schedule this task during off-peak hours to minimize potential database contention.
     """
 
-    from csv_manager.models import CSVFile
     from django.db.models import Q
     from datetime import timedelta
 
@@ -89,11 +81,7 @@ def process_csv_enrichment(
     import petl as etl
 
     from csv_manager.models import EnrichDetail
-    from csv_manager.models import CSVFile
-    from django.core.files import File
-    import os
-    from io import BytesIO
-
+    from csv_manager.enums import EnrichmentStatus
 
 
     enrich_detail_instance = (
@@ -108,43 +96,34 @@ def process_csv_enrichment(
         .get(id=enrich_detail_id)
     )
 
-    csvfile_instance = enrich_detail_instance.csv_file
+    csvfile_instance:CSVFile = enrich_detail_instance.csv_file
 
-    source_csvfile_instance: "CSVFile" = csvfile_instance.source_instance
-    source_enrich_detail_instance: "EnrichDetail" = (
+    source_csvfile_instance: CSVFile = csvfile_instance.source_instance
+    source_enrich_detail_instance: EnrichDetail = (
         csvfile_instance.enrich_detail
     )
-
+    # todo failed status
+    # set up output path with correct file naming
     source_instance_file_path = source_csvfile_instance.file.path
-
-    table = etl.fromcsv(source_csvfile_instance.file.path)
-
-    external_table = etl.fromdicts(enrich_detail_instance.external_response)
-
-    merged_table = etl.leftjoin(table, external_table, lkey=enrich_detail_instance.selected_header, rkey=enrich_detail_instance.selected_key, lprefix='csv_', rprefix='api_')
     output_path = f"{source_instance_file_path.rsplit('/', 1)[0]}/{csvfile_instance.uuid}.csv"
 
+    csv_file_table = etl.fromcsv(source_csvfile_instance.file.path)
+    external_response_table = etl.fromdicts(enrich_detail_instance.external_response)
 
+    merged_table = etl.leftjoin(csv_file_table, external_response_table, lkey=enrich_detail_instance.selected_header, rkey=enrich_detail_instance.selected_key, lprefix='csv_', rprefix='api_')
+
+    # create enriched file in the same path as source file
     etl.tocsv(merged_table, output_path)
-    #
-    # csvfile_instance.file.save(f"{csvfile_instance.uuid}.csv", File(temp_output_path))
-    # csvfile_instance.save()
 
-
+    # assign enriched file to csvfile_instance
     csvfile_instance.file.name = output_path
     csvfile_instance.original_file_name = f"{source_csvfile_instance.original_file_name}_enriched.csv"
     csvfile_instance.save()
 
-    celery_task = cast(
-        Task, process_csv_metadata
-    )  # mypy has problem because it does not recognize that process_csv_metadata as Task. TODO Fix to future development
-    celery_task.apply_async(
-        args=(),
-        kwargs={
-            "uuid": str(csvfile_instance.uuid),
-        },
-        serializer="json",  # didn't use pickle (which could reduce database requests) due to security concerns.
-    )
+    csvfile_instance.update_csv_metadata()
+
+    enrich_detail_instance.status = EnrichmentStatus.FINISHED
+    enrich_detail_instance.save(update_fields=("status",))
 
 
     #todo joins switch

@@ -77,7 +77,7 @@ def serialize_queryset(
     :return: List of dictionaries representing the serialized QuerySet.
 
     Note:
-    - This implementation does not handle nested relations e.g., `Author -> Book -> Publisher` or prefetch_related
+    - This implementation does not handle nested relations ie. `Author -> Book -> Publisher` or prefetch_related
     """
 
     serialized_data = []
@@ -97,20 +97,20 @@ def serialize_queryset(
                     )
                 except ValueError:
                     # that means user selected file to enrich, made a request with external_url but didnt select columns to merge.
-                    # this instance will be deleted with user (frontend show that this instance is not valid or removed with celery schedule task)
+                    # this instance will be deleted with user (frontend show that this instance is not valid or removed with celery schedule task - clear_empty_csvfile)
                     serialized_obj[field] = None
             elif field in annotation_fields:
                 serialized_obj[field] = object_field
             elif field in select_related_model_keys:
                 if object_field:
-                    related_typeddict = select_related_model_mapping[field]  # type: ignore  # error: Value of type "Optional[Dict[str, Any]]" is not indexable - mypy incorrect mark that because if we loop over select_related_model_keys, that means select_related_model_mapping exists and is indexable
+                    related_typeddict = select_related_model_mapping[field]  # type: ignore  # error: Value of type "Optional[Dict[str, Any]]" is not indexable - mypy incorrectly mark that because if we loop over select_related_model_keys, that means select_related_model_mapping exists and it is indexable
                     typeddict_fields = list(get_type_hints(related_typeddict).keys())
                     try:
                         serialized_obj[field] = serialize_instance(
                             instance=object_field, fields=typeddict_fields
                         )
                     except AttributeError as e:
-                        return e  # type: ignore  # needed to do that, as this return will be fetched in upper function and displayed to user. Changing return type is not recommended
+                        return e  # type: ignore  # needed to do that, as this "return e" will be fetched in upper function and displayed to user. Changing return type in function definition is not recommended
                 else:
                     serialized_obj[field] = object_field
             else:

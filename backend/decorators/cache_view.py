@@ -31,6 +31,9 @@ def cache_view_response(
                     Default is 12 hours.
     :return: The cached JsonResponse if available, otherwise the original view function's response.
 
+    Note:
+    - Only useful for JsonResponse
+
     Usage:
     ------
     @cache_view_response(timeout=3600)
