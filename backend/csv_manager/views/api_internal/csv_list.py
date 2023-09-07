@@ -77,6 +77,7 @@ def csv_list(
                 "uuid",
                 "created",
                 "file",
+                "original_file_name",
                 "file_row_count",
                 "file_headers",
                 "source_instance_uuid",

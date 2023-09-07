@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, cast
 
 from celery import Task, shared_task
 from django.db.models import F
@@ -79,19 +79,22 @@ def clear_csvfile() -> None:
     return
 
 
-@shared_task(bind=True)
+# @shared_task(bind=True)
 def process_csv_enrichment(
-    self: Task,
+    # self: Task,
     enrich_detail_id: int,
-    selected_merge_key: str,
-    selected_merge_header: str,
     *args: Any,
     **kwargs: Any,
-) -> None:
+) -> str:
     import petl as etl
 
     from csv_manager.models import EnrichDetail
     from csv_manager.models import CSVFile
+    from django.core.files import File
+    import os
+    from io import BytesIO
+
+
 
     enrich_detail_instance = (
         EnrichDetail.objects.select_related(
@@ -105,20 +108,45 @@ def process_csv_enrichment(
         .get(id=enrich_detail_id)
     )
 
-    source_csvfile_instance: "CSVFile" = enrich_detail_instance.csv_file.source_instance
+    csvfile_instance = enrich_detail_instance.csv_file
+
+    source_csvfile_instance: "CSVFile" = csvfile_instance.source_instance
     source_enrich_detail_instance: "EnrichDetail" = (
-        enrich_detail_instance.csv_file.enrich_detail
+        csvfile_instance.enrich_detail
     )
 
-    table = etl.fromcsv(csv_path)
+    source_instance_file_path = source_csvfile_instance.file.path
 
-    external_table = etl.fromdicts(external_response)
+    table = etl.fromcsv(source_csvfile_instance.file.path)
 
-    merged_table = etl.leftjoin(
-        table, external_table, key=selected_merge_header, lprefix="csv_", rprefix="api_"
-    )
+    external_table = etl.fromdicts(enrich_detail_instance.external_response)
 
-    output_path = "path_to_output_file.csv"
+    merged_table = etl.leftjoin(table, external_table, lkey=enrich_detail_instance.selected_header, rkey=enrich_detail_instance.selected_key, lprefix='csv_', rprefix='api_')
+    output_path = f"{source_instance_file_path.rsplit('/', 1)[0]}/{csvfile_instance.uuid}.csv"
+
+
     etl.tocsv(merged_table, output_path)
+    #
+    # csvfile_instance.file.save(f"{csvfile_instance.uuid}.csv", File(temp_output_path))
+    # csvfile_instance.save()
 
-    return output_path
+
+    csvfile_instance.file.name = output_path
+    csvfile_instance.original_file_name = f"{source_csvfile_instance.original_file_name}_enriched.csv"
+    csvfile_instance.save()
+
+    celery_task = cast(
+        Task, process_csv_metadata
+    )  # mypy has problem because it does not recognize that process_csv_metadata as Task. TODO Fix to future development
+    celery_task.apply_async(
+        args=(),
+        kwargs={
+            "uuid": str(csvfile_instance.uuid),
+        },
+        serializer="json",  # didn't use pickle (which could reduce database requests) due to security concerns.
+    )
+
+
+    #todo joins switch
+    # todo enrich level
+    return str(csvfile_instance.uuid)

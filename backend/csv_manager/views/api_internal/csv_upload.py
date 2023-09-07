@@ -7,6 +7,7 @@ from django.views.decorators.http import require_POST
 from csv_manager.forms import CSVUploadRequestForm
 from csv_manager.models import CSVFile
 from decorators.form_validator import validate_request_form
+from transformer.serializers import serialize_instance
 
 
 @require_POST
@@ -48,4 +49,7 @@ def csv_upload(
         serializer="json",  # didn't use pickle (which could reduce database requests) due to security concerns.
     )
 
-    return JsonResponse({"name": file.name}, status=HTTPStatus.OK)
+
+    return JsonResponse(data=serialize_instance(
+        instance=instance, fields=["uuid", "original_file_name"]
+    ), status=HTTPStatus.OK)

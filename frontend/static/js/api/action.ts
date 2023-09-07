@@ -6,7 +6,7 @@ import { store } from '../redux/store';
 
 const api = axios.create();
 
-export async function uploadFile(fileElement: FileType): Promise<{ name: string }> {
+export async function uploadFile(fileElement: FileType): Promise<{ original_file_name: string }> {
   const formData = new FormData();
   const { file, uuid } = fileElement;
 

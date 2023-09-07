@@ -49,6 +49,7 @@ def csv_enrich_file_create(
 
     enrich_detail_id = request_form.cleaned_data["enrich_detail_id"]
     try:
+        #TODO filter status EnrichmentStatus.INITIAL
         enrich_detail_instance = (
             EnrichDetail.objects.select_related("csv_file__source_instance")
             .only(
@@ -78,12 +79,6 @@ def csv_enrich_file_create(
     if validation_response:
         return validation_response
 
-    # file = request_form.cleaned_data["file"]
-    # instance = CSVFile.objects.create(
-    #     file=file,
-    # )
-    #
-    #
     from csv_manager.enums import EnrichmentStatus
 
 
@@ -91,12 +86,14 @@ def csv_enrich_file_create(
     celery_task = cast(
         Task, process_csv_enrichment
     )  # mypy has problem because it does not recognize that process_csv_metadata as Task. TODO Fix to future development
-    task = celery_task.apply_async(
-        args=(),
-        kwargs={
-            "enrich_detail_id": enrich_detail_id,
-        },
-        serializer="json",  # didn't use pickle (which could reduce database requests) due to security concerns.
-    )
+    # task = celery_task.apply_async(
+    #     args=(),
+    #     kwargs={
+    #         "enrich_detail_id": enrich_detail_id,
+    #     },
+    #     serializer="json",  # didn't use pickle (which could reduce database requests) due to security concerns.
+    # )
+    aa = process_csv_enrichment(enrich_detail_id=enrich_detail_id)
 
-    return JsonResponse({"task_id": task.id}, status=HTTPStatus.OK)
+    # return JsonResponse({"task_id": task.id}, status=HTTPStatus.OK)
+    return JsonResponse({"file_id": aa}, status=HTTPStatus.OK)
