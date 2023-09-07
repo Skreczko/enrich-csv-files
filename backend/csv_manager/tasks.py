@@ -1,4 +1,4 @@
-from typing import Any, cast
+from typing import Any
 
 from celery import Task, shared_task
 from django.db.models import F
@@ -78,11 +78,11 @@ def process_csv_enrichment(
     *args: Any,
     **kwargs: Any,
 ) -> str:
-    import petl as etl
-
     from csv_manager.models import EnrichDetail
     from csv_manager.enums import EnrichmentStatus
 
+    from csv_manager.enrich_table_joins import create_enrich_table_by_join_type
+    from csv_manager.enums import EnrichmentJoinType
 
     enrich_detail_instance = (
         EnrichDetail.objects.select_related(
@@ -96,36 +96,30 @@ def process_csv_enrichment(
         .get(id=enrich_detail_id)
     )
 
-    csvfile_instance:CSVFile = enrich_detail_instance.csv_file
+    csvfile_instance: CSVFile = enrich_detail_instance.csv_file
 
     source_csvfile_instance: CSVFile = csvfile_instance.source_instance
     source_enrich_detail_instance: EnrichDetail = (
         csvfile_instance.enrich_detail
-    )
+    )  # TODO  for enrich level
     # todo failed status
-    # set up output path with correct file naming
-    source_instance_file_path = source_csvfile_instance.file.path
-    output_path = f"{source_instance_file_path.rsplit('/', 1)[0]}/{csvfile_instance.uuid}.csv"
 
-    csv_file_table = etl.fromcsv(source_csvfile_instance.file.path)
-    external_response_table = etl.fromdicts(enrich_detail_instance.external_response)
+    output_path = create_enrich_table_by_join_type(
+        join_type=EnrichmentJoinType.RIGHT,
+        enriched_file_name=str(csvfile_instance.uuid),
+        source_instance_file_path=source_csvfile_instance.file.path,
+        enrich_detail_instance=enrich_detail_instance,
+    )
 
-    merged_table = etl.leftjoin(csv_file_table, external_response_table, lkey=enrich_detail_instance.selected_header, rkey=enrich_detail_instance.selected_key, lprefix='csv_', rprefix='api_')
-
-    # create enriched file in the same path as source file
-    etl.tocsv(merged_table, output_path)
-
-    # assign enriched file to csvfile_instance
     csvfile_instance.file.name = output_path
-    csvfile_instance.original_file_name = f"{source_csvfile_instance.original_file_name}_enriched.csv"
+    csvfile_instance.original_file_name = (
+        f"{source_csvfile_instance.original_file_name}_enriched.csv"
+    )
     csvfile_instance.save()
-
     csvfile_instance.update_csv_metadata()
 
     enrich_detail_instance.status = EnrichmentStatus.FINISHED
     enrich_detail_instance.save(update_fields=("status",))
 
-
-    #todo joins switch
     # todo enrich level
     return str(csvfile_instance.uuid)

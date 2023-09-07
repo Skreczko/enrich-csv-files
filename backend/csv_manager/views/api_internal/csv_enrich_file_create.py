@@ -9,11 +9,10 @@ from csv_manager.models import CSVFile, EnrichDetail
 from decorators.form_validator import validate_request_form
 
 
-
 def validate_merge_params(
     external_keys_list: list[str],
     headers_list: list[str],
-    user_selections: dict[str,str]
+    user_selections: dict[str, str],
 ) -> JsonResponse | None:
     selected_key = user_selections["selected_key"]
     if selected_key not in external_keys_list:
@@ -49,7 +48,7 @@ def csv_enrich_file_create(
 
     enrich_detail_id = request_form.cleaned_data["enrich_detail_id"]
     try:
-        #TODO filter status EnrichmentStatus.INITIAL
+        # TODO filter status EnrichmentStatus.INITIAL
         enrich_detail_instance = (
             EnrichDetail.objects.select_related("csv_file__source_instance")
             .only(
@@ -68,21 +67,22 @@ def csv_enrich_file_create(
 
     user_selections = {
         "selected_key": request_form.cleaned_data["selected_merge_key"],
-        "selected_header": request_form.cleaned_data["selected_merge_header"]
+        "selected_header": request_form.cleaned_data["selected_merge_header"],
     }
 
     validation_response = validate_merge_params(
         external_keys_list=enrich_detail_instance.external_keys,
         headers_list=source_csvfile_instance.headers,
-        user_selections=user_selections
+        user_selections=user_selections,
     )
     if validation_response:
         return validation_response
 
     from csv_manager.enums import EnrichmentStatus
 
-
-    EnrichDetail.objects.filter(id=enrich_detail_id).update(status=EnrichmentStatus.IN_PROGRESS.value, **user_selections)
+    EnrichDetail.objects.filter(id=enrich_detail_id).update(
+        status=EnrichmentStatus.IN_PROGRESS.value, **user_selections
+    )
     celery_task = cast(
         Task, process_csv_enrichment
     )  # mypy has problem because it does not recognize that process_csv_metadata as Task. TODO Fix to future development

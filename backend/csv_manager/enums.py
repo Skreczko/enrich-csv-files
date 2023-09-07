@@ -11,3 +11,13 @@ class EnrichmentStatus(StrEnum):
     FINISHED = auto()
     FAILED = auto()
     INITIATED = auto()
+
+
+class EnrichmentJoinType(StrEnum):
+    """
+    full join not included as does not meet task requirements
+    """
+
+    LEFT = auto()
+    RIGHT = auto()
+    INNER = auto()

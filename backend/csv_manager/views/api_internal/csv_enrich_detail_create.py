@@ -60,7 +60,7 @@ def csv_enrich_detail_create(
         external_url=external_url,
         external_response=data_json,
         external_elements_key_list=json.dumps(data_json_keys),
-        external_elements_count=len(data_json)
+        external_elements_count=len(data_json),
     )
 
     return JsonResponse(
