@@ -10,7 +10,7 @@ T = TypeVar("T", bound=Model)
 FieldsType = list[str] | None
 
 
-class ModelFieldType(TypedDict):
+class FileFieldType(TypedDict):
     url: str
     size: int
 
@@ -92,7 +92,7 @@ def serialize_queryset(
             object_field = getattr(obj, field, None)
             if isinstance(object_field, FieldFile):
                 try:
-                    serialized_obj[field] = ModelFieldType(
+                    serialized_obj[field] = FileFieldType(
                         url=object_field.url, size=object_field.size
                     )
                 except ValueError:
@@ -109,8 +109,8 @@ def serialize_queryset(
                         serialized_obj[field] = serialize_instance(
                             instance=object_field, fields=typeddict_fields
                         )
-                    except AttributeError as e:
-                        return e  # type: ignore  # needed to do that, as this "return e" will be fetched in upper function and displayed to user. Changing return type in function definition is not recommended
+                    except AttributeError:
+                        raise SerializationError(obj, field)
                 else:
                     serialized_obj[field] = object_field
             else:
@@ -171,6 +171,6 @@ def serialize_instance(*, instance: T, fields: FieldsType = None) -> dict[str, A
 
     for field, value in serialized.items():
         if isinstance(value, FieldFile):
-            serialized[field] = ModelFieldType(url=value.url, size=value.size)
+            serialized[field] = FileFieldType(url=value.url, size=value.size)
 
     return serialized

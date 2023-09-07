@@ -32,7 +32,12 @@ def cache_view_response(
     :return: The cached JsonResponse if available, otherwise the original view function's response.
 
     Note:
-    - Only useful for JsonResponse
+    - A custom caching mechanism was used instead of Django's built-in @cache_page() because any
+      unmatched path in urls.py is redirected with an HTTP 200 status to React, where further
+      handling occurs. Django's default behavior would cache these redirects, which is undesirable
+      in this context.
+    - This decorator is specifically designed for JsonResponse.
+
 
     Usage:
     ------

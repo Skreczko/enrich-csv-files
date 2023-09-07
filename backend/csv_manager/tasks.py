@@ -32,7 +32,6 @@ def process_csv_metadata(self: Task, uuid: str, *args: Any, **kwargs: Any) -> No
 
     CSVFile.objects.get(uuid=uuid).update_csv_metadata()
 
-    return
 
 
 @shared_task()
@@ -59,16 +58,13 @@ def clear_empty_csvfile() -> None:
 
     check_date = F("enrich_detail__created") - timedelta(days=3)
 
-    CSVFile.objects.only(
-        "file", "enrich_detail__status", "enrich_detail__created"
-    ).filter(
+    CSVFile.objects.filter(
         # check if file exists
         (Q(file="") | Q(file__isnull=True))
         # check status and date
         & Q(enrich_detail__status=EnrichmentStatus.INITIATED, created__lte=check_date)
     ).delete()
 
-    return
 
 
 # @shared_task(bind=True)
