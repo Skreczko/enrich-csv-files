@@ -4,6 +4,8 @@ from celery import Task, shared_task
 from django.db.models import F
 
 from csv_manager.models import CSVFile
+from csv_manager.enums import EnrichmentJoinType
+
 
 
 @shared_task(
@@ -78,30 +80,21 @@ def process_csv_enrichment(
     from csv_manager.enums import EnrichmentStatus
 
     from csv_manager.enrich_table_joins import create_enrich_table_by_join_type
-    from csv_manager.enums import EnrichmentJoinType
 
     enrich_detail_instance = (
         EnrichDetail.objects.select_related(
             "csv_file",
             "csv_file__source_instance",
-            "csv_file__source_instance__enrich_detail",
         )
-        # .only(
-        #     "external_elements_key_list", "csv_file__source_instance__file_headers"
-        # )
         .get(id=enrich_detail_id)
     )
 
     csvfile_instance: CSVFile = enrich_detail_instance.csv_file
-
     source_csvfile_instance: CSVFile = csvfile_instance.source_instance
-    source_enrich_detail_instance: EnrichDetail = (
-        csvfile_instance.enrich_detail
-    )  # TODO  for enrich level
-    # todo failed status
+
 
     output_path = create_enrich_table_by_join_type(
-        join_type=EnrichmentJoinType.RIGHT,
+        join_type=enrich_detail_instance.join_type,
         enriched_file_name=str(csvfile_instance.uuid),
         source_instance_file_path=source_csvfile_instance.file.path,
         enrich_detail_instance=enrich_detail_instance,

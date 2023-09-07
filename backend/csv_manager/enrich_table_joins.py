@@ -143,8 +143,17 @@ def create_enrich_table_by_join_type(
     # create table from csv file
     csv_file_table = etl.fromcsv(source_instance_file_path)
 
-    # create table from external api response
-    external_response_table = etl.fromdicts(enrich_detail_instance.external_response)
+    # create table from external api response -
+    if enrich_detail_instance.is_flat:
+        # used flatdict library as this provides the best performance benchmark
+        # https://www.freecodecamp.org/news/how-to-flatten-a-dictionary-in-python-in-4-different-ways/
+        import flatdict
+
+        flatten_dict = flatdict.FlatDict(enrich_detail_instance.external_response, delimiter='_')
+        external_response_table = etl.fromdicts(flatten_dict)
+    else:
+        external_response_table = etl.fromdicts(enrich_detail_instance.external_response)
+
 
     handler = join_switch.get(join_type)
 

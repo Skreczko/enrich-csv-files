@@ -2,7 +2,7 @@ import uuid
 from django.db import models
 from django.utils.functional import cached_property
 
-from csv_manager.enums import EnrichmentStatus
+from csv_manager.enums import EnrichmentJoinType, EnrichmentStatus
 
 
 def csv_upload_path(instance: "CSVFile", filename: str) -> str:
@@ -145,6 +145,14 @@ class EnrichDetail(models.Model):
         blank=True,
         help_text="Number of dict elements",
     )
+    join_type = models.CharField(
+        null=True,
+        blank=True,
+        max_length=50,
+        choices=[(e, e.value) for e in EnrichmentJoinType],
+        help_text="Selected type of join",
+    )
+    is_flat = models.BooleanField(default=False, help_text="Indicates whether the dict should be flattened when stored in the table cell.",)
     # For future development - that should include type of data related to key. check docstring for csv_enrich_file_create view for more details
     external_elements_key_list = models.JSONField(
         blank=True,
@@ -157,12 +165,6 @@ class EnrichDetail(models.Model):
     selected_header = models.TextField(
         help_text="Selected header from 'CSVFile.file_headers' to be used to merge with 'external_elements_key_list'",
     )
-    # Contains information enrich deep level, ie.
-    # 1. Create CSVFile instance (id=1) -> EnrichDetails instance does not exists
-    # 2. Create CSVFile instance (id=2) using field "source_instance=1" -> enrich_level=1
-    # 3. Create CSVFile instance (id=3) using field "source_instance=2" -> enrich_level=2
-    # needed to create tree list view
-    enrich_level = models.IntegerField(default=1)
 
     @cached_property
     def external_keys(self) -> list[str]:

@@ -4,6 +4,7 @@ from typing import Any, cast
 from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_POST
 
+from csv_manager.enums import EnrichmentStatus
 from csv_manager.forms import CSVEnrichFileRequestForm
 from csv_manager.models import CSVFile, EnrichDetail
 from decorators.form_validator import validate_request_form
@@ -47,16 +48,11 @@ def csv_enrich_file_create(
     from celery import Task
 
     enrich_detail_id = request_form.cleaned_data["enrich_detail_id"]
-    try:
-        # TODO filter status EnrichmentStatus.INITIAL
-        enrich_detail_instance = (
-            EnrichDetail.objects.select_related("csv_file__source_instance")
-            .only(
-                "external_elements_key_list", "csv_file__source_instance__file_headers"
-            )
-            .get(id=enrich_detail_id)
-        )
-    except EnrichDetail.DoesNotExist:
+    enrich_detail_queryset =EnrichDetail.objects.defer("external_response").select_related("csv_file__source_instance").filter(id=enrich_detail_id,status=EnrichmentStatus.INITIATED,)
+
+
+    enrich_detail_instance = enrich_detail_queryset.first()
+    if not enrich_detail_instance:
         return JsonResponse(
             {
                 "error": f"EnrichDetail ({enrich_detail_id=}) matching query does not exist"
@@ -68,6 +64,8 @@ def csv_enrich_file_create(
     user_selections = {
         "selected_key": request_form.cleaned_data["selected_merge_key"],
         "selected_header": request_form.cleaned_data["selected_merge_header"],
+        "join_type": request_form.cleaned_data["join_type"],
+        "is_flat": request_form.cleaned_data["is_flat"],
     }
 
     validation_response = validate_merge_params(
@@ -75,14 +73,14 @@ def csv_enrich_file_create(
         headers_list=source_csvfile_instance.headers,
         user_selections=user_selections,
     )
-    if validation_response:
+
+    status = EnrichmentStatus.FAILED if validation_response else EnrichmentStatus.IN_PROGRESS
+    enrich_detail_queryset.update(status=status, **user_selections)
+
+    if status == EnrichmentStatus.FAILED:
         return validation_response
 
-    from csv_manager.enums import EnrichmentStatus
 
-    EnrichDetail.objects.filter(id=enrich_detail_id).update(
-        status=EnrichmentStatus.IN_PROGRESS.value, **user_selections
-    )
     celery_task = cast(
         Task, process_csv_enrichment
     )  # mypy has problem because it does not recognize that process_csv_metadata as Task. TODO Fix to future development
