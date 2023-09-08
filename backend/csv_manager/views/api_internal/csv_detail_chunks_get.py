@@ -57,7 +57,7 @@ def csv_detail_chunks_get(
         {
             "chunk_number": chunk_number,
             "chunk_size": chunk_size,
-            "headers": instance.headers,
+            "headers": instance.file_headers,
             "rows": list(etl.data(etl.rowslice(table, start_row, end_row))),
             "uuid": str(uuid),
         },

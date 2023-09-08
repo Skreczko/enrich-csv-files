@@ -77,8 +77,8 @@ def csv_enrich_file_create(
     }
 
     validation_response = validate_merge_params(
-        external_keys_list=enrich_detail_instance.external_keys,
-        headers_list=source_csvfile_instance.headers,  # type: ignore  # mypy has problem, as in database its null=True, blank=True, but that value will be assigned when it reach this place (update_csv_metadata)
+        external_keys_list=enrich_detail_instance.external_elements_key_list,
+        headers_list=source_csvfile_instance.file_headers,  # type: ignore  # mypy has problem, as in database its null=True, blank=True, but that value will be assigned when it reach this place (update_csv_metadata)
         user_selections=user_selections,
     )
 

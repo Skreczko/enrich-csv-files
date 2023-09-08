@@ -3,10 +3,9 @@ import { UploadFileWrapper } from './UploadFile.styled';
 import { useDispatch } from 'react-redux';
 import { setNotificationPopupOpen } from '../../../redux/NotificationPopupSlice';
 import { UploadedFileList } from './UploadedFileList';
-import { uploadFile } from '../../../api/action';
 import { v4 as uuidv4 } from 'uuid';
 import {
-  FileDetailsType,
+  FileDetailsManagementType,
   FileStatusEnum,
   setFileDetails,
   updateFileDetail,
@@ -15,7 +14,9 @@ import { FileUploadControls } from './FileUploadControls';
 import { NotificationAppearanceEnum } from '../../notification/NotificationPopup';
 import { ErrorType, generateHTMLErrorMessages } from '../../notification/helpers';
 
-export type FileType = FileDetailsType & { file: File };
+import { ApiAction, uploadFile } from '../../../api/actions';
+
+export type FileType = FileDetailsManagementType & { file: File };
 type IncorrectFileDetailsType = {
   reason: string;
   file: File;
@@ -145,7 +146,7 @@ export const UploadFile: React.FC = () => {
   const onFilesSend = async (): Promise<void> => {
     const uploadPromises = fileElements.map(async fileElement => {
       try {
-        const response = await uploadFile(fileElement);
+        const response = await uploadFile({ action: ApiAction.UPLOAD_FILE, fileElement });
         dispatch(updateFileDetail({ uuid: fileElement.uuid, status: FileStatusEnum.UPLOADED }));
         dispatch(
           setNotificationPopupOpen({

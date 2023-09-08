@@ -22,7 +22,7 @@ class CSVUploadRequestForm(forms.Form):
 class CSVListFileRequestForm(forms.Form):
     date_from = forms.DateField(required=False)
     date_to = forms.DateField(required=False)
-    page_number = forms.IntegerField(required=False)
+    page = forms.IntegerField(required=False)
     page_size = forms.IntegerField(required=False)
     search = forms.CharField(required=False)
     sort = forms.ChoiceField(

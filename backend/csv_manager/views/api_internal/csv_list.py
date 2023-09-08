@@ -4,7 +4,7 @@ from typing import Any, TypedDict
 
 from django.db.models import F
 from django.http import HttpRequest, JsonResponse
-from django.views.decorators.http import require_GET
+from django.views.decorators.http import require_POST
 
 from csv_manager.enums import EnrichmentStatus
 from csv_manager.forms import CSVListFileRequestForm
@@ -17,12 +17,13 @@ from transformer.exceptions import SerializationError
 
 class EnrichDetailSerializerType(TypedDict):
     created: date
+    external_elements_key_list: list[str]
     external_url: str
     id: int
     status: EnrichmentStatus
 
 
-@require_GET
+@require_POST
 @validate_request_form(CSVListFileRequestForm)
 def csv_list(
     request: HttpRequest,
@@ -44,7 +45,7 @@ def csv_list(
     - missing csrf
     """
 
-    page_number = request_form.cleaned_data["page_number"] or 1
+    page = request_form.cleaned_data["page"] or 1
     page_size = request_form.cleaned_data["page_size"]
     sort = request_form.cleaned_data["sort"]
     search = request_form.cleaned_data["search"]
@@ -68,7 +69,7 @@ def csv_list(
         queryset = queryset.order_by(sort)
 
     paginator = CustomPaginator(queryset=queryset, page_size=page_size)
-    queryset = paginator.paginate_queryset(page_number)
+    queryset = paginator.paginate_queryset(page)
     try:
         result = serialize_queryset(
             queryset=queryset,

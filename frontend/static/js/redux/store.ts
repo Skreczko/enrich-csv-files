@@ -4,9 +4,11 @@ import { ReducersMapObject } from 'redux';
 import { setupListeners } from '@reduxjs/toolkit/query';
 import notificationPopupReducer from './NotificationPopupSlice';
 import fileDetailsManagementReducer from './FileDetailsManagementSlice';
+import fileListManagementReducer from './FileListManagementSlice';
 
 export const storeReducer: Reducer<CombinedState<any>, any> | ReducersMapObject = {
   fileDetailsManagement: fileDetailsManagementReducer,
+  fileListManagement: fileListManagementReducer,
   notificationPopup: notificationPopupReducer,
 };
 

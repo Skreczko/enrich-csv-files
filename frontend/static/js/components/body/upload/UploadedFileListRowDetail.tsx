@@ -1,4 +1,7 @@
-import { FileDetailsType, FileStatusEnum } from '../../../redux/FileDetailsManagementSlice';
+import {
+  FileDetailsManagementType,
+  FileStatusEnum,
+} from '../../../redux/FileDetailsManagementSlice';
 import React, { useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
@@ -20,8 +23,8 @@ type Props = {
   onFileRemove: (uuid: string) => void;
 };
 
-const selectFileDetailByUUID = (state: RootState, uuid: string): FileDetailsType =>
-  state.fileDetailsManagement.find((detail: FileDetailsType) => detail.uuid === uuid);
+const selectFileDetailByUUID = (state: RootState, uuid: string): FileDetailsManagementType =>
+  state.fileDetailsManagement.find((detail: FileDetailsManagementType) => detail.uuid === uuid);
 
 export const UploadedFileListRowDetail: React.FC<Props> = ({
   fileElement,

@@ -72,22 +72,22 @@ class CSVFile(models.Model):
     class Meta:
         ordering = ["created"]
 
-    @cached_property
-    def headers(self) -> list[str]:
-        """
-        Retrieve the headers of the associated CSV file.
-
-        This method returns the headers of the CSV file, which are stored in the `file_headers` field.
-        The headers are returned as a list of strings. The use of `cached_property` ensures that
-        the headers are fetched from the database only once and then cached for subsequent accesses,
-        improving performance.
-
-        :return: A list of header strings from the associated CSV file.
-        """
-
-        import json
-
-        return json.loads(self.file_headers)
+    # @cached_property
+    # def headers(self) -> list[str]:
+    #     """
+    #     Retrieve the headers of the associated CSV file.
+    #
+    #     This method returns the headers of the CSV file, which are stored in the `file_headers` field.
+    #     The headers are returned as a list of strings. The use of `cached_property` ensures that
+    #     the headers are fetched from the database only once and then cached for subsequent accesses,
+    #     improving performance.
+    #
+    #     :return: A list of header strings from the associated CSV file.
+    #     """
+    #
+    #     import json
+    #
+    #     return json.loads(self.file_headers)
 
     def update_csv_metadata(self) -> None:
         """
@@ -103,13 +103,12 @@ class CSVFile(models.Model):
         Note: This method performs file I/O operations and might be time-consuming for large files.
         """
 
-        import json
         import petl as etl
 
         table = etl.fromcsv(self.file.path)
 
         self.file_row_count = etl.nrows(table)
-        self.file_headers = json.dumps(etl.header(table))
+        self.file_headers = list(etl.header(table))
         self.save(update_fields=("file_row_count", "file_headers"))
 
 
@@ -169,19 +168,19 @@ class EnrichDetail(models.Model):
         help_text="Selected header from 'CSVFile.file_headers' to be used to merge with 'external_elements_key_list'",
     )
 
-    @cached_property
-    def external_keys(self) -> list[str]:
-        """
-        Retrieve the main keys from the external response.
-
-        This method returns the main keys of the external response, which are stored in the
-        `external_elements_key_list` field. The keys are returned as a list of strings.
-        The use of `cached_property` ensures that the keys are fetched from the database
-        only once and then cached for subsequent accesses, improving performance.
-
-        :return: A list of key strings from the associated external response.
-        """
-
-        import json
-
-        return json.loads(self.external_elements_key_list)
+    # @cached_property
+    # def external_keys(self) -> list[str]:
+    #     """
+    #     Retrieve the main keys from the external response.
+    #
+    #     This method returns the main keys of the external response, which are stored in the
+    #     `external_elements_key_list` field. The keys are returned as a list of strings.
+    #     The use of `cached_property` ensures that the keys are fetched from the database
+    #     only once and then cached for subsequent accesses, improving performance.
+    #
+    #     :return: A list of key strings from the associated external response.
+    #     """
+    #
+    #     import json
+    #
+    #     return json.loads(self.external_elements_key_list)

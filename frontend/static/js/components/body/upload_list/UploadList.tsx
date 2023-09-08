@@ -1,6 +1,9 @@
 import React from 'react';
 import { UploadListWrapper } from './UploadList.styled';
+import { UploadListManagement } from './UploadListManagement';
 
 export const UploadList: React.FC = () => (
-  <UploadListWrapper>Test1 Test1 Test1 Test1</UploadListWrapper>
+  <UploadListWrapper>
+    <UploadListManagement />
+  </UploadListWrapper>
 );
