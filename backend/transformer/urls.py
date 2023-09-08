@@ -6,7 +6,7 @@ from django.urls import include, path, re_path
 from django.views.generic import TemplateView
 from requests import Request
 
-from csv_manager.url_patterns import lazy_function_view
+from transformer.url_patterns import lazy_function_view
 
 
 def healthcheck(request: Request) -> HttpResponse:
@@ -54,6 +54,20 @@ urlpatterns = [
                     ),
                     name="csv_upload",
                 ),
+                path(
+                    "/enrich_file_create",
+                    lazy_function_view(
+                        "csv_manager.views.api_internal.csv_enrich_file_create.csv_enrich_file_create"
+                    ),
+                    name="csv_enrich_file_create",
+                ),
+                path(
+                    "/fetch_task_results",
+                    lazy_function_view(
+                        "csv_manager.views.api_internal.fetch_task_results.fetch_task_results"
+                    ),
+                    name="fetch_task_results",
+                ),
                 re_path(
                     r"^/csv_list",
                     include(
@@ -74,13 +88,6 @@ urlpatterns = [
                             ),
                             path(
                                 "/<uuid:uuid>/enrich_detail_create",
-                                lazy_function_view(
-                                    "csv_manager.views.api_internal.csv_enrich_detail_create.csv_enrich_detail_create"
-                                ),
-                                name="csv_enrich_detail_create",
-                            ),
-                            path(
-                                "/enrich_file_create",
                                 lazy_function_view(
                                     "csv_manager.views.api_internal.csv_enrich_detail_create.csv_enrich_detail_create"
                                 ),

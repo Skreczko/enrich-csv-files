@@ -1,9 +1,10 @@
 from django import forms
 
-from transformer.constants import CsvListSortColumn
+from csv_manager.enums import CsvListSortColumn, EnrichmentJoinType
+from csv_manager.fields import CharListField
 
 
-class CSVUploadFileRequestForm(forms.Form):
+class CSVUploadRequestForm(forms.Form):
     """
     Note:
     - Additional logic may be required, ie. validation on max size of file.
@@ -35,10 +36,20 @@ class CSVLDetailFileRequestForm(forms.Form):
     chunk_number = forms.IntegerField(required=False)
 
 
-class CSVEnrichFileRequestForm(forms.Form):
-    """
-    Note:
-    - Additional logic may be required, ie. validation on max size of file.
-    """
-
+class CSVEnrichDetailCreateRequestForm(forms.Form):
     external_url = forms.URLField()
+
+
+class CSVEnrichFileRequestForm(forms.Form):
+    enrich_detail_id = forms.IntegerField()
+    selected_merge_key = forms.CharField()
+    selected_merge_header = forms.CharField()
+    join_type = forms.ChoiceField(
+        required=False,
+        choices=[(e, e) for e in EnrichmentJoinType],
+    )
+    is_flat = forms.BooleanField(required=False, initial=False)
+
+
+class FetchTaskResultsRequestForm(forms.Form):
+    task_ids = CharListField()

@@ -10,7 +10,7 @@ T = TypeVar("T", bound=Model)
 FieldsType = list[str] | None
 
 
-class ModelFieldType(TypedDict):
+class FileFieldType(TypedDict):
     url: str
     size: int
 
@@ -77,7 +77,7 @@ def serialize_queryset(
     :return: List of dictionaries representing the serialized QuerySet.
 
     Note:
-    - This implementation does not handle nested relations e.g., `Author -> Book -> Publisher` or prefetch_related
+    - This implementation does not handle nested relations ie. `Author -> Book -> Publisher` or prefetch_related
     """
 
     serialized_data = []
@@ -92,25 +92,25 @@ def serialize_queryset(
             object_field = getattr(obj, field, None)
             if isinstance(object_field, FieldFile):
                 try:
-                    serialized_obj[field] = ModelFieldType(
+                    serialized_obj[field] = FileFieldType(
                         url=object_field.url, size=object_field.size
                     )
                 except ValueError:
                     # that means user selected file to enrich, made a request with external_url but didnt select columns to merge.
-                    # this instance will be deleted with user (frontend show that this instance is not valid or removed with celery schedule task)
+                    # this instance will be deleted with user (frontend show that this instance is not valid or removed with celery schedule task - clear_empty_csvfile)
                     serialized_obj[field] = None
             elif field in annotation_fields:
                 serialized_obj[field] = object_field
             elif field in select_related_model_keys:
                 if object_field:
-                    related_typeddict = select_related_model_mapping[field]  # type: ignore  # error: Value of type "Optional[Dict[str, Any]]" is not indexable - mypy incorrect mark that because if we loop over select_related_model_keys, that means select_related_model_mapping exists and is indexable
+                    related_typeddict = select_related_model_mapping[field]  # type: ignore  # error: Value of type "Optional[Dict[str, Any]]" is not indexable - mypy incorrectly mark that because if we loop over select_related_model_keys, that means select_related_model_mapping exists and it is indexable
                     typeddict_fields = list(get_type_hints(related_typeddict).keys())
                     try:
                         serialized_obj[field] = serialize_instance(
                             instance=object_field, fields=typeddict_fields
                         )
-                    except AttributeError as e:
-                        return e  # type: ignore  # needed to do that, as this return will be fetched in upper function and displayed to user. Changing return type is not recommended
+                    except AttributeError:
+                        raise SerializationError(obj, field)
                 else:
                     serialized_obj[field] = object_field
             else:
@@ -171,6 +171,6 @@ def serialize_instance(*, instance: T, fields: FieldsType = None) -> dict[str, A
 
     for field, value in serialized.items():
         if isinstance(value, FieldFile):
-            serialized[field] = ModelFieldType(url=value.url, size=value.size)
+            serialized[field] = FileFieldType(url=value.url, size=value.size)
 
     return serialized

@@ -6,9 +6,10 @@ from django.db.models import F
 from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_GET
 
+from csv_manager.enums import EnrichmentStatus
 from csv_manager.forms import CSVListFileRequestForm
 from csv_manager.models import CSVFile
-from transformer.form_validator import validate_request_form
+from decorators.form_validator import validate_request_form
 from transformer.paginator import CustomPaginator
 from transformer.serializers import serialize_queryset
 from transformer.exceptions import SerializationError
@@ -16,9 +17,9 @@ from transformer.exceptions import SerializationError
 
 class EnrichDetailSerializerType(TypedDict):
     created: date
-    enrich_level: int
     external_url: str
     id: int
+    status: EnrichmentStatus
 
 
 @require_GET
@@ -72,13 +73,14 @@ def csv_list(
         result = serialize_queryset(
             queryset=queryset,
             fields=[
-                "uuid",
                 "created",
-                "file",
-                "file_row_count",
-                "file_headers",
-                "source_instance_uuid",
                 "enrich_detail",
+                "file",
+                "file_headers",
+                "file_row_count",
+                "original_file_name",
+                "source_instance_uuid",
+                "uuid",
             ],
             select_related_model_mapping={"enrich_detail": EnrichDetailSerializerType},
         )

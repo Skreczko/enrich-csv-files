@@ -4,16 +4,17 @@ from typing import Any, cast
 from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_POST
 
-from csv_manager.forms import CSVUploadFileRequestForm
+from csv_manager.forms import CSVUploadRequestForm
 from csv_manager.models import CSVFile
-from transformer.form_validator import validate_request_form
+from decorators.form_validator import validate_request_form
+from transformer.serializers import serialize_instance
 
 
 @require_POST
-@validate_request_form(CSVUploadFileRequestForm)
+@validate_request_form(CSVUploadRequestForm)
 def csv_upload(
     request: HttpRequest,
-    request_form: CSVUploadFileRequestForm,
+    request_form: CSVUploadRequestForm,
     *args: Any,  # args needed for mypy, because in some endpoints we pass args, ie uuid as url parameter.
 ) -> JsonResponse:
     """
@@ -35,19 +36,22 @@ def csv_upload(
     from celery import Task
 
     file = request_form.cleaned_data["file"]
-    instance = CSVFile.objects.create(
-        file=file,
-    )
+    instance = CSVFile.objects.create(file=file, original_file_name=file.name)
 
     celery_task = cast(
         Task, process_csv_metadata
-    )  # mypy has problem because it does not recognize that process_csv_metadata is Task. Fix to future development
+    )  # mypy has problem because it does not recognize that process_csv_metadata as Task. TODO Fix to future development
     celery_task.apply_async(
         args=(),
         kwargs={
             "uuid": str(instance.uuid),
         },
-        serializer="json",
+        serializer="json",  # didn't use pickle (which could reduce database requests) due to security concerns.
     )
 
-    return JsonResponse({"name": file.name}, status=HTTPStatus.OK)
+    return JsonResponse(
+        data=serialize_instance(
+            instance=instance, fields=["uuid", "original_file_name"]
+        ),
+        status=HTTPStatus.OK,
+    )

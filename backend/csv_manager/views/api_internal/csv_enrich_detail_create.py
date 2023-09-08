@@ -5,15 +5,15 @@ import requests
 from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_POST
 
-from csv_manager.forms import CSVEnrichFileRequestForm
+from csv_manager.forms import CSVEnrichDetailCreateRequestForm
 from csv_manager.models import CSVFile, EnrichDetail
-from transformer.form_validator import validate_request_form
+from decorators.form_validator import validate_request_form
 
 
 @require_POST
-@validate_request_form(CSVEnrichFileRequestForm)
+@validate_request_form(CSVEnrichDetailCreateRequestForm)
 def csv_enrich_detail_create(
-    request: HttpRequest, request_form: CSVEnrichFileRequestForm, uuid: str
+    request: HttpRequest, request_form: CSVEnrichDetailCreateRequestForm, uuid: str
 ) -> JsonResponse:
     """
     Endpoint to enrich a CSV file using data from an external URL.
@@ -60,6 +60,7 @@ def csv_enrich_detail_create(
         external_url=external_url,
         external_response=data_json,
         external_elements_key_list=json.dumps(data_json_keys),
+        external_elements_count=len(data_json),
     )
 
     return JsonResponse(

@@ -99,14 +99,17 @@ CELERY_WORKER_CONCURRENCY = 1
 CACHE_BACKEND = os.environ.get("CACHE_BACKEND", "django_redis.cache.RedisCache")
 CACHE_LOCATION = os.environ.get("CACHE_LOCATION", "redis://redis:6379/1")
 CACHES = {
-    "default": {"BACKEND": CACHE_BACKEND, "LOCATION": CACHE_LOCATION,},
+    "default": {
+        "BACKEND": CACHE_BACKEND,
+        "LOCATION": CACHE_LOCATION,
+    },
 }
 if CACHE_LOCATION.startswith("redis://"):
     # only required when using redis
     CACHES["default"]["OPTIONS"] = {"CLIENT_CLASS": "django_redis.client.DefaultClient"}
 SESSION_CACHE_ALIAS = "default"
 
-#TODO add cache for local-memory cachong
+# TODO add cache for local-memory cachong
 
 
 # Internationalization
@@ -144,5 +147,3 @@ WEBPACK_LOADER = {
         "STATS_FILE": os.path.join(FRONTEND_DIR, "webpack-stats.json"),
     }
 }
-
-

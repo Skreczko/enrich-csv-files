@@ -150,7 +150,7 @@ export const UploadFile: React.FC = () => {
         dispatch(
           setNotificationPopupOpen({
             appearance: NotificationAppearanceEnum.SUCCESS,
-            content: `${response.name} file has been uploaded successfully`,
+            content: `${response.original_file_name} file has been uploaded successfully`,
           }),
         );
       } catch (e) {
