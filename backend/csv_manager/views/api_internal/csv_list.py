@@ -17,10 +17,9 @@ from transformer.exceptions import SerializationError
 
 class EnrichDetailSerializerType(TypedDict):
     created: date
-    status: EnrichmentStatus
-    enrich_level: int
     external_url: str
     id: int
+    status: EnrichmentStatus
 
 
 @require_GET
@@ -74,14 +73,14 @@ def csv_list(
         result = serialize_queryset(
             queryset=queryset,
             fields=[
-                "uuid",
                 "created",
-                "file",
-                "original_file_name",
-                "file_row_count",
-                "file_headers",
-                "source_instance_uuid",
                 "enrich_detail",
+                "file",
+                "file_headers",
+                "file_row_count",
+                "original_file_name",
+                "source_instance_uuid",
+                "uuid",
             ],
             select_related_model_mapping={"enrich_detail": EnrichDetailSerializerType},
         )

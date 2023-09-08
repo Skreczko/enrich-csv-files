@@ -1,11 +1,29 @@
-from typing import Any
+from typing import Any, NamedTuple
 
 # cannot find stubs for petl. easier to create my own than searching
 
 def fromcsv(source: str, *args: Any, **kwargs: Any) -> dict[str, list[Any]]: ...
+def fromdicts(source: Any, *args: Any, **kwargs: Any) -> dict[str, list[Any]]: ...
 def data(table: dict[str, list[Any]]) -> list[list[Any]]: ...
 def nrows(table: Any) -> int: ...
 def header(table: Any) -> tuple[str]: ...
 def rowslice(
     table: dict[str, list[Any]], start: int, end: int
 ) -> dict[str, list[Any]]: ...
+def tocsv(table: Any, source: str, *args: Any, **kwargs: Any) -> None: ...
+def leftjoin(
+    left: Any,
+    right: Any,
+    lkey: str | None,
+    rkey: str | None,
+    lprefix: str | None,
+    rprefix: str | None,
+) -> Any: ...
+def join(
+    left: Any,
+    right: Any,
+    lkey: str | None,
+    rkey: str | None,
+    lprefix: str | None,
+    rprefix: str | None,
+) -> Any: ...

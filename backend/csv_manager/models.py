@@ -152,7 +152,10 @@ class EnrichDetail(models.Model):
         choices=[(e, e.value) for e in EnrichmentJoinType],
         help_text="Selected type of join",
     )
-    is_flat = models.BooleanField(default=False, help_text="Indicates whether the dict should be flattened when stored in the table cell.",)
+    is_flat = models.BooleanField(
+        default=False,
+        help_text="Indicates whether the dict should be flattened when stored in the table cell.",
+    )
     # For future development - that should include type of data related to key. check docstring for csv_enrich_file_create view for more details
     external_elements_key_list = models.JSONField(
         blank=True,

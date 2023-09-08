@@ -61,6 +61,13 @@ urlpatterns = [
                     ),
                     name="csv_enrich_file_create",
                 ),
+                path(
+                    "/fetch_task_results",
+                    lazy_function_view(
+                        "csv_manager.views.api_internal.fetch_task_results.fetch_task_results"
+                    ),
+                    name="fetch_task_results",
+                ),
                 re_path(
                     r"^/csv_list",
                     include(

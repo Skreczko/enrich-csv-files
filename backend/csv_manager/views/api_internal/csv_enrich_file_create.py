@@ -6,7 +6,7 @@ from django.views.decorators.http import require_POST
 
 from csv_manager.enums import EnrichmentStatus
 from csv_manager.forms import CSVEnrichFileRequestForm
-from csv_manager.models import CSVFile, EnrichDetail
+from csv_manager.models import EnrichDetail
 from decorators.form_validator import validate_request_form
 
 
@@ -29,6 +29,8 @@ def validate_merge_params(
             status=HTTPStatus.BAD_REQUEST,
         )
 
+    return None
+
 
 @require_POST
 @validate_request_form(CSVEnrichFileRequestForm)
@@ -48,8 +50,14 @@ def csv_enrich_file_create(
     from celery import Task
 
     enrich_detail_id = request_form.cleaned_data["enrich_detail_id"]
-    enrich_detail_queryset =EnrichDetail.objects.defer("external_response").select_related("csv_file__source_instance").filter(id=enrich_detail_id,status=EnrichmentStatus.INITIATED,)
-
+    enrich_detail_queryset = (
+        EnrichDetail.objects.defer("external_response")
+        .select_related("csv_file__source_instance")
+        .filter(
+            id=enrich_detail_id,
+            status=EnrichmentStatus.INITIATED,
+        )
+    )
 
     enrich_detail_instance = enrich_detail_queryset.first()
     if not enrich_detail_instance:
@@ -59,7 +67,7 @@ def csv_enrich_file_create(
             },
             status=HTTPStatus.INTERNAL_SERVER_ERROR,
         )
-    source_csvfile_instance: "CSVFile" = enrich_detail_instance.csv_file.source_instance
+    source_csvfile_instance = enrich_detail_instance.csv_file.source_instance
 
     user_selections = {
         "selected_key": request_form.cleaned_data["selected_merge_key"],
@@ -70,28 +78,27 @@ def csv_enrich_file_create(
 
     validation_response = validate_merge_params(
         external_keys_list=enrich_detail_instance.external_keys,
-        headers_list=source_csvfile_instance.headers,
+        headers_list=source_csvfile_instance.headers,  # type: ignore  # mypy has problem, as in database its null=True, blank=True, but that value will be assigned when it reach this place (update_csv_metadata)
         user_selections=user_selections,
     )
 
-    status = EnrichmentStatus.FAILED if validation_response else EnrichmentStatus.IN_PROGRESS
+    status = (
+        EnrichmentStatus.FAILED if validation_response else EnrichmentStatus.IN_PROGRESS
+    )
     enrich_detail_queryset.update(status=status, **user_selections)
 
-    if status == EnrichmentStatus.FAILED:
+    if validation_response:
         return validation_response
-
 
     celery_task = cast(
         Task, process_csv_enrichment
     )  # mypy has problem because it does not recognize that process_csv_metadata as Task. TODO Fix to future development
-    # task = celery_task.apply_async(
-    #     args=(),
-    #     kwargs={
-    #         "enrich_detail_id": enrich_detail_id,
-    #     },
-    #     serializer="json",  # didn't use pickle (which could reduce database requests) due to security concerns.
-    # )
-    aa = process_csv_enrichment(enrich_detail_id=enrich_detail_id)
+    task = celery_task.apply_async(
+        args=(),
+        kwargs={
+            "enrich_detail_id": enrich_detail_id,
+        },
+        serializer="json",  # didn't use pickle (which could reduce database requests) due to security concerns.
+    )
 
-    # return JsonResponse({"task_id": task.id}, status=HTTPStatus.OK)
-    return JsonResponse({"file_id": aa}, status=HTTPStatus.OK)
+    return JsonResponse({"task_id": task.id}, status=HTTPStatus.OK)

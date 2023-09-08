@@ -1,11 +1,13 @@
-from typing import Any
+from typing import Any, TYPE_CHECKING, cast
 
 from celery import Task, shared_task
 from django.db.models import F
 
 from csv_manager.models import CSVFile
-from csv_manager.enums import EnrichmentJoinType
+from decorators.types import ProcessCsvEnrichmentResponse
 
+if TYPE_CHECKING:
+    from csv_manager.enums import EnrichmentJoinType  # noqa
 
 
 @shared_task(
@@ -33,7 +35,6 @@ def process_csv_metadata(self: Task, uuid: str, *args: Any, **kwargs: Any) -> No
     """
 
     CSVFile.objects.get(uuid=uuid).update_csv_metadata()
-
 
 
 @shared_task()
@@ -68,47 +69,44 @@ def clear_empty_csvfile() -> None:
     ).delete()
 
 
-
-# @shared_task(bind=True)
+@shared_task(bind=True)
 def process_csv_enrichment(
-    # self: Task,
+    self: Task,
     enrich_detail_id: int,
     *args: Any,
     **kwargs: Any,
-) -> str:
+) -> ProcessCsvEnrichmentResponse:
     from csv_manager.models import EnrichDetail
     from csv_manager.enums import EnrichmentStatus
 
     from csv_manager.enrich_table_joins import create_enrich_table_by_join_type
 
-    enrich_detail_instance = (
-        EnrichDetail.objects.select_related(
-            "csv_file",
-            "csv_file__source_instance",
-        )
-        .get(id=enrich_detail_id)
-    )
+    enrich_detail_instance = EnrichDetail.objects.select_related(
+        "csv_file",
+        "csv_file__source_instance",
+    ).get(id=enrich_detail_id)
 
-    csvfile_instance: CSVFile = enrich_detail_instance.csv_file
-    source_csvfile_instance: CSVFile = csvfile_instance.source_instance
-
+    csvfile_instance = enrich_detail_instance.csv_file
+    source_csvfile_instance = csvfile_instance.source_instance
 
     output_path = create_enrich_table_by_join_type(
-        join_type=enrich_detail_instance.join_type,
+        join_type=cast(
+            "EnrichmentJoinType", enrich_detail_instance.join_type
+        ),  # mypy has problem, as in database its null=True, blank=True, but that value will be assigned when it reach this place (CSVEnrichFileRequestForm)
         enriched_file_name=str(csvfile_instance.uuid),
-        source_instance_file_path=source_csvfile_instance.file.path,
+        source_instance_file_path=source_csvfile_instance.file.path,  # type: ignore #same as above
         enrich_detail_instance=enrich_detail_instance,
     )
 
     csvfile_instance.file.name = output_path
-    csvfile_instance.original_file_name = (
-        f"{source_csvfile_instance.original_file_name}_enriched.csv"
-    )
+    csvfile_instance.original_file_name = f"{source_csvfile_instance.original_file_name}_enriched.csv"  # type: ignore #same as above
     csvfile_instance.save()
     csvfile_instance.update_csv_metadata()
 
     enrich_detail_instance.status = EnrichmentStatus.FINISHED
     enrich_detail_instance.save(update_fields=("status",))
 
-    # todo enrich level
-    return str(csvfile_instance.uuid)
+    return {
+        "enrich_detail_id": enrich_detail_instance.id
+        # todo serialize new csvfile + select_related on enrich detail?
+    }

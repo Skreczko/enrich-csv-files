@@ -1,6 +1,7 @@
 from django import forms
 
 from csv_manager.enums import CsvListSortColumn, EnrichmentJoinType
+from csv_manager.fields import CharListField
 
 
 class CSVUploadRequestForm(forms.Form):
@@ -45,6 +46,10 @@ class CSVEnrichFileRequestForm(forms.Form):
     selected_merge_header = forms.CharField()
     join_type = forms.ChoiceField(
         required=False,
-        choices=[(e, e.value) for e in EnrichmentJoinType],
+        choices=[(e, e) for e in EnrichmentJoinType],
     )
     is_flat = forms.BooleanField(required=False, initial=False)
+
+
+class FetchTaskResultsRequestForm(forms.Form):
+    task_ids = CharListField()
