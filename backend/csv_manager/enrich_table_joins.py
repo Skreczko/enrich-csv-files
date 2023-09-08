@@ -5,7 +5,7 @@ from typing import Any, TYPE_CHECKING
 from csv_manager.enums import EnrichmentJoinType
 import petl as etl
 
-from decorators.types import PetlTableJoinParams
+from csv_manager.types import PetlTableJoinParams
 
 if TYPE_CHECKING:
     from csv_manager.models import EnrichDetail  # noqa

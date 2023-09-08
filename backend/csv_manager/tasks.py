@@ -4,7 +4,7 @@ from celery import Task, shared_task
 from django.db.models import F
 
 from csv_manager.models import CSVFile
-from decorators.types import ProcessCsvEnrichmentResponse
+from csv_manager.types import ProcessCsvEnrichmentResponse
 
 if TYPE_CHECKING:
     from csv_manager.enums import EnrichmentJoinType  # noqa
