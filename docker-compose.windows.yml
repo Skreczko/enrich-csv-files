@@ -34,6 +34,7 @@ services:
       - '8001:8001'
     volumes:
       - ./frontend/:/home/user/frontend/
+      - ${PWD}/media/:/home/user/media/:delegated
       - /home/user/frontend/node_modules
 
   # Main backend application
@@ -57,6 +58,7 @@ services:
       - webpack
     volumes:
       - ${PWD}/backend/:/home/user/backend/:delegated
+      - ${PWD}/media/:/home/user/media/:delegated
       - ./frontend/:/home/user/frontend/
     restart: on-failure
 
@@ -76,7 +78,27 @@ services:
       DATABASE_NAME: transformer
     command: watchmedo auto-restart --pattern '*.py' --signal SIGINT --recursive -- celery -A transformer worker -l debug
     volumes:
-      - ./backend/:/home/user/backend/
+      - ${PWD}/backend/:/home/user/backend/:delegated
+      - ${PWD}/media/:/home/user/media/:delegated
+
+  # Worker for processing asynchronous tasks using Celery with auto-restart on code changes
+  celery-beat:
+    container_name: atc-celery-beat
+    build:
+      context: ${PWD}
+      dockerfile: backend/Dockerfile-dev
+    image: atc-django
+    env_file:
+      - backend/.env
+    environment:
+      BROKER_URL: redis://redis:6379
+      DATABASE_HOST: postgres
+      DATABASE_USER: postgres
+      DATABASE_NAME: transformer
+    command: watchmedo auto-restart --pattern '*.py' --signal SIGINT --recursive -- celery -A transformer beat -l debug
+    volumes:
+      - ${PWD}/backend/:/home/user/backend/:delegated
+      - ${PWD}/media/:/home/user/media/:delegated
 
 volumes:
   pgdata:

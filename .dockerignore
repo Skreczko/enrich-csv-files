@@ -7,5 +7,6 @@ webpack-stats.json
 static/bundles
 **/env
 containers_data
+*/stubs
 /env
 /.mypy_cache

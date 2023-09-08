@@ -7,7 +7,7 @@ def lazy_function_view(path: str) -> Callable:
     """
     Lazily loads a function from a given module path.
 
-    :param path: Full path of the function to be loaded (e.g., 'module.submodule.function').
+    :param path: Full path of the function to be loaded (ie. 'module.submodule.function').
     :return: A callable that, when called with arguments, will import the module,
              and call the function with the provided arguments.
 
