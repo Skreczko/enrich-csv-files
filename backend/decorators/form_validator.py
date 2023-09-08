@@ -5,7 +5,7 @@ from typing import Any, TypeVar
 from django.http import JsonResponse, HttpRequest, HttpResponse
 from django import forms
 
-from decorators.types import GenericFunc, WrapperFunc
+from csv_manager.types import GenericFunc, WrapperFunc
 
 T = TypeVar("T", bound=forms.Form)
 

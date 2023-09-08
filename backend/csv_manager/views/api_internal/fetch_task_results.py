@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Literal, TypedDict, cast
+from typing import Any, cast
 
 from celery.result import AsyncResult
 from django.http import HttpRequest, JsonResponse
@@ -7,32 +7,10 @@ from django.views.decorators.http import require_POST
 
 from csv_manager.forms import FetchTaskResultsRequestForm
 from decorators.form_validator import validate_request_form
-
-
-FetchTaskResultDictSuccessResult = Any  # todo typeddict for success resposne
-
-
-class FetchTaskResultDictPending(TypedDict):
-    status: Literal["PENDING"]
-    results: None
-
-
-class FetchTaskResultDictFailure(TypedDict):
-    status: Literal["FAILURE"]
-    results: None
-
-
-class FetchTaskResultDictSuccess(TypedDict):
-    status: Literal["SUCCESS"]
-    results: FetchTaskResultDictSuccessResult
-
-
-class ErrorResultDict(TypedDict):
-    error: str
-
-
-FetchTaskResultDict = (
-    FetchTaskResultDictPending | FetchTaskResultDictFailure | FetchTaskResultDictSuccess
+from csv_manager.types import (
+    ErrorResultDict,
+    FetchTaskResultDict,
+    FetchTaskResultDictSuccessResult,
 )
 
 
