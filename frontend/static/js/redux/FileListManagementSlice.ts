@@ -1,11 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export enum FileStatusEnum {
-  LOADED = 'loaded',
-  UPLOADED = 'uploaded',
-  UPLOAD_ERROR = 'upload_error',
-}
-
 export type FileListManagementType = {
   search: string;
   page: number;

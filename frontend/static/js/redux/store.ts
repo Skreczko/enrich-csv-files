@@ -2,12 +2,14 @@ import { CombinedState, configureStore } from '@reduxjs/toolkit';
 import { Reducer } from 'react';
 import { ReducersMapObject } from 'redux';
 import { setupListeners } from '@reduxjs/toolkit/query';
-import notificationPopupReducer from './NotificationPopupSlice';
-import fileDetailsManagementReducer from './FileDetailsManagementSlice';
 import fileListManagementReducer from './FileListManagementSlice';
+import fileListReducer from './FileListSlice';
+import notificationPopupReducer from './NotificationPopupSlice';
+import uploadSectionReducer from './UploadSectionSlice';
 
 export const storeReducer: Reducer<CombinedState<any>, any> | ReducersMapObject = {
-  fileDetailsManagement: fileDetailsManagementReducer,
+  fileDetailsManagement: uploadSectionReducer,
+  fileList: fileListReducer,
   fileListManagement: fileListManagementReducer,
   notificationPopup: notificationPopupReducer,
 };

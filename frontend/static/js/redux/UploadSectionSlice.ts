@@ -13,8 +13,8 @@ export type FileDetailsManagementType = {
   uuid: string;
 };
 
-const fileDetailsManagementSlice = createSlice({
-  name: 'fileDetailsManagementReducer',
+const uploadSectionSlice = createSlice({
+  name: 'uploadSectionReducer',
   initialState: [] as FileDetailsManagementType[],
   reducers: {
     setFileDetails: (
@@ -35,6 +35,6 @@ const fileDetailsManagementSlice = createSlice({
   },
 });
 
-export const { setFileDetails, updateFileDetail } = fileDetailsManagementSlice.actions;
+export const { setFileDetails, updateFileDetail } = uploadSectionSlice.actions;
 
-export default fileDetailsManagementSlice.reducer;
+export default uploadSectionSlice.reducer;

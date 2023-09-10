@@ -9,7 +9,7 @@ import {
   FileStatusEnum,
   setFileDetails,
   updateFileDetail,
-} from '../../../redux/FileDetailsManagementSlice';
+} from '../../../redux/UploadSectionSlice';
 import { FileUploadControls } from './FileUploadControls';
 import { NotificationAppearanceEnum } from '../../notification/NotificationPopup';
 import { ErrorType, generateHTMLErrorMessages } from '../../notification/helpers';
@@ -146,7 +146,7 @@ export const UploadFile: React.FC = () => {
   const onFilesSend = async (): Promise<void> => {
     const uploadPromises = fileElements.map(async fileElement => {
       try {
-        const response = await uploadFile({ action: ApiAction.UPLOAD_FILE, fileElement });
+        const response = await uploadFile(fileElement);
         dispatch(updateFileDetail({ uuid: fileElement.uuid, status: FileStatusEnum.UPLOADED }));
         dispatch(
           setNotificationPopupOpen({

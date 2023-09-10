@@ -2,7 +2,7 @@ import axios from 'axios';
 import { mapKeys, snakeCase, throttle } from 'lodash';
 import { store } from '../redux/store';
 import { FileType } from '../components/body/upload/UploadFile';
-import { updateFileDetail } from '../redux/FileDetailsManagementSlice';
+import { updateFileDetail } from '../redux/UploadSectionSlice';
 
 const keysToSnakeTrans = (obj: any): any => mapKeys(obj, (_value: any, key: any) => snakeCase(key));
 
@@ -10,7 +10,6 @@ const api = axios.create();
 
 // used Discriminated Union pattern
 export enum ApiAction {
-  UPLOAD_FILE = 'csv_upload',
   FETCH_UPLOAD_LIST = 'csv_list',
 }
 
@@ -21,12 +20,6 @@ export enum SortList {
 }
 
 const pageSizeType = 20 | 50 | 100;
-
-export type UploadFileRequest = {
-  // Matches the structure of backend's CSVListFileRequestForm.
-  action: ApiAction.UPLOAD_FILE;
-  fileElement: FileType;
-};
 
 export type FetchUploadListRequest = {
   // Matches the structure of backend's CSVListFileRequestForm
@@ -41,12 +34,7 @@ export type FetchUploadListRequest = {
 
 type ApiRequest = FetchUploadListRequest;
 
-
-export async function uploadFile(
-  request: UploadFileRequest,
-): Promise<{ original_file_name: string }> {
-  const { action, fileElement } = request;
-
+export async function uploadFile(fileElement: FileType): Promise<{ original_file_name: string }> {
   const formData = new FormData();
   const { file, uuid } = fileElement;
 
@@ -66,7 +54,7 @@ export async function uploadFile(
     },
   };
 
-  const { data } = await api.post(`/api/_internal/${action}`, formData, config);
+  const { data } = await api.post(`/api/_internal/csv_upload`, formData, config);
 
   return data;
 }

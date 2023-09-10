@@ -1,7 +1,7 @@
 import {
   FileDetailsManagementType,
   FileStatusEnum,
-} from '../../../redux/FileDetailsManagementSlice';
+} from '../../../redux/UploadSectionSlice';
 import React, { useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
