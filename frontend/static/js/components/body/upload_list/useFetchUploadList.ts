@@ -4,8 +4,6 @@ import { setFileList, setIsLoading, setPaginator } from '../../../redux/FileList
 import { fetchUploadList } from '../../../api/actions';
 import { RootState } from '../../../redux/store';
 import { FileListParamState } from '../../../redux/fileListParamSlice';
-import { response } from 'msw';
-
 import {ApiAction} from "../../../api/enums";
 
 export const useFetchUploadList = (providedParams: FileListParamState = null): void => {
@@ -25,7 +23,6 @@ export const useFetchUploadList = (providedParams: FileListParamState = null): v
           action: ApiAction.FETCH_UPLOAD_LIST,
           ...params,
         });
-        console.log(33333333, response);
         dispatch(setFileList(result));
         dispatch(setPaginator(paginator));
       } catch (error) {

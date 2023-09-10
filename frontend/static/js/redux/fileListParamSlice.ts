@@ -1,8 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { SortList } from '../api/enums';
 
 export type FileListParamState = {
   search: string;
   page: number;
+  sort: SortList;
 };
 
 const fileListParamSlice = createSlice({
@@ -10,6 +12,7 @@ const fileListParamSlice = createSlice({
   initialState: {
     search: '',
     page: 1,
+    sort: SortList.CREATED_DESC,
   } as FileListParamState,
   reducers: {
     setSearch: (state, { payload: value }: PayloadAction<string>) => {

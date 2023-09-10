@@ -14,7 +14,7 @@ interface TableRowProps {
   color?: string;
 }
 
-export const TableRow = styled(TableGrid)<TableRowProps>`
+export const TableRowWrapper = styled(TableGrid)<TableRowProps>`
   background-color: #fff;
   color: ${({ color }): string => (color ? color : tableTextColor)};
   font-size: 14px;
@@ -24,7 +24,8 @@ export const TableRow = styled(TableGrid)<TableRowProps>`
   border-bottom: 2px solid ${tableMainColor};
   position: relative;
 `;
-export const TableRowFullWidth = styled(TableRow)`
+
+export const TableRowFullWidth = styled(TableRowWrapper)`
   grid-template-columns: 1fr;
   min-height: 200px;
   border-bottom: none;

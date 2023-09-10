@@ -1,4 +1,4 @@
 import styled from 'styled-components';
-import { TableRow } from './UploadTable.styled';
+import { TableRowWrapper } from './UploadTable.styled';
 
-export const CustomTableRow = styled(TableRow)``;
+export const CsvElementRow = styled(TableRowWrapper)``;

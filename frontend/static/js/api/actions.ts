@@ -8,7 +8,13 @@ import { FileType } from '../components/body/upload/types';
 const convertKeysToSnakeCase = (obj: any): any =>
   mapKeys(obj, (_value: any, key: any) => snakeCase(key));
 
-const api = axios.create();
+const config = {
+  headers: {
+    'Content-Type': 'multipart/form-data',
+  },
+};
+
+const api = axios.create(config);
 
 export async function uploadFile(fileElement: FileType): Promise<{ original_file_name: string }> {
   const formData = new FormData();
@@ -23,14 +29,12 @@ export async function uploadFile(fileElement: FileType): Promise<{ original_file
 
   // OPTIMIZATION -> I would use resumable.js with petl to send file in chunk. But, that require additional logic. Check EXPLAIN_CODE.md
 
-  const config = {
+  const customConfig = {
+    ...config,
     onUploadProgress: throttledUpdate,
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
   };
 
-  const { data } = await api.post(`/api/_internal/csv_upload`, formData, config);
+  const { data } = await api.post(`/api/_internal/csv_upload`, formData, customConfig);
 
   return data;
 }

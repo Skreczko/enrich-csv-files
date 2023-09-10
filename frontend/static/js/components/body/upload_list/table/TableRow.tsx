@@ -1,5 +1,5 @@
 import React from 'react';
-import { CustomTableRow } from './TableRow.styled';
+import {CsvElementRow,} from './TableRow.styled';
 import { CsvFileElement } from '../../../../api/types';
 import moment from 'moment';
 
@@ -29,12 +29,13 @@ export const TableRow: React.FC<Props> = ({ fileElement }) => {
 
   return (
     // <CustomTableRow color={getRowTextColor(patient)}>
-    <CustomTableRow>
+    <CsvElementRow>
       <div>
         <p>{fileName}</p>
       </div>
       <div>
-        <p>{moment(created).format('YYYY-MM-DD HH:mm:ss')}</p>
+        <p>{moment(created).format('YYYY-MM-DD')}</p>
+        <p>{moment(created).format('HH:mm:ss')}</p>
       </div>
       <div>
         <p>{status}</p>
@@ -45,6 +46,6 @@ export const TableRow: React.FC<Props> = ({ fileElement }) => {
       <div>
         <p>{enrich_detail ? enrich_detail.external_url : '-'}</p>
       </div>
-    </CustomTableRow>
+    </CsvElementRow>
   );
 };
