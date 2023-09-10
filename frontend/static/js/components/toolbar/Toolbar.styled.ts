@@ -1,10 +1,11 @@
 import styled from 'styled-components';
+import { mainGreen, toolbarBackground } from '../../App.styled';
 
 export const ToolbarWrapper = styled.div`
   position: fixed;
   width: 200px;
   min-height: 100vh;
-  background-color: #1b2028;
+  background-color: ${toolbarBackground};
   flex-shrink: 0;
 `;
 
@@ -16,7 +17,7 @@ export const NavLink = styled.div<{ active: boolean }>`
   color: white;
   cursor: pointer;
   transition: 0.3s linear;
-  border-left: ${({ active }): string => (active ? '5px solid green' : 'none')};
+  border-left: ${({ active }): string => (active ? `5px solid ${mainGreen}` : 'none')};
   padding: ${({ active }): string => (active ? '0 10px 0 15px' : ' 0 10px')};
   p {
     font-size: 14px;

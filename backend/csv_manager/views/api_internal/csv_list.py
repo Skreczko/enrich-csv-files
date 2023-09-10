@@ -2,7 +2,8 @@ from datetime import date
 from http import HTTPStatus
 from typing import Any, TypedDict
 
-from django.db.models import F
+from django.db import models
+from django.db.models import Case, F, Value, When
 from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_POST
 
@@ -20,7 +21,6 @@ class EnrichDetailSerializerType(TypedDict):
     external_elements_key_list: list[str]
     external_url: str
     id: int
-    status: EnrichmentStatus
 
 
 @require_POST
@@ -53,7 +53,18 @@ def csv_list(
     date_to = request_form.cleaned_data["date_to"]
 
     queryset = CSVFile.objects.select_related("enrich_detail").annotate(
-        source_instance_uuid=F("source_instance__uuid")
+        source_uuid=F("source_instance__uuid"),
+        source_original_file_name=F("source_instance__original_file_name"),
+        # take status from "enrich_detail.status". If "enrich_detail" does not exist - that mean file has been created
+        # in upload process. Return status "finished" by default.
+        status=Case(
+            When(
+                enrich_detail__isnull=False, then=F("enrich_detail__status")
+            ),
+            default=Value(EnrichmentStatus.FINISHED),
+            output_field=models.CharField(),
+        )
+
     )
     filter_kwargs: dict = {}
 
@@ -80,7 +91,9 @@ def csv_list(
                 "file_headers",
                 "file_row_count",
                 "original_file_name",
-                "source_instance_uuid",
+                "source_original_file_name",
+                "source_uuid",
+                "status",
                 "uuid",
             ],
             select_related_model_mapping={"enrich_detail": EnrichDetailSerializerType},

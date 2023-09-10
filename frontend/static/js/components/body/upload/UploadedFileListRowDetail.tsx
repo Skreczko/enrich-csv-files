@@ -1,7 +1,4 @@
-import {
-  FileDetailsManagementType,
-  FileStatusEnum,
-} from '../../../redux/UploadSectionSlice';
+import { UploadElementState } from '../../../redux/UploadSectionSlice';
 import React, { useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
@@ -9,13 +6,13 @@ import DeleteImage from '../../../../img/body/upload/delete.png';
 import PendingImage from '../../../../img/body/upload/pending.png';
 import SuccessImage from '../../../../img/notification/success.png';
 import ErrorImage from '../../../../img/notification/error.png';
-import { FileType } from './UploadFile';
 import {
   FileName,
   ProgressBar,
   ProgressBarFiller,
   UploadStatusImageWrapper,
 } from './UploadedFileListRowDetail.styled';
+import { FileStatusEnum, FileType } from './types';
 
 type Props = {
   fileElement: FileType;
@@ -23,8 +20,8 @@ type Props = {
   onFileRemove: (uuid: string) => void;
 };
 
-const selectFileDetailByUUID = (state: RootState, uuid: string): FileDetailsManagementType =>
-  state.fileDetailsManagement.find((detail: FileDetailsManagementType) => detail.uuid === uuid);
+const selectFileDetailByUUID = (state: RootState, uuid: string): UploadElementState =>
+  state.uploadSection.find((detail: UploadElementState) => detail.uuid === uuid);
 
 export const UploadedFileListRowDetail: React.FC<Props> = ({
   fileElement,

@@ -1,16 +1,14 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { FileListManagementType, setSearch } from '../../../../redux/FileListManagementSlice';
 import SearchImage from '../../../../../img/body/list/search.png';
 import { SearchIconWrapper, SearchInputWrapper, StyledInput } from './SearchInput.styled';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../../redux/store';
 import _ from 'lodash';
+import { FileListParamState, setSearch } from '../../../../redux/fileListParamSlice';
 
 export const SearchInput: React.FC = () => {
   const dispatch = useDispatch();
-  const params: FileListManagementType = useSelector(
-    (state: RootState) => state.fileListManagement,
-  );
+  const params: FileListParamState = useSelector((state: RootState) => state.fileListParam);
   const [searchValue, setSearchValue] = useState<string>('');
 
   const debouncedSearch = useCallback(

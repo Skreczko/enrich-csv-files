@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { mainGreen } from '../../../../App.styled';
 
 export const SearchInputWrapper = styled.div`
   display: flex;
@@ -9,7 +10,7 @@ export const SearchInputWrapper = styled.div`
 
 export const SearchIconWrapper = styled.div`
   height: 100%;
-  background-color: #4bc5ac;
+  background-color: ${mainGreen};
   display: flex;
   justify-content: center;
   align-items: center;
@@ -32,7 +33,7 @@ export const StyledInput = styled.input`
   max-width: 320px;
 
   &:focus {
-    border: 1px solid #4bc5ac;
+    border: 1px solid ${mainGreen};
     border-right: none;
     outline: none;
   }

@@ -1,16 +1,16 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export type FileListManagementType = {
+export type FileListParamState = {
   search: string;
   page: number;
 };
 
-const fileListManagementSlice = createSlice({
-  name: 'fileListManagementReducer',
+const fileListParamSlice = createSlice({
+  name: 'fileListParamReducer',
   initialState: {
     search: '',
     page: 1,
-  } as FileListManagementType,
+  } as FileListParamState,
   reducers: {
     setSearch: (state, { payload: value }: PayloadAction<string>) => {
       state.search = value;
@@ -19,6 +19,6 @@ const fileListManagementSlice = createSlice({
   },
 });
 
-export const { setSearch } = fileListManagementSlice.actions;
+export const { setSearch } = fileListParamSlice.actions;
 
-export default fileListManagementSlice.reducer;
+export default fileListParamSlice.reducer;

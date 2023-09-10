@@ -5,8 +5,8 @@ import {
   UploadButtonWrapper,
   UploadedFileListWrapper,
 } from './UploadedFileList.styled';
-import { FileType, UploadStateEnum } from './UploadFile';
 import { UploadedFileListRowDetail } from './UploadedFileListRowDetail';
+import { FileType, UploadStateEnum } from './types';
 
 type Props = {
   files: FileType[];

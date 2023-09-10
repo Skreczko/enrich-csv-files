@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { mainGreen } from '../../../App.styled';
 
 export const ProgressBar = styled.div`
   width: 100%;
@@ -20,7 +21,7 @@ export const FileName = styled.p<{ color: string }>`
 
 export const ProgressBarFiller = styled.div<{ width: number }>`
   height: 100%;
-  background-color: #4bc5ac;
+  background-color: ${mainGreen};
   position: absolute;
   left: 0;
   top: 0;

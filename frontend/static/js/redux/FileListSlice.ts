@@ -1,7 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export type FileListManagementType = {
-  fileList: any;
+import { CsvFileElement, Paginator } from '../api/types';
+
+export type FileListState = {
+  fileList: CsvFileElement[];
+  paginator: Paginator;
   isLoading: boolean;
 };
 
@@ -9,18 +12,22 @@ const fileListSlice = createSlice({
   name: 'fileListReducer',
   initialState: {
     fileList: null,
+    paginator: null,
     isLoading: false,
-  } as FileListManagementType,
+  } as FileListState,
   reducers: {
-    setFileList: (state, { payload: value }: PayloadAction<any>) => {
+    setFileList: (state, { payload: value }: PayloadAction<CsvFileElement[]>) => {
       state.fileList = value;
     },
-    setIsLoading: (state, { payload: value }: PayloadAction<any>) => {
+    setIsLoading: (state, { payload: value }: PayloadAction<boolean>) => {
       state.isLoading = value;
+    },
+    setPaginator: (state, { payload: value }: PayloadAction<Paginator>) => {
+      state.paginator = value;
     },
   },
 });
 
-export const { setFileList, setIsLoading } = fileListSlice.actions;
+export const { setFileList, setIsLoading, setPaginator } = fileListSlice.actions;
 
 export default fileListSlice.reducer;
