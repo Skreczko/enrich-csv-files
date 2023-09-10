@@ -2,6 +2,7 @@ import React from 'react';
 import { TableHeaderCell, TableHeaderWrapper } from './TableHeader.styled';
 
 export const columns: string[] = [
+  "#",
   'file name',
   'created',
   'status',

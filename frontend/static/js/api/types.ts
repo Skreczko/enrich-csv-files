@@ -25,7 +25,7 @@ export type CsvFileElement = {
   original_file_name: string;
   source_original_file_name: string;
   source_uuid: string;
-  status: EnrichDetailStatus; //
+  status: EnrichDetailStatus;
   uuid: string;
 };
 
