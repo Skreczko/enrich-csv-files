@@ -35,10 +35,13 @@ In my custom serializer, not every case is handled.
 
 ## Upload file section
 
+### Backend
+* used `TemporaryFileUploadHandler` and set `FILE_UPLOAD_MAX_MEMORY_SIZE=0`. For future development - addapt endpoint with frontend to send chunks.
+
 ### Frontend
 * During upload process, pushing file details to redux. That allows us to unnessesary request for list of files during
 * User cannot duplicate files in same uploading process - that means, if user upload file, same file can be added in next turn.
-* OPTIMIZATION -> I would use resumable.js with petl to send file in chunck. But, that require additinal logic on progress bar, additional png, css, endpoint on backed side
+* OPTIMIZATION -> as axios stream data, decided to stay with that. for future development - using package (ie resumable.js or plupload) to send file in chunk
 * Applied throttle as optimization for updating redux state. Stayed with default axios behavior
 * Additional logic required for situation, where some files failed in uploading process and some passed correctly. Button "upload" stays disabled - but should allow to reupload failed files.
 * Provided throttle for 1s for updating progress bar - not to overheat redux

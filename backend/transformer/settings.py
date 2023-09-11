@@ -19,11 +19,16 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 DATA_DIR = os.path.dirname(BASE_DIR)
 FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
 
+# https://docs.djangoproject.com/en/3.2/ref/files/uploads/#uploaded-files
+FILE_UPLOAD_MAX_MEMORY_SIZE = 0
+FILE_UPLOAD_HANDLERS = [
+    "django.core.files.uploadhandler.TemporaryFileUploadHandler",
+]
+
 MYPY = "mypy" in sys.argv[0]
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
-TEST: str = 1
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ["SECRET_KEY"]
 

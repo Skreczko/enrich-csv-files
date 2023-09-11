@@ -5,9 +5,11 @@ import requests
 from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_POST
 
+from csv_manager.enums import EnrichmentStatus
 from csv_manager.forms import CSVEnrichDetailCreateRequestForm
 from csv_manager.models import CSVFile, EnrichDetail
 from decorators.form_validator import validate_request_form
+from csv_manager.tasks import process_fetch_external_url
 
 
 @require_POST
@@ -54,16 +56,25 @@ def csv_enrich_detail_create(
         return JsonResponse(
             {"error": f"{external_url} is empty"}, status=HTTPStatus.BAD_REQUEST
         )
-
+    #todo fix docstring
     enrich_model = EnrichDetail.objects.create(
         csv_file_id=csvfile_instance.uuid,
         external_url=external_url,
-        external_response=data_json,
-        external_elements_key_list=data_json_keys,
-        external_elements_count=len(data_json),
+        status=EnrichmentStatus.FETCHING_RESPONSE
+        # external_response=data_json,
+        # external_elements_key_list=data_json_keys,
+        # external_elements_count=len(data_json),
+    )
+
+    process_fetch_external_url.apply_async(
+        args=(),
+        kwargs={
+            "enrichdetail_uuid": str(enrich_model.uuid),
+        },
+        serializer="json",  # didn't use pickle (which could reduce database requests) due to security concerns.
     )
 
     return JsonResponse(
-        {"external_url_keys": data_json_keys, "enrich_detail_id": enrich_model.id},
+        {"enrich_detail_id": enrich_model.id},
         status=HTTPStatus.OK,
     )

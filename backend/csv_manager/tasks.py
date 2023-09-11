@@ -3,11 +3,11 @@ from typing import Any, TYPE_CHECKING, cast
 from celery import Task, shared_task
 from django.db.models import F
 
-from csv_manager.models import CSVFile
+from csv_manager.models import CSVFile, EnrichDetail
 from csv_manager.types import ProcessCsvEnrichmentResponse
 
 if TYPE_CHECKING:
-    from csv_manager.enums import EnrichmentJoinType  # noqa
+    from csv_manager.enums import EnrichmentJoinType, EnrichmentStatus  # noqa
 
 
 @shared_task(
@@ -35,6 +35,37 @@ def process_csv_metadata(self: Task, uuid: str, *args: Any, **kwargs: Any) -> No
     """
 
     CSVFile.objects.get(uuid=uuid).update_csv_metadata()
+
+@shared_task()
+def process_fetch_external_url(self: Task, enrichdetail_uuid: str,  *args: Any, **kwargs: Any) -> None:
+    import requests
+    from django.core.files import File
+    from tempfile import NamedTemporaryFile
+    from csv_manager.enums import EnrichmentStatus  # noqa
+
+    #todo docstring
+    enrich_detail = EnrichDetail.objects.filter(uuid=enrichdetail_uuid).first()
+    if not enrich_detail:
+        raise ValueError(f"Enrich detail ({enrich_detail.uuid=}) does not exist")
+
+    response = requests.get(enrich_detail.external_url, stream=True)
+    response.raise_for_status()
+
+    # Use a temporary file to stream the content
+    with NamedTemporaryFile(delete=True) as temp_file:
+        for chunk in response.iter_content(chunk_size=65536): #64 KB
+            temp_file.write(chunk)
+
+        temp_file.seek(0)
+        filename = f"{enrichdetail_uuid}.json"
+
+        # Save the file to the model's FileField
+        enrich_detail.external_response.save(filename, File(temp_file))
+
+    # You can now update other fields in enrich_detail if needed and save the model
+    enrich_detail.status = EnrichmentStatus.AWAITING_COLUMN_SELECTION
+    enrich_detail.save()
+
 
 
 @shared_task()
@@ -86,6 +117,8 @@ def process_csv_enrichment(
         "csv_file__source_instance",
     ).get(id=enrich_detail_id)
 
+    EnrichDetail.objects.filter(id=enrich_detail_id).update(status=EnrichmentStatus.MERGING)
+
     csvfile_instance = enrich_detail_instance.csv_file
     source_csvfile_instance = csvfile_instance.source_instance
 
@@ -98,12 +131,13 @@ def process_csv_enrichment(
         enrich_detail_instance=enrich_detail_instance,
     )
 
+    # take into account SuspiciousFileOperation for future development
     csvfile_instance.file.name = output_path
     csvfile_instance.original_file_name = f"{source_csvfile_instance.original_file_name}_enriched.csv"  # type: ignore #same as above
     csvfile_instance.save()
     csvfile_instance.update_csv_metadata()
 
-    enrich_detail_instance.status = EnrichmentStatus.FINISHED
+    enrich_detail_instance.status = EnrichmentStatus.COMPLETED
     enrich_detail_instance.save(update_fields=("status",))
 
     return {

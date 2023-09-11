@@ -1,11 +1,12 @@
 import uuid
+from typing import Union
+
 from django.db import models
-from django.utils.functional import cached_property
 
 from csv_manager.enums import EnrichmentJoinType, EnrichmentStatus
 
 
-def csv_upload_path(instance: "CSVFile", filename: str) -> str:
+def upload_path(instance: Union["CSVFile","EnrichDetail"], filename: str) -> str:
     """
     Generate a unique upload path for CSV files.
 
@@ -25,7 +26,7 @@ def csv_upload_path(instance: "CSVFile", filename: str) -> str:
 
     file_extension = os.path.splitext(filename)[1]
     file_name = f"{instance.uuid}{file_extension}"
-    return os.path.join("csv_files", folder_name, file_name)
+    return os.path.join("files", folder_name, file_name)
 
 
 class CSVFile(models.Model):
@@ -48,7 +49,7 @@ class CSVFile(models.Model):
     # Depending on business needs, additional logic may be required
     # Ie signals, functions, bulk_delete, overriding def delete, scheduled task...
     file = models.FileField(
-        upload_to=csv_upload_path,
+        upload_to=upload_path,
         null=True,
         blank=True,
     )
@@ -71,23 +72,6 @@ class CSVFile(models.Model):
 
     class Meta:
         ordering = ["created"]
-
-    # @cached_property
-    # def headers(self) -> list[str]:
-    #     """
-    #     Retrieve the headers of the associated CSV file.
-    #
-    #     This method returns the headers of the CSV file, which are stored in the `file_headers` field.
-    #     The headers are returned as a list of strings. The use of `cached_property` ensures that
-    #     the headers are fetched from the database only once and then cached for subsequent accesses,
-    #     improving performance.
-    #
-    #     :return: A list of header strings from the associated CSV file.
-    #     """
-    #
-    #     import json
-    #
-    #     return json.loads(self.file_headers)
 
     def update_csv_metadata(self) -> None:
         """
@@ -117,6 +101,11 @@ class EnrichDetail(models.Model):
     This model stores information about enrich process using CSVFile models and external API
     """
 
+    #todo fix related stuff
+    uuid = models.UUIDField(
+        default=uuid.uuid4, editable=False, unique=True, primary_key=True
+    )
+    
     csv_file = models.OneToOneField(
         "CSVFile",
         on_delete=models.CASCADE,
@@ -124,15 +113,19 @@ class EnrichDetail(models.Model):
     )
     status = models.CharField(
         max_length=50,
-        choices=[(e, e.value) for e in EnrichmentStatus],
+        choices=[(e.value, e.name) for e in EnrichmentStatus],
         default=EnrichmentStatus.INITIATED,
         help_text="Status of process of enrichment csv file",
     )
     external_url = models.URLField(
         help_text="The origin URL which was used to enrich",
     )
-    # to keep "history", as response from external_url may change in time
-    external_response = models.JSONField()
+    # json external response stored in file
+    external_response = models.FileField(
+        upload_to=upload_path,
+        null=True,
+        blank=True,
+    )
 
     created = models.DateTimeField(auto_now_add=True)
 
@@ -148,7 +141,7 @@ class EnrichDetail(models.Model):
         null=True,
         blank=True,
         max_length=50,
-        choices=[(e, e.value) for e in EnrichmentJoinType],
+        choices=[(e.value, e.name) for e in EnrichmentJoinType],
         help_text="Selected type of join",
     )
     is_flat = models.BooleanField(
@@ -167,20 +160,3 @@ class EnrichDetail(models.Model):
     selected_header = models.TextField(
         help_text="Selected header from 'CSVFile.file_headers' to be used to merge with 'external_elements_key_list'",
     )
-
-    # @cached_property
-    # def external_keys(self) -> list[str]:
-    #     """
-    #     Retrieve the main keys from the external response.
-    #
-    #     This method returns the main keys of the external response, which are stored in the
-    #     `external_elements_key_list` field. The keys are returned as a list of strings.
-    #     The use of `cached_property` ensures that the keys are fetched from the database
-    #     only once and then cached for subsequent accesses, improving performance.
-    #
-    #     :return: A list of key strings from the associated external response.
-    #     """
-    #
-    #     import json
-    #
-    #     return json.loads(self.external_elements_key_list)

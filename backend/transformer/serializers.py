@@ -99,6 +99,10 @@ def serialize_queryset(
                     # that means user selected file to enrich, made a request with external_url but didnt select columns to merge.
                     # this instance will be deleted with user (frontend show that this instance is not valid or removed with celery schedule task - clear_empty_csvfile)
                     serialized_obj[field] = None
+                except FileNotFoundError:
+                    # that mean someone has deleted related file
+                    # FOR FUTURE DEVELOPMENT - to fetch situations like that - should be pushed to logging and some actions should be applied
+                    serialized_obj[field] = "Not found"
             elif field in annotation_fields:
                 serialized_obj[field] = object_field
             elif field in select_related_model_keys:

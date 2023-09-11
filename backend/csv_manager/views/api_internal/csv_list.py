@@ -5,7 +5,7 @@ from typing import Any, TypedDict
 from django.db import models
 from django.db.models import Case, F, Value, When
 from django.http import HttpRequest, JsonResponse
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_GET
 
 from csv_manager.enums import EnrichmentStatus
 from csv_manager.forms import CSVListFileRequestForm
@@ -23,7 +23,7 @@ class EnrichDetailSerializerType(TypedDict):
     id: int
 
 
-@require_POST
+@require_GET
 @validate_request_form(CSVListFileRequestForm)
 def csv_list(
     request: HttpRequest,
@@ -61,7 +61,7 @@ def csv_list(
             When(
                 enrich_detail__isnull=False, then=F("enrich_detail__status")
             ),
-            default=Value(EnrichmentStatus.FINISHED),
+            default=Value(EnrichmentStatus.COMPLETED),
             output_field=models.CharField(),
         )
 

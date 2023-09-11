@@ -22,14 +22,18 @@ class CSVUploadRequestForm(forms.Form):
 class CSVListFileRequestForm(forms.Form):
     date_from = forms.DateField(required=False)
     date_to = forms.DateField(required=False)
-    page = forms.IntegerField(required=False)
+    page = forms.IntegerField()
     page_size = forms.IntegerField(required=False)
     search = forms.CharField(required=False)
     sort = forms.ChoiceField(
-        required=False,
-        choices=[(e, e.value) for e in CsvListSortColumn],
-        initial=CsvListSortColumn.CREATED_DESC.value,
+        choices=[(e.value, e.name) for e in CsvListSortColumn],
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        available_choices = ', '.join([choice[1] for choice in self.fields['sort'].choices])
+        self.fields['sort'].error_messages[
+            'invalid_choice'] = f"Select a valid choice. Available choices are: {available_choices}."
 
 
 class CSVLDetailFileRequestForm(forms.Form):
@@ -46,9 +50,15 @@ class CSVEnrichFileRequestForm(forms.Form):
     selected_merge_header = forms.CharField()
     join_type = forms.ChoiceField(
         required=False,
-        choices=[(e, e) for e in EnrichmentJoinType],
+        choices=[(e.value, e.name) for e in EnrichmentJoinType],
     )
     is_flat = forms.BooleanField(required=False, initial=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        available_choices = ', '.join([choice[1] for choice in self.fields['join_type'].choices])
+        self.fields['join_type'].error_messages[
+            'invalid_choice'] = f"Select a valid choice. Available choices are: {available_choices}."
 
 
 class FetchTaskResultsRequestForm(forms.Form):

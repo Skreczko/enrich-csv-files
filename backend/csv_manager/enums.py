@@ -7,10 +7,17 @@ class CsvListSortColumn(str, Enum):
 
 
 class EnrichmentStatus(StrEnum):
-    IN_PROGRESS = auto()
-    FINISHED = auto()
-    FAILED = auto()
     INITIATED = auto()
+    FETCHING_RESPONSE = auto()
+    AWAITING_COLUMN_SELECTION = auto()
+    MERGING = auto()
+    COMPLETED = auto()
+    FAILED_FETCHING_RESPONSE = auto()
+    FAILED_COLUMN_SELECTION = auto()
+    FAILED_MERGING = auto()
+    FAILED = auto()
+
+
 
 
 class EnrichmentJoinType(StrEnum):

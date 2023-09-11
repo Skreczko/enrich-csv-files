@@ -123,6 +123,10 @@ def create_enrich_table_by_join_type(
     }
 
     # set up output path with correct file naming
+
+    #todo
+
+    # https://stackoverflow.com/questions/72418227/access-upload-to-of-a-models-filefield-in-django
     output_path = (
         f"{source_instance_file_path.rsplit('/', 1)[0]}/{enriched_file_name}.csv"
     )

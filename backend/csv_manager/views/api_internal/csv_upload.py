@@ -28,6 +28,8 @@ def csv_upload(
     :return: JsonResponse object with the name of the uploaded file.
 
     Note:
+    - Used TemporaryFileUploadHandler and FILE_UPLOAD_MAX_MEMORY_SIZE - chunks number can be checked with `list(file.chunks())`
+      for more details check https://docs.djangoproject.com/en/3.2/ref/files/uploads/#uploaded-files
     - CSRF protection is currently missing as there is no user instance. This should be addressed in future development.
     - OPTIMIZATION: Consider refactoring to process chunks of the file, merge them, and then create the CSVFile object.
     """
