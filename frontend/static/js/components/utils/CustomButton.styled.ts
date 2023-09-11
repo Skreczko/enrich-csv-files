@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { mainGreen } from '../../App.styled';
+import { mainDisabled, mainGreen } from '../../App.styled';
 
 interface CustomButtonProps {
   disabled?: boolean;
@@ -19,7 +19,7 @@ export const CustomButton = styled.div<CustomButtonProps>`
   border-radius: 5px;
   text-transform: uppercase;
   cursor: pointer;
-  background-color: ${({ disabled }): string => (disabled ? 'lightgrey' : mainGreen)};
+  background-color: ${({ disabled }): string => (disabled ? mainDisabled : mainGreen)};
   color: white;
 `;
 

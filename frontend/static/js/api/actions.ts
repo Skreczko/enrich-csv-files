@@ -41,6 +41,9 @@ export async function uploadFile(fileElement: FileType): Promise<{ original_file
 
 export async function fetchUploadList(request: ApiRequest): Promise<FetchUploadListResponse> {
   const { action, ...request_data } = request;
-  const { data } = await api.post(`/api/_internal/${action}`, convertKeysToSnakeCase(request_data));
+
+  const queryParams = new URLSearchParams(convertKeysToSnakeCase(request_data)).toString();
+
+  const { data } = await api.get(`/api/_internal/${action}?${queryParams}`);
   return data;
 }

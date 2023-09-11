@@ -1,10 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { CsvFileElement, Paginator } from '../api/types';
+import { CsvFileElement, PaginatorType } from '../api/types';
 
 export type FileListState = {
   fileList: CsvFileElement[];
-  paginator: Paginator;
+  paginator: PaginatorType;
   isLoading: boolean;
 };
 
@@ -22,7 +22,7 @@ const fileListSlice = createSlice({
     setIsLoading: (state, { payload: value }: PayloadAction<boolean>) => {
       state.isLoading = value;
     },
-    setPaginator: (state, { payload: value }: PayloadAction<Paginator>) => {
+    setPaginator: (state, { payload: value }: PayloadAction<PaginatorType>) => {
       state.paginator = value;
     },
   },

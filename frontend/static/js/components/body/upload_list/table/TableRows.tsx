@@ -1,5 +1,4 @@
 import React, { useCallback } from 'react';
-import { FileListState } from '../../../../redux/FileListSlice';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../../redux/store';
 import { NoRecordWrapper } from './TableRows.styled';
@@ -8,29 +7,43 @@ import { TableRow } from './TableRow';
 import WarningImage from '../../../../../img/notification/warning.png';
 import SuccessImage from '../../../../../img/notification/success.png';
 import ErrorImage from '../../../../../img/notification/error.png';
+import LoadingImage from '../../../../../img/notification/loading.png';
 import { EnrichDetailStatus } from '../../../../api/enums';
+import { TableRowStatusDetails } from './types';
+import { CsvFileElement } from '../../../../api/types';
 
 export const TableRows: React.FC = () => {
-  const { fileList }: FileListState = useSelector((state: RootState) => state.fileList);
+  const fileList: CsvFileElement[] = useSelector((state: RootState) => state.fileList.fileList);
 
   const getImageByStatus = useCallback(
-    (status: EnrichDetailStatus): string => {
+    (status: EnrichDetailStatus): TableRowStatusDetails => {
       switch (status) {
         case EnrichDetailStatus.FINISHED:
-          return SuccessImage;
+          return {
+            imgSrc: SuccessImage,
+            popupText: 'The file has been successfully uploaded and processed.',
+          };
         case EnrichDetailStatus.FAILED:
-          return ErrorImage;
+          return {
+            imgSrc: ErrorImage,
+            popupText: 'Processing failed. See file details for more information.',
+          };
         case EnrichDetailStatus.IN_PROGRESS:
-          return ErrorImage;  //todo
+          return { imgSrc: LoadingImage, popupText: 'The file is currently being processed.' };
         case EnrichDetailStatus.INITIATED:
-          return WarningImage;
+          return {
+            imgSrc: WarningImage,
+            popupText:
+              'Enrichment is pending for this file. Open details and specify the columns to merge.',
+          };
         default: {
-          return '';
+          return { imgSrc: '', popupText: '' };
         }
       }
     },
     [fileList],
   );
+
   return (
     <div>
       {fileList?.length ? (
@@ -39,7 +52,7 @@ export const TableRows: React.FC = () => {
             key={fileElement.uuid}
             fileElement={fileElement}
             counter={index + 1}
-            statusIcon={getImageByStatus(fileElement.status)}
+            statusDetail={getImageByStatus(fileElement.status)}
           />
         ))
       ) : (

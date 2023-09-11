@@ -1,7 +1,7 @@
 // used Discriminated Union pattern
 import { ApiAction, EnrichDetailStatus, SortList } from './enums';
 
-const pageSizeType = 20 | 50 | 100;
+export const pageSizeType = 20 | 50 | 100;
 
 type EnrichDetail = {
   created: string;
@@ -29,7 +29,7 @@ export type CsvFileElement = {
   uuid: string;
 };
 
-export type Paginator = {
+export type PaginatorType = {
   page: number;
   page_size: typeof pageSizeType;
   total_pages: number;
@@ -49,7 +49,7 @@ export type FetchUploadListRequest = {
 export type FetchUploadListResponse = {
   // Matches the structure of backend's  TODO
   result: CsvFileElement[];
-  paginator: Paginator;
+  paginator: PaginatorType;
 };
 
 export type ApiRequest = FetchUploadListRequest;
