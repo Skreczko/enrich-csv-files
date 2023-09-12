@@ -1,6 +1,7 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, cast
 
+from celery import Task
 from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_POST
 
@@ -108,7 +109,7 @@ def csv_enrich_file_create(
     if validation_response:
         return validation_response
 
-    task = process_csv_enrichment.apply_async(
+    task = cast(Task, process_csv_enrichment).apply_async(
         args=(),
         kwargs={
             "enrich_detail_uuid": str(enrich_detail_uuid),

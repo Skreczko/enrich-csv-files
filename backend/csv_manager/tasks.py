@@ -69,7 +69,7 @@ def process_fetch_external_url(
 
     enrich_detail = EnrichDetail.objects.filter(uuid=enrich_detail_uuid).first()
     if not enrich_detail:
-        raise ValueError(f"Enrich detail ({enrich_detail.uuid=}) does not exist")
+        raise ValueError(f"Enrich detail ({enrich_detail_uuid=}) does not exist")
 
     try:
         response = requests.get(enrich_detail.external_url, stream=True, timeout=10)
@@ -99,7 +99,7 @@ def process_fetch_external_url(
         )  # 'item' is a placeholder, adjust if the JSON structure is different
         try:
             first_item = next(items, None)
-        except ijson.common.IncompleteJSONError:
+        except ijson.common.IncompleteJSONError:  # type: ignore
             EnrichDetail.objects.filter(uuid=enrich_detail_uuid).update(
                 status=EnrichmentStatus.FAILED_FETCHING_RESPONSE_NOT_JSON
             )

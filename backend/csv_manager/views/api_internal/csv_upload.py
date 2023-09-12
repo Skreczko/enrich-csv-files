@@ -1,6 +1,7 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, cast
 
+from celery import Task
 from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_POST
 
@@ -40,10 +41,7 @@ def csv_upload(
         file = request_form.cleaned_data["file"]
         instance = CSVFile.objects.create(file=file, original_file_name=file.name)
 
-        # celery_task = cast(
-        #     Task,
-        # )  # mypy has problem because it does not recognize that process_csv_metadata as Task. TODO Fix to future development
-        process_csv_metadata.apply_async(
+        cast(Task, process_csv_metadata).apply_async(
             args=(),
             kwargs={
                 "uuid": str(instance.uuid),

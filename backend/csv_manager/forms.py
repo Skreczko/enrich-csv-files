@@ -1,3 +1,5 @@
+from typing import Any
+
 from django import forms
 
 from csv_manager.enums import CsvListSortColumn, EnrichmentJoinType
@@ -29,7 +31,7 @@ class CSVListFileRequestForm(forms.Form):
         choices=[(e.value, e.name) for e in CsvListSortColumn],
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         available_choices = ", ".join(
             [choice[1] for choice in self.fields["sort"].choices]
@@ -57,7 +59,7 @@ class CSVEnrichFileRequestForm(forms.Form):
     )
     is_flat = forms.BooleanField(required=False, initial=False)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         available_choices = ", ".join(
             [choice[1] for choice in self.fields["join_type"].choices]

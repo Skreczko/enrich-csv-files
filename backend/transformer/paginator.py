@@ -42,12 +42,12 @@ class CustomPaginator:
             page_size=self.page_size,
         )
 
-    def paginate_queryset(self, page: int) -> QuerySet[T]:
+    def paginate_queryset(self, page_number: int) -> QuerySet[T]:
         """
         Paginate the queryset and return a queryset for the given page number.
         An error will be raised for an empty page or an invalid page number.
         """
-        page = self.paginator.page(page or self.page)
+        page = self.paginator.page(page_number or self.page)
         try:
             return page.object_list
         except (EmptyPage, InvalidPage):

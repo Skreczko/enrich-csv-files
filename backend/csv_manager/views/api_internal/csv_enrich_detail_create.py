@@ -1,5 +1,7 @@
 from http import HTTPStatus
+from typing import cast
 
+from celery import Task
 from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_POST
 
@@ -42,7 +44,7 @@ def csv_enrich_detail_create(
         external_url=request_form.cleaned_data["external_url"],
         status=EnrichmentStatus.FETCHING_RESPONSE,
     )
-    task = process_fetch_external_url.apply_async(
+    task = cast(Task, process_fetch_external_url).apply_async(
         args=(),
         kwargs={
             "enrich_detail_uuid": str(enrich_model.uuid),

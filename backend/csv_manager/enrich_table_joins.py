@@ -1,3 +1,4 @@
+from collections.abc import Iterable
 from typing import Any
 
 from csv_manager.enums import EnrichmentJoinType
@@ -133,7 +134,7 @@ def create_enrich_table_by_join_type(
     if enrich_detail_instance.is_flat:
         import flatdict
 
-        def flattened_data_generator():
+        def flattened_data_generator() -> Iterable:
             """
             Generator function to yield flattened dictionaries from a JSON file.
 
@@ -146,7 +147,11 @@ def create_enrich_table_by_join_type(
             with open(enrich_detail_instance.external_response.path) as f:
                 for item in ijson.items(f, "item"):
                     flattened_item = flatdict.FlatDict(item, delimiter="_")
-                    yield dict(flattened_item)
+                    yield dict(
+                        flattened_item
+                    )  # type: ignore # ignore mypy is asking to overload, but using
+                    # flattened_item.as_dict() or dict(flattened_item.items())  make it work for mypy,
+                    # but dict is not flatten. To fix in future development
 
         external_response_table = etl.fromdicts(flattened_data_generator())
     else:
