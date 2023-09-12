@@ -50,15 +50,20 @@ def cache_view_response(
         @wraps(view_func)  # to keep metadata
         def wrapper(request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
             cache_key = f"{request.path}_{request.GET.urlencode()}"
-            cached_data = cache.get(cache_key)
 
-            if cached_data:
-                return JsonResponse(cached_data, status=HTTPStatus.OK)
+            try:
+                cached_data = cache.get(cache_key)
+                if cached_data:
+                    return JsonResponse(cached_data, status=HTTPStatus.OK)
 
-            response = view_func(request, *args, **kwargs)
+                response = view_func(request, *args, **kwargs)
 
-            if isinstance(response, JsonResponse):
-                cache.set(cache_key, json.loads(response.content), timeout)
+                if isinstance(response, JsonResponse):
+                    cache.set(cache_key, json.loads(response.content), timeout)
+
+            except Exception as e:
+                # For future development - adding logging with info that there is something wrong with cache, but still return correct resposne
+                response = view_func(request, *args, **kwargs)
 
             return response
 

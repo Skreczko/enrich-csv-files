@@ -51,7 +51,10 @@ def csv_detail_chunks_get(
     start_row = chunk_number * chunk_size
     end_row = start_row + chunk_size
 
-    table = etl.fromcsv(source=instance.file.path)
+    try:
+        table = etl.fromcsv(source=instance.file.path)
+    except Exception as e:
+        return JsonResponse({"error": "Error reading CSV file."}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
 
     return JsonResponse(
         {

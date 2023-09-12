@@ -56,6 +56,11 @@ INSTALLED_APPS += [
     "csv_manager",
 ]
 
+MIDDLEWARE = [
+    #https://docs.djangoproject.com/en/3.2/_modules/django/middleware/gzip/#GZipMiddleware
+    'django.middleware.gzip.GZipMiddleware',
+]
+
 ROOT_URLCONF = "transformer.urls"
 
 TEMPLATES = [

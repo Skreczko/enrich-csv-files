@@ -73,7 +73,9 @@ in this case, using django and put react to django template we can
 ```
 (...)Comparing execution time with other solutions, ijson is rather slow (57 s versus stdlib json), but it is excellent if you need to keep memory consumption low (13 MB versus stdlib json 439 MB). Using with yajl2 backend, it was not faster, but memory consumption dropped down to 5 MB. Tested on 3 files each being about 30 MB large and having 300 thousands records."
 ```
+* Used `GZipMiddleware` for compressing responses https://docs.djangoproject.com/en/3.2/_modules/django/middleware/gzip/#GZipMiddleware
 * Added info about csv / api response count and headers / key to database - as this data will not change and we can avoid opening files
 * Used petl for merge process
-* Custom cache view - `cache_view_response` for JSON response
 * As DRF is restricted (as Jakub said) created custom serializers `serializer.py`
+* For csv preview - used `etl.rowslice` for pagination
+* For csv preview  - custom cache view - `cache_view_response` for JSON response (as DRF is restricted, redirected all request which does not fit to urls.py to react to handle it there)
