@@ -7,15 +7,27 @@ class CsvListSortColumn(str, Enum):
 
 
 class EnrichmentStatus(StrEnum):
+    # initiation section
     INITIATED = auto()
+
+    # fetching api response section
     FETCHING_RESPONSE = auto()
-    AWAITING_COLUMN_SELECTION = auto()
-    MERGING = auto()
-    COMPLETED = auto()
     FAILED_FETCHING_RESPONSE = auto()
+    FAILED_FETCHING_RESPONSE_INCORRECT_URL_STATUS = auto()
+    FAILED_FETCHING_RESPONSE_OTHER_REQUEST_EXCEPTION = auto()
+    FAILED_FETCHING_RESPONSE_NOT_JSON = auto()
+    FAILED_FETCHING_RESPONSE_EMPTY_JSON = auto()
+
+    # user action section
+    AWAITING_COLUMN_SELECTION = auto()
     FAILED_COLUMN_SELECTION = auto()
-    FAILED_MERGING = auto()
-    FAILED = auto()
+
+    # enriching section
+    ENRICHING = auto()
+    FAILED_ENRICHING = auto()
+
+    # completed
+    COMPLETED = auto()
 
 
 

@@ -61,3 +61,19 @@ in this case, using django and put react to django template we can
 * creating websocket to push notifications to redux / creating endpoint which gives information which celery task is still in queue - obtain task_id and push that to redux. request every 10second to endpoint with these task_id and check if its already completed. return info to redux about status and displaying correct notification (success/failed)
 * modifying endpoint to create possibility to obtain chunks, and then merging them with petl. it may solve problems with internet disconnection,optimalization
 * As we can enrich files - we can add additional csv list view as "tree", where user can select that and see "root" file, and expand to see which files were created using that root file, ie https://primereact.org/treetable/ 
+
+
+### Optimization
+
+## Backend
+* Added `TemporaryFileUploadHandler` with `FILE_UPLOAD_MAX_MEMORY_SIZE = 0` for making chunks during uploading files.
+* Added `ijson` for count api response objects and set up header
+* Added `yajl2` parser for increase parsing (https://lpetr.org/2016/05/30/faster-json-parsing-python-ijson/)
+  and https://stackoverflow.com/a/17326199 where 
+```
+(...)Comparing execution time with other solutions, ijson is rather slow (57 s versus stdlib json), but it is excellent if you need to keep memory consumption low (13 MB versus stdlib json 439 MB). Using with yajl2 backend, it was not faster, but memory consumption dropped down to 5 MB. Tested on 3 files each being about 30 MB large and having 300 thousands records."
+```
+* Added info about csv / api response count and headers / key to database - as this data will not change and we can avoid opening files
+* Used petl for merge process
+* Custom cache view - `cache_view_response` for JSON response
+* As DRF is restricted (as Jakub said) created custom serializers `serializer.py`

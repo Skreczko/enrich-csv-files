@@ -84,15 +84,20 @@ class CSVFile(models.Model):
         It's designed to be used whenever there's a need to refresh or initially set the metadata of the CSV file
         without manually parsing the file elsewhere.
 
-        Note: This method performs file I/O operations and might be time-consuming for large files.
+        Note:
+        - This method performs file I/O operations and might be time-consuming for large files.
+        - For very large files, multiprocessing might be considered in future development to speed up row counting,
+          although the current implementation is optimized for most use cases.
+        - The current implementation, which directly reads the file, is more efficient than using libraries like
+          `petl` or `pandas` for this specific use case.
         """
 
-        import petl as etl
+        with open(self.file.path, 'r') as f:
+            headers = f.readline().strip().split(',')
+            row_count = sum(1 for row in f)
 
-        table = etl.fromcsv(self.file.path)
-
-        self.file_row_count = etl.nrows(table)
-        self.file_headers = list(etl.header(table))
+        self.file_row_count = row_count
+        self.file_headers = headers
         self.save(update_fields=("file_row_count", "file_headers"))
 
 
@@ -120,13 +125,12 @@ class EnrichDetail(models.Model):
     external_url = models.URLField(
         help_text="The origin URL which was used to enrich",
     )
-    # json external response stored in file
+    # json external response stored in file - to keep source of enrichment as API can change
     external_response = models.FileField(
         upload_to=upload_path,
         null=True,
         blank=True,
     )
-
     created = models.DateTimeField(auto_now_add=True)
 
     # Filled in celery
@@ -160,3 +164,6 @@ class EnrichDetail(models.Model):
     selected_header = models.TextField(
         help_text="Selected header from 'CSVFile.file_headers' to be used to merge with 'external_elements_key_list'",
     )
+
+    class Meta:
+        ordering = ["created"]

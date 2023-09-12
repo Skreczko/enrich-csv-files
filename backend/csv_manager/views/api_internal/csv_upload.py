@@ -35,25 +35,31 @@ def csv_upload(
     """
 
     from csv_manager.tasks import process_csv_metadata
-    from celery import Task
 
-    file = request_form.cleaned_data["file"]
-    instance = CSVFile.objects.create(file=file, original_file_name=file.name)
+    try:
+        file = request_form.cleaned_data["file"]
+        instance = CSVFile.objects.create(file=file, original_file_name=file.name)
 
-    celery_task = cast(
-        Task, process_csv_metadata
-    )  # mypy has problem because it does not recognize that process_csv_metadata as Task. TODO Fix to future development
-    celery_task.apply_async(
-        args=(),
-        kwargs={
-            "uuid": str(instance.uuid),
-        },
-        serializer="json",  # didn't use pickle (which could reduce database requests) due to security concerns.
-    )
+        # celery_task = cast(
+        #     Task,
+        # )  # mypy has problem because it does not recognize that process_csv_metadata as Task. TODO Fix to future development
+        process_csv_metadata.apply_async(
+            args=(),
+            kwargs={
+                "uuid": str(instance.uuid),
+            },
+            serializer="json",  # didn't use pickle (which could reduce database requests) due to security concerns.
+        )
 
-    return JsonResponse(
-        data=serialize_instance(
-            instance=instance, fields=["uuid", "original_file_name"]
-        ),
-        status=HTTPStatus.OK,
-    )
+        return JsonResponse(
+            data=serialize_instance(
+                instance=instance, fields=["uuid", "original_file_name"]
+            ),
+            status=HTTPStatus.OK,
+        )
+
+    except Exception as e:
+        return JsonResponse(
+            {"error": f"An error occurred while uploading the file: {str(e)}"},
+            status=HTTPStatus.INTERNAL_SERVER_ERROR,
+        )

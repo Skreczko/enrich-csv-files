@@ -83,7 +83,7 @@ def csv_enrich_file_create(
     )
 
     status = (
-        EnrichmentStatus.FAILED_COLUMN_SELECTION if validation_response else EnrichmentStatus.MERGING
+        EnrichmentStatus.FAILED_COLUMN_SELECTION if validation_response else EnrichmentStatus.ENRICHING
     )
     enrich_detail_queryset.update(status=status, **user_selections)
 

@@ -20,7 +20,7 @@ class EnrichDetailSerializerType(TypedDict):
     created: date
     external_elements_key_list: list[str]
     external_url: str
-    id: int
+    uuid: str
 
 
 @require_GET
