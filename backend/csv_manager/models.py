@@ -6,7 +6,7 @@ from django.db import models
 from csv_manager.enums import EnrichmentJoinType, EnrichmentStatus
 
 
-def upload_path(instance: Union["CSVFile","EnrichDetail"], filename: str) -> str:
+def upload_path(instance: Union["CSVFile", "EnrichDetail"], filename: str) -> str:
     """
     Generate a unique upload path for CSV files.
 
@@ -92,9 +92,9 @@ class CSVFile(models.Model):
           `petl` or `pandas` for this specific use case.
         """
 
-        with open(self.file.path, 'r') as f:
-            headers = f.readline().strip().split(',')
-            row_count = sum(1 for row in f)
+        with open(self.file.path) as f:
+            headers = f.readline().strip().split(",")
+            row_count = sum(1 for _ in f)
 
         self.file_row_count = row_count
         self.file_headers = headers
@@ -106,11 +106,9 @@ class EnrichDetail(models.Model):
     This model stores information about enrich process using CSVFile models and external API
     """
 
-    #todo fix related stuff
     uuid = models.UUIDField(
         default=uuid.uuid4, editable=False, unique=True, primary_key=True
     )
-    
     csv_file = models.OneToOneField(
         "CSVFile",
         on_delete=models.CASCADE,

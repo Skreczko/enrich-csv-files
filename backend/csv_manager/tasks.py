@@ -1,9 +1,10 @@
 from typing import Any, cast
 
-from celery import Task, shared_task
+from celery import shared_task
 from django.db.models import F
 
-from csv_manager.enums import EnrichmentStatus
+from csv_manager.enrich_table_joins import create_enrich_table_by_join_type
+from csv_manager.enums import EnrichmentJoinType, EnrichmentStatus
 from csv_manager.models import CSVFile, EnrichDetail
 from csv_manager.types import ProcessCsvEnrichmentResponse
 
@@ -30,8 +31,11 @@ def process_csv_metadata(uuid: str, *args: Any, **kwargs: Any) -> None:
 
     CSVFile.objects.get(uuid=uuid).update_csv_metadata()
 
+
 @shared_task()
-def process_fetch_external_url(enrichdetail_uuid: str,  *args: Any, **kwargs: Any) -> None:
+def process_fetch_external_url(
+    enrich_detail_uuid: str, *args: Any, **kwargs: Any
+) -> None:
     """
     Asynchronously fetch and process external JSON data to enrich a given CSV detail.
 
@@ -42,7 +46,7 @@ def process_fetch_external_url(enrichdetail_uuid: str,  *args: Any, **kwargs: An
     4. Extracts the keys from the first item in the JSON and counts the total number of items.
     5. Updates the EnrichDetail model with the extracted keys, item count, and sets the status to AWAITING_COLUMN_SELECTION.
 
-    :param enrichdetail_uuid: The UUID of the EnrichDetail instance to be processed.
+    :param enrich_detail_uuid: The UUID of the EnrichDetail instance to be processed.
     :return: None
 
     Note:
@@ -63,7 +67,7 @@ def process_fetch_external_url(enrichdetail_uuid: str,  *args: Any, **kwargs: An
     from tempfile import NamedTemporaryFile
     from itertools import islice
 
-    enrich_detail = EnrichDetail.objects.filter(uuid=enrichdetail_uuid).first()
+    enrich_detail = EnrichDetail.objects.filter(uuid=enrich_detail_uuid).first()
     if not enrich_detail:
         raise ValueError(f"Enrich detail ({enrich_detail.uuid=}) does not exist")
 
@@ -71,42 +75,55 @@ def process_fetch_external_url(enrichdetail_uuid: str,  *args: Any, **kwargs: An
         response = requests.get(enrich_detail.external_url, stream=True, timeout=10)
         response.raise_for_status()
     except requests.HTTPError as e:
-        EnrichDetail.objects.filter(uuid=enrichdetail_uuid).update(status=EnrichmentStatus.FAILED_FETCHING_RESPONSE_INCORRECT_URL_STATUS)
+        EnrichDetail.objects.filter(uuid=enrich_detail_uuid).update(
+            status=EnrichmentStatus.FAILED_FETCHING_RESPONSE_INCORRECT_URL_STATUS
+        )
         raise e
     except requests.RequestException as e:
-        EnrichDetail.objects.filter(uuid=enrichdetail_uuid).update(status=EnrichmentStatus.FAILED_FETCHING_RESPONSE_OTHER_REQUEST_EXCEPTION)
+        EnrichDetail.objects.filter(uuid=enrich_detail_uuid).update(
+            status=EnrichmentStatus.FAILED_FETCHING_RESPONSE_OTHER_REQUEST_EXCEPTION
+        )
         raise ValueError(f"Other request exeption occurs: {e}")
 
     # Use a temporary file to stream the content
     with NamedTemporaryFile(delete=True) as temp_file:
-        for chunk in response.iter_content(chunk_size=65536):  # 64 KB - same as default chunk for django TemporaryFileUploadHandler
+        for chunk in response.iter_content(
+            chunk_size=65536
+        ):  # 64 KB - same as default chunk for django TemporaryFileUploadHandler
             temp_file.write(chunk)
 
         # Use ijson to process the JSON file piece by piece
         temp_file.seek(0)
-        items = ijson.items(temp_file, 'item')  # 'item' is a placeholder, adjust if the JSON structure is different
+        items = ijson.items(
+            temp_file, "item"
+        )  # 'item' is a placeholder, adjust if the JSON structure is different
         try:
             first_item = next(items, None)
         except ijson.common.IncompleteJSONError:
-            EnrichDetail.objects.filter(uuid=enrichdetail_uuid).update(status=EnrichmentStatus.FAILED_FETCHING_RESPONSE_NOT_JSON)
+            EnrichDetail.objects.filter(uuid=enrich_detail_uuid).update(
+                status=EnrichmentStatus.FAILED_FETCHING_RESPONSE_NOT_JSON
+            )
             raise ValueError("The response is not a valid JSON")
 
         if not first_item:
-            EnrichDetail.objects.filter(uuid=enrichdetail_uuid).update(status=EnrichmentStatus.FAILED_FETCHING_RESPONSE_EMPTY_JSON)
+            EnrichDetail.objects.filter(uuid=enrich_detail_uuid).update(
+                status=EnrichmentStatus.FAILED_FETCHING_RESPONSE_EMPTY_JSON
+            )
             raise ValueError("The JSON response is empty")
 
         temp_file.seek(0)
-        filename = f"{enrichdetail_uuid}.json"
+        filename = f"{enrich_detail_uuid}.json"
 
         # Save the file to the model's FileField
         enrich_detail.external_response.save(filename, File(temp_file))
 
         enrich_detail.external_elements_key_list = list(first_item.keys())
-        enrich_detail.external_elements_count =  sum(1 for _ in islice(items, 1, None)) + 1  # 1 as first item has been already read as "first_item"
+        enrich_detail.external_elements_count = (
+            sum(1 for _ in islice(items, 1, None)) + 1
+        )  # 1 as first item has been already read as "first_item"
 
         enrich_detail.status = EnrichmentStatus.AWAITING_COLUMN_SELECTION
         enrich_detail.save()
-
 
 
 @shared_task()
@@ -129,7 +146,6 @@ def clear_empty_csvfile() -> None:
     from django.db.models import Q
     from datetime import timedelta
 
-
     check_date = F("enrich_detail__created") - timedelta(days=3)
 
     CSVFile.objects.filter(
@@ -142,27 +158,38 @@ def clear_empty_csvfile() -> None:
 
 @shared_task()
 def process_csv_enrichment(
-    enrich_detail_id: int,
+    enrich_detail_uuid: str,
     *args: Any,
     **kwargs: Any,
 ) -> ProcessCsvEnrichmentResponse:
-    from csv_manager.enrich_table_joins import create_enrich_table_by_join_type
+    enrich_detail_instance = (
+        EnrichDetail.objects.select_related(
+            "csv_file",
+            "csv_file__source_instance",
+        )
+        .only(
+            "status",
+            "join_type",
+            "csv_file__file",
+            "csv_file__original_file_name",
+            "csv_file__uuid",
+            "csv_file__source_instance__file",
+            "csv_file__source_instance__original_file_name",
+        )
+        .get(uuid=enrich_detail_uuid)
+    )
 
-    enrich_detail_instance = EnrichDetail.objects.select_related(
-        "csv_file",
-        "csv_file__source_instance",
-    ).get(id=enrich_detail_id)
-
-    EnrichDetail.objects.filter(id=enrich_detail_id).update(status=EnrichmentStatus.ENRICHING)
+    enrich_detail_instance.status = EnrichmentStatus.ENRICHING
+    enrich_detail_instance.save(update_fields=("status",))
 
     csvfile_instance = enrich_detail_instance.csv_file
     source_csvfile_instance = csvfile_instance.source_instance
 
     output_path = create_enrich_table_by_join_type(
         join_type=cast(
-            "EnrichmentJoinType", enrich_detail_instance.join_type
+            EnrichmentJoinType, enrich_detail_instance.join_type
         ),  # mypy has problem, as in database its null=True, blank=True, but that value will be assigned when it reach this place (CSVEnrichFileRequestForm)
-        enriched_file_name=str(csvfile_instance.uuid),
+        enriched_csv_file_name=str(csvfile_instance.uuid),
         source_instance_file_path=source_csvfile_instance.file.path,  # type: ignore #same as above
         enrich_detail_instance=enrich_detail_instance,
     )
@@ -170,13 +197,14 @@ def process_csv_enrichment(
     # take into account potential SuspiciousFileOperation for future development when storing file in different path than project
     csvfile_instance.file.name = output_path
     csvfile_instance.original_file_name = f"{source_csvfile_instance.original_file_name}_enriched.csv"  # type: ignore #same as above
-    csvfile_instance.save()
-    csvfile_instance.update_csv_metadata()
+    csvfile_instance.save(update_fields=("file", "original_file_name"))
 
     enrich_detail_instance.status = EnrichmentStatus.COMPLETED
     enrich_detail_instance.save(update_fields=("status",))
 
+    csvfile_instance.update_csv_metadata()
+
     return {
-        "enrich_detail_id": enrich_detail_instance.id
+        "enrich_detail_uuid": str(enrich_detail_instance.uuid)
         # todo serialize new csvfile + select_related on enrich detail?
     }

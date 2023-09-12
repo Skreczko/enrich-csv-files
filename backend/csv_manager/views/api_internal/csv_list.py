@@ -58,13 +58,10 @@ def csv_list(
         # take status from "enrich_detail.status". If "enrich_detail" does not exist - that mean file has been created
         # in upload process. Return status "finished" by default.
         status=Case(
-            When(
-                enrich_detail__isnull=False, then=F("enrich_detail__status")
-            ),
+            When(enrich_detail__isnull=False, then=F("enrich_detail__status")),
             default=Value(EnrichmentStatus.COMPLETED),
             output_field=models.CharField(),
-        )
-
+        ),
     )
     filter_kwargs: dict = {}
 

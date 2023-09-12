@@ -99,11 +99,18 @@ urlpatterns = [
             ],
         ),
     ),
-    # redirect rest paths to React Router, as path above MUST be handled by django
+]
+
+try:
+    urlpatterns += [re_path(r"^__debug__/", include("debug_toolbar.urls"))]
+except ImportError:
+    pass
+
+# redirect rest paths to React Router, as path above MUST be handled by django
+urlpatterns += [
     re_path(r"^.*$", TemplateView.as_view(template_name="index.html")),
 ]
 
-# TODO debug_toolbar
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

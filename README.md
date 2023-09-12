@@ -1,5 +1,6 @@
 ## Before first run
 * Before you do so, please rename file `backend/.env.example` to `backend/.env`. It is intentional behavior to provide `.env` file. 
+* Dont forget to set `DEBUG=True` in `.env` if you want to start developing server!
 * To manage containers, you can use 
 ```
 docker-compose run --rm django bash

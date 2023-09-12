@@ -36,8 +36,12 @@ def cache_view_response(
       unmatched path in urls.py is redirected with an HTTP 200 status to React, where further
       handling occurs. Django's default behavior would cache these redirects, which is undesirable
       in this context.
-    - This decorator is specifically designed for JsonResponse.
-
+    - This decorator is specifically designed for JsonResponse. If the response is not a JsonResponse,
+      it will bypass the caching mechanism and directly return the original response.
+    - In case of any exception during caching, the decorator will bypass the cache and return the
+      original response. This ensures that the end user always receives a response even if there's
+      an issue with the caching mechanism. For future development, consider adding logging to capture
+      such exceptions for monitoring and debugging purposes.
 
     Usage:
     ------
@@ -61,7 +65,7 @@ def cache_view_response(
                 if isinstance(response, JsonResponse):
                     cache.set(cache_key, json.loads(response.content), timeout)
 
-            except Exception as e:
+            except Exception:
                 # For future development - adding logging with info that there is something wrong with cache, but still return correct resposne
                 response = view_func(request, *args, **kwargs)
 

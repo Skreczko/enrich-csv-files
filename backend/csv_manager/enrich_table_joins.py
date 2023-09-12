@@ -1,14 +1,11 @@
-from collections.abc import Iterable
-from typing import Any, TYPE_CHECKING
-
+from typing import Any
 
 from csv_manager.enums import EnrichmentJoinType
 import petl as etl
+import ijson.backends.yajl2 as ijson
 
 from csv_manager.types import PetlTableJoinParams
-
-if TYPE_CHECKING:
-    from csv_manager.models import EnrichDetail  # noqa
+from csv_manager.models import EnrichDetail
 
 
 def create_csv_from_table(merged_table: Any, output_path: str) -> str:
@@ -87,7 +84,7 @@ def handle_table_inner_join(
 def create_enrich_table_by_join_type(
     *,
     join_type: EnrichmentJoinType,
-    enriched_file_name: str,
+    enriched_csv_file_name: str,
     source_instance_file_path: str,
     enrich_detail_instance: "EnrichDetail",
     csv_file_join_prefix: str = "",
@@ -99,10 +96,11 @@ def create_enrich_table_by_join_type(
     This function takes a source CSV file and enrichment details to produce an enriched CSV file.
     The enrichment is based on the specified join type. The function supports LEFT, RIGHT, and INNER joins.
     The enrichment details can be either flat or nested. If they are flat, the function uses the flatdict
-    library to flatten the details for better performance.
+    library in conjunction with ijson to efficiently flatten the details on-the-fly without loading the entire
+    JSON file into memory.
 
     :param join_type: The type of join to be performed (e.g., LEFT, RIGHT, INNER).
-    :param enriched_file_name: The name of the file after enrichment.
+    :param enriched_csv_file_name: The name of the file after enrichment.
     :param source_instance_file_path: Path to the source CSV file.
     :param enrich_detail_instance: Instance containing details for enrichment.
     :param csv_file_join_prefix: Optional prefix for columns from the CSV file.
@@ -114,6 +112,8 @@ def create_enrich_table_by_join_type(
       This library was chosen based on its performance benchmarks.
       More details can be found at:
       https://www.freecodecamp.org/news/how-to-flatten-a-dictionary-in-python-in-4-different-ways/
+    - The function leverages ijson[yajl2] to parse the JSON file iteratively, allowing for efficient memory usage.
+    - The petl library is used for data transformation and table operations.
     """
 
     join_switch = {
@@ -122,34 +122,36 @@ def create_enrich_table_by_join_type(
         EnrichmentJoinType.INNER: handle_table_inner_join,
     }
 
-    # set up output path with correct file naming
-
-    #todo
-
-    # https://stackoverflow.com/questions/72418227/access-upload-to-of-a-models-filefield-in-django
     output_path = (
-        f"{source_instance_file_path.rsplit('/', 1)[0]}/{enriched_file_name}.csv"
+        f"{source_instance_file_path.rsplit('/', 1)[0]}/{enriched_csv_file_name}.csv"
     )
 
     # create table from csv file
     csv_file_table = etl.fromcsv(source_instance_file_path)
 
-    # create table from external api response
+    # create table from external api response json file
     if enrich_detail_instance.is_flat:
-        # used flatdict library as this provides the best performance benchmark
-        def flat_dict_generator(dicts: dict[str, Any]) -> Iterable:
-            import flatdict
+        import flatdict
 
-            for d in dicts:
-                yield flatdict.FlatDict(d, delimiter="_")
+        def flattened_data_generator():
+            """
+            Generator function to yield flattened dictionaries from a JSON file.
 
-        flatten_external_response = flat_dict_generator(
-            enrich_detail_instance.external_response
-        )
-        external_response_table = etl.fromdicts(flatten_external_response)
+            This function reads a JSON file iteratively using ijson[yajl2]. For each item in the JSON,
+            it flattens the nested structures using the flatdict library and yields the flattened dictionary.
+
+            :yield: A flattened dictionary for each item in the JSON file.
+            """
+
+            with open(enrich_detail_instance.external_response.path) as f:
+                for item in ijson.items(f, "item"):
+                    flattened_item = flatdict.FlatDict(item, delimiter="_")
+                    yield dict(flattened_item)
+
+        external_response_table = etl.fromdicts(flattened_data_generator())
     else:
-        external_response_table = etl.fromdicts(
-            enrich_detail_instance.external_response
+        external_response_table = etl.fromjson(
+            enrich_detail_instance.external_response.path
         )
 
     handler = join_switch.get(join_type)

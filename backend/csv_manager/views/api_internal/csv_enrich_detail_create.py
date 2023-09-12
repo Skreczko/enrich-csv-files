@@ -1,7 +1,5 @@
-import json
 from http import HTTPStatus
 
-import requests
 from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_POST
 
@@ -18,51 +16,41 @@ def csv_enrich_detail_create(
     request: HttpRequest, request_form: CSVEnrichDetailCreateRequestForm, uuid: str
 ) -> JsonResponse:
     """
-    Endpoint to enrich a CSV file using data from an external URL.
+    Endpoint to initiate the enrichment of a CSV file using data from an external URL.
 
-    This endpoint fetches data from the provided external URL and attempts to enrich the CSV file identified by its UUID.
-    The response includes the keys from the external data and the ID of the enrichment detail.
+    This endpoint creates a new enrichment detail for a given CSV file (identified by its UUID) and
+    schedules an asynchronous task to fetch data from the provided external URL. Once the data
+     is fetched, it will be used to enrich the CSV file.
 
     :param request: HttpRequest object containing the request data.
-    :param request_form: CSVEnrichFileRequestForm object containing the validated form data.
+    :param request_form: CSVEnrichDetailCreateRequestForm object containing the validated form data, including the external URL.
     :param uuid: The UUID of the CSVFile instance to be enriched.
-    :return: JsonResponse object containing the keys from the external data and the ID of the enrichment detail.
+    :return: JsonResponse object containing the UUID of the created enrichment detail and the ID of the scheduled task.
 
     Note:
-    - If the provided external URL does not return a valid JSON, a 400 BAD REQUEST response is returned.
-    - Network errors, such as timeouts or connection failures when accessing the external URL, are not explicitly
-      handled in this function and might raise exceptions.
+    - The endpoint immediately returns after scheduling the asynchronous task and does not wait for the task to complete.
+    - If the provided external URL does not return a valid JSON, the asynchronous task will handle the error and
+      update the enrichment detail's status accordingly.
+    - The function uses the Celery task system to manage the asynchronous fetching of data.
+    - For security reasons, the JSON serializer is used for the Celery task instead of pickle.
     """
-
 
     csvfile_instance = CSVFile.objects.create(source_instance_id=uuid)
 
-    #todo fix docstring
     enrich_model = EnrichDetail.objects.create(
         csv_file_id=csvfile_instance.uuid,
         external_url=request_form.cleaned_data["external_url"],
-        status=EnrichmentStatus.FETCHING_RESPONSE
+        status=EnrichmentStatus.FETCHING_RESPONSE,
     )
-    # task = process_fetch_external_url.apply_async(
-    #     args=(),
-    #     kwargs={
-    #         "enrichdetail_uuid": str(enrich_model.uuid),
-    #     },
-    #     serializer="json",  # didn't use pickle (which could reduce database requests) due to security concerns.
-    # )
-    process_fetch_external_url(enrichdetail_uuid=str(enrich_model.uuid))
+    task = process_fetch_external_url.apply_async(
+        args=(),
+        kwargs={
+            "enrich_detail_uuid": str(enrich_model.uuid),
+        },
+        serializer="json",  # didn't use pickle (which could reduce database requests) due to security concerns.
+    )
 
     return JsonResponse(
-        # {"enrich_detail_id": enrich_model.uuid, "task_id": task.id},
-        {"enrich_detail_id": enrich_model.uuid, },
+        {"enrich_detail_uuid": enrich_model.uuid, "task_id": task.id},
         status=HTTPStatus.OK,
     )
-    # except Exception as e:
-    #     # TODO: In future development, consider adding more detailed logging
-    #     # and identifying specific exceptions that can occur.
-    #     # Currently, it's a base fetching exception with an update to EnrichmentStatus.
-    #     EnrichDetail.objects.filter(uuid=enrich_model.uuid).update(status=EnrichmentStatus.FAILED_FETCHING_RESPONSE)
-    #     return JsonResponse(
-    #         {"error": f"An error occurred while processing fetch external url: {str(e)}"},
-    #         status=HTTPStatus.INTERNAL_SERVER_ERROR,
-    #     )

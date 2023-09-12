@@ -30,8 +30,6 @@ class EnrichmentStatus(StrEnum):
     COMPLETED = auto()
 
 
-
-
 class EnrichmentJoinType(StrEnum):
     """
     full join not included as does not meet task requirements

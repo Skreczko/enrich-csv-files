@@ -79,3 +79,11 @@ in this case, using django and put react to django template we can
 * As DRF is restricted (as Jakub said) created custom serializers `serializer.py`
 * For csv preview - used `etl.rowslice` for pagination
 * For csv preview  - custom cache view - `cache_view_response` for JSON response (as DRF is restricted, redirected all request which does not fit to urls.py to react to handle it there)
+* For status updates, used `queryset.update()` instead `.save()` to make that change directly in database
+* Added `flatdict` to flat json file on user request during enchrichment process
+* Using generators in many places
+* Added DDT https://pypi.org/project/django-debug-toolbar/ to track query. Ajax query can be viewed in "history" tab.
+
+
+# TODO
+* add logging system (datadog/sentry/etc) to detect bottle necks, issues etc. - didnt implement that

@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, cast
+from typing import Any
 
 from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_POST

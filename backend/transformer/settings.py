@@ -33,7 +33,7 @@ MYPY = "mypy" in sys.argv[0]
 SECRET_KEY = os.environ["SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DEBUG", False)
 
 ALLOWED_HOSTS = [os.environ.get("ALLOWED_HOSTS", "")]
 
@@ -57,8 +57,8 @@ INSTALLED_APPS += [
 ]
 
 MIDDLEWARE = [
-    #https://docs.djangoproject.com/en/3.2/_modules/django/middleware/gzip/#GZipMiddleware
-    'django.middleware.gzip.GZipMiddleware',
+    # https://docs.djangoproject.com/en/3.2/_modules/django/middleware/gzip/#GZipMiddleware
+    "django.middleware.gzip.GZipMiddleware",
 ]
 
 ROOT_URLCONF = "transformer.urls"
@@ -157,3 +157,15 @@ WEBPACK_LOADER = {
         "STATS_FILE": os.path.join(FRONTEND_DIR, "webpack-stats.json"),
     }
 }
+
+if DEBUG:
+    # django-debug-toolbar https://pypi.org/project/django-debug-toolbar/
+    from transformer.dev_settings import *
+
+    INSTALLED_APPS += [
+        "debug_toolbar",
+    ]
+    MIDDLEWARE += [
+        "django.middleware.common.CommonMiddleware",
+        "debug_toolbar.middleware.DebugToolbarMiddleware",
+    ]

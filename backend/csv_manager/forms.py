@@ -31,9 +31,12 @@ class CSVListFileRequestForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        available_choices = ', '.join([choice[1] for choice in self.fields['sort'].choices])
-        self.fields['sort'].error_messages[
-            'invalid_choice'] = f"Select a valid choice. Available choices are: {available_choices}."
+        available_choices = ", ".join(
+            [choice[1] for choice in self.fields["sort"].choices]
+        )
+        self.fields["sort"].error_messages[
+            "invalid_choice"
+        ] = f"Select a valid choice. Available choices are: {available_choices}."
 
 
 class CSVLDetailFileRequestForm(forms.Form):
@@ -45,7 +48,7 @@ class CSVEnrichDetailCreateRequestForm(forms.Form):
 
 
 class CSVEnrichFileRequestForm(forms.Form):
-    enrich_detail_id = forms.IntegerField()
+    enrich_detail_uuid = forms.CharField()
     selected_merge_key = forms.CharField()
     selected_merge_header = forms.CharField()
     join_type = forms.ChoiceField(
@@ -56,9 +59,12 @@ class CSVEnrichFileRequestForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        available_choices = ', '.join([choice[1] for choice in self.fields['join_type'].choices])
-        self.fields['join_type'].error_messages[
-            'invalid_choice'] = f"Select a valid choice. Available choices are: {available_choices}."
+        available_choices = ", ".join(
+            [choice[1] for choice in self.fields["join_type"].choices]
+        )
+        self.fields["join_type"].error_messages[
+            "invalid_choice"
+        ] = f"Select a valid choice. Available choices are: {available_choices}."
 
 
 class FetchTaskResultsRequestForm(forms.Form):

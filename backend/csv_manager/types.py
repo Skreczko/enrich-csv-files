@@ -17,7 +17,7 @@ class PetlTableJoinParams(TypedDict, total=False):
 
 
 class ProcessCsvEnrichmentResponse(TypedDict):
-    enrich_detail_id: int
+    enrich_detail_uuid: str
 
 
 class FetchTaskResultDictPending(TypedDict):

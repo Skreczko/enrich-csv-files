@@ -53,8 +53,11 @@ def csv_detail_chunks_get(
 
     try:
         table = etl.fromcsv(source=instance.file.path)
-    except Exception as e:
-        return JsonResponse({"error": "Error reading CSV file."}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
+    except Exception:
+        return JsonResponse(
+            {"error": "Error reading CSV file."},
+            status=HTTPStatus.INTERNAL_SERVER_ERROR,
+        )
 
     return JsonResponse(
         {
