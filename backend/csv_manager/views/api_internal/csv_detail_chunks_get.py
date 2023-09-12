@@ -2,6 +2,7 @@ from http import HTTPStatus
 
 from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_GET
+from sentry_sdk import capture_exception
 
 from csv_manager.forms import CSVLDetailFileRequestForm
 from csv_manager.models import CSVFile
@@ -53,7 +54,8 @@ def csv_detail_chunks_get(
 
     try:
         table = etl.fromcsv(source=instance.file.path)
-    except Exception:
+    except Exception as e:
+        capture_exception(e)
         return JsonResponse(
             {"error": "Error reading CSV file."},
             status=HTTPStatus.INTERNAL_SERVER_ERROR,

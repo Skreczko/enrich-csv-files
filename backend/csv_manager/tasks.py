@@ -2,6 +2,7 @@ from typing import Any, cast
 
 from celery import shared_task
 from django.db.models import F
+from sentry_sdk import capture_exception
 
 from csv_manager.enrich_table_joins import create_enrich_table_by_join_type
 from csv_manager.enums import EnrichmentJoinType, EnrichmentStatus
@@ -24,9 +25,6 @@ def process_csv_metadata(uuid: str, *args: Any, **kwargs: Any) -> None:
     Note:
     - This task will automatically retry once if any exception occurs during its execution.
     - The retry will happen after a 60-second countdown.
-
-    Optimization:
-    - Logger needed - ie. Datadog or django logging
     """
 
     CSVFile.objects.get(uuid=uuid).update_csv_metadata()
@@ -56,9 +54,6 @@ def process_fetch_external_url(
     - The approach prioritizes memory efficiency over speed. While the reading speed might be slower due to
       streaming and iterative parsing, this ensures minimal RAM usage. Given that this task runs asynchronously
       in Celery and doesn't block the main thread, the trade-off is considered acceptable to prevent potential memory issues.
-
-    Optimization:
-    - Consider adding logging for better monitoring and error tracking.
     """
 
     import ijson.backends.yajl2 as ijson  # https://lpetr.org/2016/05/30/faster-json-parsing-python-ijson/
@@ -75,11 +70,13 @@ def process_fetch_external_url(
         response = requests.get(enrich_detail.external_url, stream=True, timeout=10)
         response.raise_for_status()
     except requests.HTTPError as e:
+        capture_exception(e)
         EnrichDetail.objects.filter(uuid=enrich_detail_uuid).update(
             status=EnrichmentStatus.FAILED_FETCHING_RESPONSE_INCORRECT_URL_STATUS
         )
         raise e
     except requests.RequestException as e:
+        capture_exception(e)
         EnrichDetail.objects.filter(uuid=enrich_detail_uuid).update(
             status=EnrichmentStatus.FAILED_FETCHING_RESPONSE_OTHER_REQUEST_EXCEPTION
         )

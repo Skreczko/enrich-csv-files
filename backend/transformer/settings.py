@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 import os
 import sys
 from pathlib import Path
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.celery import CeleryIntegration
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -157,6 +160,16 @@ WEBPACK_LOADER = {
         "STATS_FILE": os.path.join(FRONTEND_DIR, "webpack-stats.json"),
     }
 }
+
+SENTRY_DNS = os.environ.get("SENTRY_DNS")
+
+if SENTRY_DNS:
+    # https://adverity-transformer-197cd18c7.sentry.io/issues/
+    sentry_sdk.init(
+        dsn=SENTRY_DNS,
+        integrations=[CeleryIntegration(), DjangoIntegration()],
+        environment="transformer",
+    )
 
 if DEBUG:
     # django-debug-toolbar https://pypi.org/project/django-debug-toolbar/

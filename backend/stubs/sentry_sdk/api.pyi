@@ -1,0 +1,3 @@
+from typing import Any
+
+def capture_exception(exception: Any, *args: Any, **kwargs: Any) -> None: ...

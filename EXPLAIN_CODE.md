@@ -83,7 +83,7 @@ in this case, using django and put react to django template we can
 * Added `flatdict` to flat json file on user request during enchrichment process
 * Using generators in many places
 * Added DDT https://pypi.org/project/django-debug-toolbar/ to track query. Ajax query can be viewed in "history" tab.
-
+* Added `Sentry` (https://adverity-transformer-197cd18c7.sentry.io/issues/ - credentials in `.env.example`
 
 # TODO
-* add logging system (datadog/sentry/etc) to detect bottle necks, issues etc. - didnt implement that
+* `Sentry` has default setup. May be required to add additional sentry envs for local/test/prod

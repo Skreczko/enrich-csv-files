@@ -101,7 +101,6 @@ def serialize_queryset(
                     serialized_obj[field] = None
                 except FileNotFoundError:
                     # that mean someone has deleted related file
-                    # FOR FUTURE DEVELOPMENT - to fetch situations like that - should be pushed to logging and some actions should be applied
                     serialized_obj[field] = "Not found"
             elif field in annotation_fields:
                 serialized_obj[field] = object_field

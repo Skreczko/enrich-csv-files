@@ -4,6 +4,7 @@ from typing import Any, cast
 from celery import Task
 from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_POST
+from sentry_sdk import capture_exception
 
 from csv_manager.forms import CSVUploadRequestForm
 from csv_manager.models import CSVFile
@@ -57,6 +58,7 @@ def csv_upload(
         )
 
     except Exception as e:
+        capture_exception(e)
         return JsonResponse(
             {"error": f"An error occurred while uploading the file: {str(e)}"},
             status=HTTPStatus.INTERNAL_SERVER_ERROR,

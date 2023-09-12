@@ -6,7 +6,7 @@ from typing import Any
 
 from django.core.cache import cache
 from django.http import HttpRequest, HttpResponse, JsonResponse
-
+from sentry_sdk import capture_exception
 
 GenericFuncCache = Callable[[HttpRequest, Any, Any], HttpResponse]
 WrapperFuncCache = Callable[[HttpRequest, Any, Any], HttpResponse]
@@ -40,8 +40,7 @@ def cache_view_response(
       it will bypass the caching mechanism and directly return the original response.
     - In case of any exception during caching, the decorator will bypass the cache and return the
       original response. This ensures that the end user always receives a response even if there's
-      an issue with the caching mechanism. For future development, consider adding logging to capture
-      such exceptions for monitoring and debugging purposes.
+      an issue with the caching mechanism.
 
     Usage:
     ------
@@ -65,8 +64,8 @@ def cache_view_response(
                 if isinstance(response, JsonResponse):
                     cache.set(cache_key, json.loads(response.content), timeout)
 
-            except Exception:
-                # For future development - adding logging with info that there is something wrong with cache, but still return correct resposne
+            except Exception as e:
+                capture_exception(e)
                 response = view_func(request, *args, **kwargs)
 
             return response
