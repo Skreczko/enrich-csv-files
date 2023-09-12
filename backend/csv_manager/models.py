@@ -89,7 +89,7 @@ class CSVFile(models.Model):
         - For very large files, multiprocessing might be considered in future development to speed up row counting,
           although the current implementation is optimized for most use cases.
         - The current implementation, which directly reads the file, is more efficient than using libraries like
-          `petl` or `pandas` for this specific use case.
+          `petl` or `pandas` for this specific use case because it avoids loading the entire file into memory.
         """
 
         with open(self.file.path) as f:
