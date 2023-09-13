@@ -2,7 +2,7 @@ from http import HTTPStatus
 
 from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_GET
-from sentry_sdk import capture_exception
+from sentry_sdk import capture_exception  # type: ignore  #todo fix stubs
 
 from csv_manager.forms import CSVLDetailFileRequestForm
 from csv_manager.models import CSVFile

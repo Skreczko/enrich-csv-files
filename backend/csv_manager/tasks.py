@@ -2,7 +2,7 @@ from typing import Any, cast
 
 from celery import shared_task
 from django.db.models import F
-from sentry_sdk import capture_exception
+from sentry_sdk import capture_exception  # type: ignore  #todo fix stubs
 
 from csv_manager.enrich_table_joins import create_enrich_table_by_join_type
 from csv_manager.enums import EnrichmentJoinType, EnrichmentStatus

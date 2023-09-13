@@ -4,7 +4,7 @@ from typing import Any, cast
 from celery import Task
 from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_POST
-from sentry_sdk import capture_exception
+from sentry_sdk import capture_exception  # type: ignore  #todo fix stubs
 
 from csv_manager.forms import CSVUploadRequestForm
 from csv_manager.models import CSVFile

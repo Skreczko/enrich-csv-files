@@ -6,7 +6,7 @@ from typing import Any
 
 from django.core.cache import cache
 from django.http import HttpRequest, HttpResponse, JsonResponse
-from sentry_sdk import capture_exception
+from sentry_sdk import capture_exception  # type: ignore  #todo fix stubs
 
 GenericFuncCache = Callable[[HttpRequest, Any, Any], HttpResponse]
 WrapperFuncCache = Callable[[HttpRequest, Any, Any], HttpResponse]
