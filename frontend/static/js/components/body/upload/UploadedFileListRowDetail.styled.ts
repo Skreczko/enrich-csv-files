@@ -1,9 +1,11 @@
 import styled from 'styled-components';
 import { mainGreen } from '../../../App.styled';
 
-export const ProgressBar = styled.div`
+export const ProgressBar = styled.div<{ height?: number; backgroundColor?: string }>`
   width: 100%;
-  background-color: transparent;
+  background-color: ${({ backgroundColor }): string =>
+    backgroundColor ? `${backgroundColor}` : 'transparent'};
+  height: ${({ height }): string => (height ? `${height}px` : 'inherit')};
   position: relative;
   display: flex;
   align-items: center;
@@ -12,16 +14,18 @@ export const ProgressBar = styled.div`
   border: 1px solid black;
 `;
 
-export const FileName = styled.p<{ color: string }>`
+export const FileName = styled.p<{ color: string; fontSize?: number }>`
   z-index: 2;
   color: ${({ color }): string => `${color}`};
+  font-size: ${({ fontSize }): string => (fontSize ? `${fontSize}px` : 'inherit')};
   padding: 2px 0 2px 10px;
   word-break: break-word;
 `;
 
-export const ProgressBarFiller = styled.div<{ width: number }>`
+export const ProgressBarFiller = styled.div<{ width: number; backgroundColor?: string }>`
   height: 100%;
-  background-color: ${mainGreen};
+  background-color: ${({ backgroundColor }): string =>
+    backgroundColor ? `${backgroundColor}` : `${mainGreen}`};
   position: absolute;
   left: 0;
   top: 0;

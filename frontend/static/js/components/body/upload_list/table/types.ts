@@ -1,4 +1,6 @@
 export type TableRowStatusDetails = {
-  imgSrc: string;
+  backgroundColor?: string;
+  imgSrc?: string;
   popupText: string;
+  progress?: number; // max 100
 };

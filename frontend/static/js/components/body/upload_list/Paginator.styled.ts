@@ -6,7 +6,7 @@ export const PaginatorWrapper = styled(ReactPaginate)`
   display: flex;
   justify-content: center;
   list-style-type: none !important;
-  padding: 0;
+  margin-top: 50px;
 
   .page {
     border: 1px solid white;

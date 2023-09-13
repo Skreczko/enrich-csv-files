@@ -8,7 +8,7 @@ export const columns: string[] = [
   'status',
   'source file name',
   'enriched by',
-  'preview',
+  'actions',
 ];
 
 export const TableHeader: React.FC = () => (

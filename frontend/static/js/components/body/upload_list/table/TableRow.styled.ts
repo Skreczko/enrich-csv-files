@@ -10,6 +10,7 @@ interface RowCellProps {
   centred?: boolean;
   pointer?: boolean;
   column?: boolean;
+  paddingLeft?: number;
 }
 
 export const RowCell = styled.div<RowCellProps>`
@@ -17,7 +18,7 @@ export const RowCell = styled.div<RowCellProps>`
   flex-direction: ${({ column }): string => (column ? 'column' : ' row')};
   justify-content: ${({ centred }): string => (centred ? 'center' : ' flex-start')};
   align-items: center;
-  padding-left: ${({ centred }): string => (centred ? '0' : ' 10px')};
+  padding-left: ${({ paddingLeft }): string => (paddingLeft ? `${paddingLeft}px` : ' 0')};
   cursor: ${({ pointer }): string => (pointer ? 'pointer' : ' inherit')};
 
   a {
@@ -45,3 +46,10 @@ export const RowCell = styled.div<RowCellProps>`
     }
   }
 `;
+
+export const PopupTrigger = styled.div`
+  display: grid;
+  place-items: center;
+  width: 100%;
+  padding: 0 10px;
+`

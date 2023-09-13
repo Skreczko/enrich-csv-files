@@ -10,7 +10,9 @@ import { Paginator } from '../Paginator';
 import { PageSizeDropdown } from '../PageSizeDropdown';
 
 export const UploadTable: React.FC = () => {
-  const { isLoading, paginator }: FileListState = useSelector((state: RootState) => state.fileList);
+  const { isLoading, paginator, fileList }: FileListState = useSelector(
+    (state: RootState) => state.fileList,
+  );
 
   return (
     <CustomTable>
@@ -23,7 +25,7 @@ export const UploadTable: React.FC = () => {
         <TableRows />
       )}
       {paginator?.total_pages > 1 && <Paginator />}
-      {!!paginator?.total_pages && <PageSizeDropdown />}
+      {!!fileList?.length && <PageSizeDropdown />}
     </CustomTable>
   );
 };

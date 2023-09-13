@@ -1,5 +1,5 @@
 import React from 'react';
-import { CsvElementRow, RowCell } from './TableRow.styled';
+import { CsvElementRow, PopupTrigger, RowCell } from './TableRow.styled';
 import { CsvFileElement } from '../../../../api/types';
 import moment from 'moment';
 import LoupeImage from '../../../../../img/body/list/loupe.png';
@@ -8,6 +8,9 @@ import PreviewImage from '../../../../../img/body/list/preview.png';
 import { Popup } from 'semantic-ui-react';
 import { TableRowStatusDetails } from './types';
 import { Link } from 'react-router-dom';
+import { ProgressBar, ProgressBarFiller } from '../../upload/UploadedFileListRowDetail.styled';
+import { EnrichDetailStatus } from '../../../../api/enums';
+import { lightGrey } from '../../../../App.styled';
 
 type Props = {
   counter: number;
@@ -20,17 +23,23 @@ export const TableRow: React.FC<Props> = ({ fileElement, counter, statusDetail }
     uuid,
     original_file_name: fileName,
     created,
-    status,
     source_original_file_name: sourceFileName,
+    status,
     enrich_detail,
   } = fileElement;
+
+  const { progress, popupText, backgroundColor, imgSrc } = statusDetail;
+
+  const showPreview = (status: EnrichDetailStatus): boolean => {
+    return status === EnrichDetailStatus.COMPLETED;
+  };
 
   return (
     <CsvElementRow>
       <RowCell centred={true}>
         <p>{counter}</p>
       </RowCell>
-      <RowCell pointer={true}>
+      <RowCell pointer={true} paddingLeft={10}>
         <img src={LoupeImage} alt={'loupe'} />
         <p>{fileName || '...'}</p>
       </RowCell>
@@ -40,25 +49,34 @@ export const TableRow: React.FC<Props> = ({ fileElement, counter, statusDetail }
       </RowCell>
       <RowCell centred={true} pointer={true}>
         <Popup
-          content={statusDetail.popupText}
+          content={popupText}
           inverted
-          mouseEnterDelay={100}
+          mouseEnterDelay={50}
           position={'top center'}
           size='mini'
-          trigger={<img src={statusDetail.imgSrc} alt={status} />}
+          trigger={
+            <PopupTrigger>
+              {imgSrc && <img src={statusDetail.imgSrc} alt={status} />}
+              {progress && (
+                <ProgressBar height={10} backgroundColor={lightGrey}>
+                  <ProgressBarFiller width={progress} backgroundColor={backgroundColor} />
+                </ProgressBar>
+              )}
+            </PopupTrigger>
+          }
         />
       </RowCell>
-      <RowCell centred={!sourceFileName}>
+      <RowCell paddingLeft={10} pointer={!sourceFileName}>
         {!!sourceFileName && <img src={MaximizeImage} alt={'maximize'} />}
         <Link to={{ pathname: '/', search: `search=${uuid}` }} target='_blank'>
           <p>{sourceFileName}</p>
         </Link>
       </RowCell>
-      <RowCell centred={!enrich_detail}>
+      <RowCell paddingLeft={10}>
         <p>{enrich_detail?.external_url}</p>
       </RowCell>
-      <RowCell centred={true} pointer={true}>
-        <img className={'preview'} src={PreviewImage} alt={'preview'} />
+      <RowCell centred={true} pointer={showPreview(status)}>
+        {showPreview(status) && <img className={'preview'} src={PreviewImage} alt={'preview'} />}
       </RowCell>
     </CsvElementRow>
   );
