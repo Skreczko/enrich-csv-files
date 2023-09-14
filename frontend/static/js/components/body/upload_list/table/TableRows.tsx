@@ -9,61 +9,73 @@ import { EnrichDetailStatus } from '../../../../api/enums';
 import { TableRowStatusDetails } from './types';
 import { CsvFileElement } from '../../../../api/types';
 import { errorColor, warningColor } from '../../../../App.styled';
+import { TableRowStatusEnum } from './enums';
 
 const statusDetails: Record<EnrichDetailStatus, TableRowStatusDetails> = {
   [EnrichDetailStatus.FETCHING_RESPONSE]: {
-    progress: 20,
     popupText: 'Retrieving data from the provided URL.',
+    progress: 20,
+    type: TableRowStatusEnum.PROGRESS,
   },
   [EnrichDetailStatus.FAILED_FETCHING_RESPONSE]: {
     backgroundColor: errorColor,
-    progress: 30,
     popupText: 'Fetch error. Ensure the URL you provided returns a valid JSON response.',
+    progress: 30,
+    type: TableRowStatusEnum.PROGRESS,
   },
   [EnrichDetailStatus.FAILED_FETCHING_RESPONSE_INCORRECT_URL_STATUS]: {
     backgroundColor: errorColor,
-    progress: 30,
     popupText:
       "Fetch error. Communication issue with the provided URL's server. Please try again later.",
+    progress: 30,
+    type: TableRowStatusEnum.PROGRESS,
   },
   [EnrichDetailStatus.FAILED_FETCHING_RESPONSE_OTHER_REQUEST_EXCEPTION]: {
     backgroundColor: errorColor,
-    progress: 30,
     popupText:
       'Fetch error. An issue occurred during the fetch. Please contact support or try again later.',
+    progress: 30,
+    type: TableRowStatusEnum.PROGRESS,
   },
   [EnrichDetailStatus.FAILED_FETCHING_RESPONSE_NOT_JSON]: {
     backgroundColor: errorColor,
-    progress: 30,
     popupText: 'Fetch error. The provided URL does not return JSON data.',
+    progress: 30,
+    type: TableRowStatusEnum.PROGRESS,
   },
   [EnrichDetailStatus.FAILED_FETCHING_RESPONSE_EMPTY_JSON]: {
     backgroundColor: errorColor,
-    progress: 30,
     popupText: 'The provided URL returned empty data.',
+    progress: 30,
+    type: TableRowStatusEnum.PROGRESS,
   },
   [EnrichDetailStatus.AWAITING_COLUMN_SELECTION]: {
     backgroundColor: warningColor,
-    progress: 50,
     popupText: 'Enrichment is pending. Open details and specify columns to merge.',
+    progress: 50,
+    type: TableRowStatusEnum.PROGRESS,
   },
   [EnrichDetailStatus.FAILED_COLUMN_SELECTION]: {
     backgroundColor: errorColor,
-    progress: 10,
     popupText: 'Column selection failed.',
+    progress: 10,
+    type: TableRowStatusEnum.PROGRESS,
   },
   [EnrichDetailStatus.ENRICHING]: {
-    progress: 80,
     popupText: 'CSV file is being enriched.',
+    progress: 80,
+    type: TableRowStatusEnum.PROGRESS,
   },
   [EnrichDetailStatus.FAILED_ENRICHING]: {
     backgroundColor: errorColor,
-    progress: 90,
     popupText: 'Enrichment failed. Please contact support for assistance.',
+    progress: 90,
+    type: TableRowStatusEnum.PROGRESS,
   },
   [EnrichDetailStatus.COMPLETED]: {
     imgSrc: SuccessImage,
     popupText: 'CSV file is ready to preview',
+    type: TableRowStatusEnum.ICON,
   },
 };
 

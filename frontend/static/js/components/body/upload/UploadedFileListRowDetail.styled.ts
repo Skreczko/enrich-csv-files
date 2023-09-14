@@ -19,7 +19,9 @@ export const FileName = styled.p<{ color: string; fontSize?: number }>`
   color: ${({ color }): string => `${color}`};
   font-size: ${({ fontSize }): string => (fontSize ? `${fontSize}px` : 'inherit')};
   padding: 2px 0 2px 10px;
-  word-break: break-word;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 `;
 
 export const ProgressBarFiller = styled.div<{ width: number; backgroundColor?: string }>`

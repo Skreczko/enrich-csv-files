@@ -5,6 +5,7 @@ import moment from 'moment';
 import LoupeImage from '../../../../../img/body/list/loupe.png';
 import MaximizeImage from '../../../../../img/body/list/maximize.png';
 import PreviewImage from '../../../../../img/body/list/preview.png';
+import DeleteImage from '../../../../../img/body/list/delete-red.png';
 import { Popup } from 'semantic-ui-react';
 import { TableRowStatusDetails } from './types';
 import { Link } from 'react-router-dom';
@@ -28,8 +29,6 @@ export const TableRow: React.FC<Props> = ({ fileElement, counter, statusDetail }
     enrich_detail,
   } = fileElement;
 
-  const { progress, popupText, backgroundColor, imgSrc } = statusDetail;
-
   const showPreview = (status: EnrichDetailStatus): boolean => {
     return status === EnrichDetailStatus.COMPLETED;
   };
@@ -47,25 +46,30 @@ export const TableRow: React.FC<Props> = ({ fileElement, counter, statusDetail }
         <p>{moment(created).format('HH:mm')}</p>
         <p className={'padding-left'}>{moment(created).format('YYYY-MM-DD')}</p>
       </RowCell>
-      <RowCell centred={true} pointer={true}>
-        <Popup
-          content={popupText}
-          inverted
-          mouseEnterDelay={50}
-          position={'top center'}
-          size='mini'
-          trigger={
+
+      <Popup
+        content={statusDetail.popupText}
+        inverted
+        mouseEnterDelay={50}
+        position={'top center'}
+        size='mini'
+        trigger={
+          <RowCell centred={true} pointer={true}>
             <PopupTrigger>
-              {imgSrc && <img src={statusDetail.imgSrc} alt={status} />}
-              {progress && (
+              {'imgSrc' in statusDetail && <img src={statusDetail.imgSrc} alt={status} />}
+              {'progress' in statusDetail && (
                 <ProgressBar height={10} backgroundColor={lightGrey}>
-                  <ProgressBarFiller width={progress} backgroundColor={backgroundColor} />
+                  <ProgressBarFiller
+                    width={statusDetail.progress}
+                    backgroundColor={statusDetail.backgroundColor}
+                  />
                 </ProgressBar>
               )}
             </PopupTrigger>
-          }
-        />
-      </RowCell>
+          </RowCell>
+        }
+      />
+
       <RowCell paddingLeft={10} pointer={!sourceFileName}>
         {!!sourceFileName && <img src={MaximizeImage} alt={'maximize'} />}
         <Link to={{ pathname: '/', search: `search=${uuid}` }} target='_blank'>
@@ -75,8 +79,11 @@ export const TableRow: React.FC<Props> = ({ fileElement, counter, statusDetail }
       <RowCell paddingLeft={10}>
         <p>{enrich_detail?.external_url}</p>
       </RowCell>
-      <RowCell centred={true} pointer={showPreview(status)}>
-        {showPreview(status) && <img className={'preview'} src={PreviewImage} alt={'preview'} />}
+      <RowCell>
+        <div className={'actions'}>
+          {showPreview(status) && <img className={'preview'} src={PreviewImage} alt={'preview'} />}
+          <img className={'delete'} src={DeleteImage} alt={'delete'} />
+        </div>
       </RowCell>
     </CsvElementRow>
   );

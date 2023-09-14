@@ -28,22 +28,40 @@ export const RowCell = styled.div<RowCellProps>`
     cursor: pointer;
   }
   p {
-    word-break: break-word;
     text-transform: none;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 
     &.padding-left {
       padding-left: 10px;
+    }
+  }
+
+  .actions {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    padding-right: 20px;
+
+    img {
+      cursor: pointer;
+      &.delete {
+        height: 18px;
+        width: 18px;
+      }
+
+      &.preview {
+        height: 18px;
+        width: 18px;
+        margin-right: 15px;
+      }
     }
   }
   img {
     height: 12px;
     width: 12px;
     margin-right: 5px;
-    &.preview {
-      height: 18px;
-      width: 18px;
-      margin-right: 0;
-    }
   }
 `;
 
@@ -52,4 +70,4 @@ export const PopupTrigger = styled.div`
   place-items: center;
   width: 100%;
   padding: 0 10px;
-`
+`;
