@@ -47,3 +47,12 @@ export async function fetchUploadList(request: ApiRequest): Promise<FetchUploadL
   const { data } = await api.get(`/api/_internal/${action}?${queryParams}`);
   return data;
 }
+
+export async function deleteUploadFile(uuid: string): Promise<{ csvfile_uuid: string }> {
+  const formData = new FormData();
+
+  formData.append('uuid', uuid);
+  const { data } = await api.post(`/api/_internal/csv_delete`, formData);
+
+  return data;
+}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { CsvElementRow, PopupTrigger, RowCell } from './TableRow.styled';
 import { CsvFileElement } from '../../../../api/types';
 import moment from 'moment';
@@ -12,6 +12,13 @@ import { Link } from 'react-router-dom';
 import { ProgressBar, ProgressBarFiller } from '../../upload/UploadedFileListRowDetail.styled';
 import { EnrichDetailStatus } from '../../../../api/enums';
 import { lightGrey } from '../../../../App.styled';
+import { DeleteModal } from './DeleteModal';
+import { setNotificationPopupOpen } from '../../../../redux/NotificationPopupSlice';
+import { NotificationAppearanceEnum } from '../../../notification/NotificationPopup';
+import { useDispatch } from 'react-redux';
+import { generateHTMLErrorMessages, truncateString } from '../../../notification/helpers';
+import { useFetchUploadList } from '../useFetchUploadList';
+import { deleteUploadFile } from '../../../../api/actions';
 
 type Props = {
   counter: number;
@@ -20,6 +27,10 @@ type Props = {
 };
 
 export const TableRow: React.FC<Props> = ({ fileElement, counter, statusDetail }) => {
+  const dispatch = useDispatch();
+  const fetchListData = useFetchUploadList();
+
+  const [open, setOpen] = useState(false);
   const {
     uuid,
     original_file_name: fileName,
@@ -31,6 +42,32 @@ export const TableRow: React.FC<Props> = ({ fileElement, counter, statusDetail }
 
   const showPreview = (status: EnrichDetailStatus): boolean => {
     return status === EnrichDetailStatus.COMPLETED;
+  };
+
+  const onDeleteAction = async (fileName: string, uuid: string): Promise<void> => {
+    try {
+      await deleteUploadFile(uuid);
+      dispatch(
+        setNotificationPopupOpen({
+          appearance: NotificationAppearanceEnum.SUCCESS,
+          content: `File ${truncateString(fileName, 100)} (${uuid}) has been deleted.`,
+        }),
+      );
+    } catch (e) {
+      dispatch(
+        setNotificationPopupOpen({
+          appearance: NotificationAppearanceEnum.ERROR,
+          content: 'An error occurred during the upload process',
+          additionalContent: generateHTMLErrorMessages(
+            e.response.data.error,
+            truncateString(fileName, 100),
+          ),
+          permanent: true,
+        }),
+      );
+    }
+
+    fetchListData();
   };
 
   return (
@@ -82,9 +119,23 @@ export const TableRow: React.FC<Props> = ({ fileElement, counter, statusDetail }
       <RowCell>
         <div className={'actions'}>
           {showPreview(status) && <img className={'preview'} src={PreviewImage} alt={'preview'} />}
-          <img className={'delete'} src={DeleteImage} alt={'delete'} />
+          <img
+            className={'delete'}
+            src={DeleteImage}
+            alt={'delete'}
+            onClick={(): void => setOpen(true)}
+          />
         </div>
       </RowCell>
+      {open && (
+        <DeleteModal
+          open={open}
+          onClose={(): void => setOpen(false)}
+          onAction={(): Promise<void> => onDeleteAction(fileName, uuid)}
+          header={'Delete CSV record'}
+          content={`Are you sure you want to delete ${truncateString(fileName, 100)}?`}
+        />
+      )}
     </CsvElementRow>
   );
 };

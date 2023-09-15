@@ -71,11 +71,11 @@ export const Filters: React.FC = () => {
             page: 1,
           })
         }
-        placeholderOnChoice={'Select a start date'}
-        placeholderOnSelected={'Date from'}
+        placeholderOnChoice={'Filter by: Created from'}
+        placeholderOnSelected={'Created from'}
         selectedDate={filters.date_from}
         maxDate={filters.date_to}
-        width={'170px'}
+        width={'200px'}
       />
       <CustomDatePicker
         onChange={(isoDateString): Promise<void> =>
@@ -87,11 +87,11 @@ export const Filters: React.FC = () => {
             page: 1,
           })
         }
-        placeholderOnChoice={'Select an end date'}
-        placeholderOnSelected={'Date to'}
+        placeholderOnChoice={'Filter by: Created to'}
+        placeholderOnSelected={'Created to'}
         selectedDate={filters.date_to}
         minDate={filters.date_from}
-        width={'170px'}
+        width={'200px'}
       />
     </FiltersWrappers>
   );
