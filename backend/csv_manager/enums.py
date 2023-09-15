@@ -6,8 +6,8 @@ class CsvListSortColumn(str, Enum):
     CREATED_DESC = "-created"
     ORIGINAL_FILE_NAME_ASC = "original_file_name"
     ORIGINAL_FILE_NAME_DESC = "-original_file_name"
-    STATUS_ASC = 'status'
-    STATUS_DESC = '-status'
+    STATUS_ASC = "status"
+    STATUS_DESC = "-status"
     SOURCE_ORIGINAL_FILE_NAME_ASC = "source_original_file_name"
     SOURCE_ORIGINAL_FILE_NAME_DESC = "-source_original_file_name"
     ENRICH_URL_ASC = "enrich_url"
@@ -18,6 +18,7 @@ class CsvListStatusFilter(StrEnum):
     COMPLETED = auto()
     FAILED = auto()
     IN_PROGRESS = auto()
+
 
 class CsvListFileTypeFilter(StrEnum):
     SOURCE = auto()
@@ -45,7 +46,7 @@ class EnrichmentStatus(StrEnum):
     COMPLETED = auto()
 
     @classmethod
-    def get_all_values(cls, reverse: bool = False) -> list[str]:
+    def get_all_values(cls, reverse: bool = False) -> list:
         value_list = [item.value for item in cls]
         return value_list[::-1] if reverse else value_list
 

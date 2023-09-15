@@ -5,7 +5,6 @@ from celery import Task
 from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_POST
 
-from csv_manager.enums import EnrichmentStatus
 from csv_manager.forms import CSVEnrichDetailCreateRequestForm
 from csv_manager.models import CSVFile, EnrichDetail
 from decorators.form_validator import validate_request_form

@@ -2,7 +2,12 @@ from typing import Any
 
 from django import forms
 
-from csv_manager.enums import CsvListFileTypeFilter, CsvListSortColumn, CsvListStatusFilter, EnrichmentJoinType
+from csv_manager.enums import (
+    CsvListFileTypeFilter,
+    CsvListSortColumn,
+    CsvListStatusFilter,
+    EnrichmentJoinType,
+)
 from csv_manager.fields import CharListField
 
 
@@ -39,7 +44,6 @@ class CSVListFileRequestForm(forms.Form):
         required=False,
     )
 
-
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         available_sort_choices = ", ".join(
@@ -55,6 +59,7 @@ class CSVListFileRequestForm(forms.Form):
         self.fields["filter_file_type"].error_messages[
             "invalid_choice"
         ] = f"Select a valid choice. Available choices are: {available_file_type_choices}."
+
 
 class CSVLDetailFileRequestForm(forms.Form):
     chunk_number = forms.IntegerField(required=False)

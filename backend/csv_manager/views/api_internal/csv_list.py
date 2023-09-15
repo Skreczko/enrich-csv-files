@@ -7,7 +7,12 @@ from django.db.models import Case, F, IntegerField, Q, QuerySet, Value, When
 from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_GET
 
-from csv_manager.enums import CsvListFileTypeFilter, CsvListSortColumn, CsvListStatusFilter, EnrichmentStatus
+from csv_manager.enums import (
+    CsvListFileTypeFilter,
+    CsvListSortColumn,
+    CsvListStatusFilter,
+    EnrichmentStatus,
+)
 from csv_manager.forms import CSVListFileRequestForm
 from csv_manager.models import CSVFile
 from decorators.form_validator import validate_request_form
@@ -70,7 +75,11 @@ def csv_list(
     query_filters = Q()
 
     if search:
-        query_filters &= (Q(uuid__icontains=search) | Q(original_file_name__icontains=search)| Q(enrich_detail__external_url__icontains=search))
+        query_filters &= (
+            Q(uuid__icontains=search)
+            | Q(original_file_name__icontains=search)
+            | Q(enrich_detail__external_url__icontains=search)
+        )
 
     if filter_date_from:
         query_filters &= Q(created__gte=filter_date_from)
@@ -83,35 +92,46 @@ def csv_list(
         if filter_status == CsvListStatusFilter.COMPLETED:
             query_filters &= Q(status=EnrichmentStatus.COMPLETED)
         elif filter_status == CsvListStatusFilter.FAILED:
-            query_filters &= ~Q(status__in=[
-                EnrichmentStatus.FETCHING_RESPONSE,
-                EnrichmentStatus.AWAITING_COLUMN_SELECTION,
-                EnrichmentStatus.ENRICHING,
-                EnrichmentStatus.COMPLETED,
-            ])
+            query_filters &= ~Q(
+                status__in=[
+                    EnrichmentStatus.FETCHING_RESPONSE,
+                    EnrichmentStatus.AWAITING_COLUMN_SELECTION,
+                    EnrichmentStatus.ENRICHING,
+                    EnrichmentStatus.COMPLETED,
+                ]
+            )
         elif filter_status == CsvListStatusFilter.IN_PROGRESS:
-            query_filters &= Q(status__in=[
-                EnrichmentStatus.FETCHING_RESPONSE,
-                EnrichmentStatus.AWAITING_COLUMN_SELECTION,
-                EnrichmentStatus.ENRICHING,
-            ])
+            query_filters &= Q(
+                status__in=[
+                    EnrichmentStatus.FETCHING_RESPONSE,
+                    EnrichmentStatus.AWAITING_COLUMN_SELECTION,
+                    EnrichmentStatus.ENRICHING,
+                ]
+            )
 
     if filter_file_type:
-        query_filters &= Q(enrich_detail__isnull=filter_file_type == CsvListFileTypeFilter.SOURCE)
+        query_filters &= Q(
+            enrich_detail__isnull=filter_file_type == CsvListFileTypeFilter.SOURCE
+        )
 
     queryset = queryset.filter(query_filters)
 
     if sort:
         if sort in [CsvListSortColumn.STATUS_ASC, CsvListSortColumn.STATUS_DESC]:
-            def order_by_status(queryset: QuerySet[CSVFile], reverse=False) -> QuerySet[CSVFile]:
+
+            def order_by_status(
+                queryset: QuerySet[CSVFile], reverse: bool = False
+            ) -> QuerySet[CSVFile]:
                 ordering = [
                     When(status=value, then=Value(index))
-                    for index, value in enumerate(EnrichmentStatus.get_all_values(reverse=reverse))
+                    for index, value in enumerate(
+                        EnrichmentStatus.get_all_values(reverse=reverse)
+                    )
                 ]
 
                 return queryset.annotate(
                     order_status=Case(*ordering, output_field=IntegerField())
-                ).order_by('order_status')
+                ).order_by("order_status")
 
             if sort == CsvListSortColumn.STATUS_ASC:
                 queryset = order_by_status(queryset)

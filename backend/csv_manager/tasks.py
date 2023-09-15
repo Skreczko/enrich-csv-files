@@ -87,8 +87,6 @@ def process_fetch_external_url(
             status=EnrichmentStatus.FAILED_FETCHING_RESPONSE
         )
 
-
-
     # Use a temporary file to stream the content
     with NamedTemporaryFile(delete=True) as temp_file:
         for chunk in response.iter_content(
@@ -157,7 +155,10 @@ def clear_empty_csvfile() -> None:
         (Q(file="") | Q(file__isnull=True))
         # check status and date
         # TODO filter by correct status - to rethink
-        & Q(enrich_detail__status=EnrichmentStatus.FETCHING_RESPONSE, created__lte=check_date)
+        & Q(
+            enrich_detail__status=EnrichmentStatus.FETCHING_RESPONSE,
+            created__lte=check_date,
+        )
     ).delete()
 
 
