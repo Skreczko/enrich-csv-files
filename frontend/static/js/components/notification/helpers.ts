@@ -1,5 +1,14 @@
 export type ErrorType = { [key: string]: string[] };
 
+export const truncateString = (str: string, num: number): string => {
+  if (str.length <= num) {
+    return str;
+  }
+  const prefix = str.slice(0, num - 4 - 3);
+  const suffix = str.slice(-4);
+  return prefix + '(...)' + suffix;
+};
+
 export const generateHTMLErrorMessages = (error: ErrorType, name?: string): string => `
 <!--
     function used to generate string error message with using backend validation (raise forms.ValidationError)

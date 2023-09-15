@@ -1,5 +1,6 @@
 export enum ApiAction {
   FETCH_UPLOAD_LIST = 'csv_list',
+  DELETE = 'delete',
 }
 
 export enum SortList {

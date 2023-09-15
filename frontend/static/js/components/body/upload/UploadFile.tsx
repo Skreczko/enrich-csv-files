@@ -11,7 +11,7 @@ import {
 } from '../../../redux/UploadSectionSlice';
 import { FileUploadControls } from './FileUploadControls';
 import { NotificationAppearanceEnum } from '../../notification/NotificationPopup';
-import { ErrorType, generateHTMLErrorMessages } from '../../notification/helpers';
+import { ErrorType, generateHTMLErrorMessages, truncateString } from '../../notification/helpers';
 import { uploadFile } from '../../../api/actions';
 import { FileStatusEnum, FileType, IncorrectFileDetailsType, UploadStateEnum } from './types';
 
@@ -147,13 +147,19 @@ export const UploadFile: React.FC = () => {
         dispatch(
           setNotificationPopupOpen({
             appearance: NotificationAppearanceEnum.SUCCESS,
-            content: `${response.original_file_name} file has been uploaded successfully`,
+            content: `${truncateString(
+              response.original_file_name,
+              80,
+            )} file has been uploaded successfully`,
           }),
         );
       } catch (e) {
         dispatch(updateFileDetail({ uuid: fileElement.uuid, status: FileStatusEnum.UPLOAD_ERROR }));
         setIncorrectFileNotification(
-          generateHTMLErrorMessages(e.response.data.error, fileElement.fileName),
+          generateHTMLErrorMessages(
+            e.response.data.error,
+            truncateString(fileElement.fileName, 80),
+          ),
         );
       }
     });
