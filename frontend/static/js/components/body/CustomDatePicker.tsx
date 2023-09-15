@@ -5,6 +5,7 @@ import CalendarImage from '../../../img/body/list/calendar.png';
 import { CustomDatePickerWrapper } from './CustomDatePicker.styled';
 
 type Props = {
+  maxDate?: string;
   minDate?: string;
   onChange: (isoDateString: string) => void;
   placeholderOnChoice: string;
@@ -14,6 +15,7 @@ type Props = {
 };
 
 export const CustomDatePicker: React.FC<Props> = ({
+  maxDate,
   minDate,
   onChange,
   placeholderOnChoice,
@@ -25,7 +27,7 @@ export const CustomDatePicker: React.FC<Props> = ({
     <DatePicker
       selected={selectedDate ? new Date(selectedDate) : null}
       minDate={minDate ? new Date(minDate) : null}
-      maxDate={new Date()}
+      maxDate={maxDate ? new Date(maxDate) : new Date()}
       isClearable
       placeholderText={
         selectedDate

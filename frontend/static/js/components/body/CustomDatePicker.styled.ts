@@ -15,6 +15,10 @@ export const CustomDatePickerWrapper = styled.div<{ width?: string }>`
   }
 
   .react-datepicker {
+    &-popper {
+      z-index: 3;
+    }
+
     &__day--selected {
       background-color: ${mainGreen};
     }
