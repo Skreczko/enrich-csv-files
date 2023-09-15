@@ -68,6 +68,13 @@ urlpatterns = [
                     ),
                     name="fetch_task_results",
                 ),
+                path(
+                    "/csv_delete",
+                    lazy_function_view(
+                        "csv_manager.views.api_internal.csv_detail_delete.csv_detail_delete"
+                    ),
+                    name="csv_detail_delete",
+                ),
                 re_path(
                     r"^/csv_list",
                     include(

@@ -1,9 +1,12 @@
 from http import HTTPStatus
 
+from django.db import models
+from django.db.models import Case, F, Value, When
 from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_GET
 from sentry_sdk import capture_exception  # type: ignore  #todo fix stubs
 
+from csv_manager.enums import EnrichmentStatus
 from csv_manager.forms import CSVLDetailFileRequestForm
 from csv_manager.models import CSVFile
 from decorators.cache_view import cache_view_response
@@ -37,11 +40,23 @@ def csv_detail_chunks_get(
     - Cached responses are used to serve repeated requests, reducing the load on the server and improving response times.
     """
 
-    instance = CSVFile.objects.only("uuid", "file").filter(uuid=uuid).first()
+    instance = (
+        CSVFile.objects.select_related("enrich_detail")
+        .only("uuid", "file", "enrich_detail__status")
+        .annotate(
+            status=Case(
+                When(enrich_detail__isnull=False, then=F("enrich_detail__status")),
+                default=Value(EnrichmentStatus.COMPLETED),
+                output_field=models.CharField(),
+            )
+        )
+        .filter(uuid=uuid, status=EnrichmentStatus.COMPLETED)
+        .first()
+    )
 
     if not instance:
         return JsonResponse(
-            {"error": f"{uuid} does not exist."},
+            {"error": f"{uuid} does not exist or not completed."},
             status=HTTPStatus.NOT_FOUND,
         )
 

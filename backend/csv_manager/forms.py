@@ -89,5 +89,9 @@ class CSVEnrichFileRequestForm(forms.Form):
         ] = f"Select a valid choice. Available choices are: {available_choices}."
 
 
+class CSVDetailDeleteRequestForm(forms.Form):
+    uuid = forms.CharField()
+
+
 class FetchTaskResultsRequestForm(forms.Form):
     task_ids = CharListField()
