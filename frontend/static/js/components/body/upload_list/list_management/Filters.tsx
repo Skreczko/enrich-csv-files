@@ -74,6 +74,7 @@ export const Filters: React.FC = () => {
         placeholderOnChoice={'Select a start date'}
         placeholderOnSelected={'Date from'}
         selectedDate={filters.date_from}
+        maxDate={filters.date_to}
         width={'170px'}
       />
       <CustomDatePicker
