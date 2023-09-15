@@ -1,7 +1,13 @@
 import styled from 'styled-components';
-import { TableRowWrapper } from './UploadTable.styled';
+import { TableRowContainer } from './UploadTable.styled';
+import { lightGrey, tableMainColor } from '../../../../App.styled';
 
-export const CsvElementRow = styled(TableRowWrapper)`
+export const TableRowWrapper = styled.div`
+  border-bottom: 2px solid ${tableMainColor};
+  transition: 1s linear;
+`;
+
+export const CsvElementRow = styled(TableRowContainer)`
   height: auto;
   min-height: 35px;
 `;
@@ -63,6 +69,11 @@ export const RowCell = styled.div<RowCellProps>`
     width: 12px;
     margin-right: 5px;
   }
+`;
+
+export const DetailWrapper = styled.div`
+  padding: 20px 40px;
+  border-top: 2px solid ${lightGrey};
 `;
 
 export const PopupTrigger = styled.div`

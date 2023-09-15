@@ -14,18 +14,17 @@ interface TableRowProps {
   color?: string;
 }
 
-export const TableRowWrapper = styled(TableGrid)<TableRowProps>`
+export const TableRowContainer = styled(TableGrid)<TableRowProps>`
   background-color: #fff;
   color: ${({ color }): string => (color ? color : tableTextColor)};
   font-size: 14px;
   padding: 0;
   margin-top: 0;
   height: 35px;
-  border-bottom: 2px solid ${tableMainColor};
   position: relative;
 `;
 
-export const TableRowFullWidth = styled(TableRowWrapper)`
+export const TableRowFullWidth = styled(TableRowContainer)`
   grid-template-columns: 1fr;
   min-height: 200px;
   border-bottom: none;
