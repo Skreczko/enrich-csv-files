@@ -7,7 +7,7 @@ export const columns: string[] = [
   'created',
   'status',
   'source file name',
-  'enriched by',
+  'enrich url',
   'actions',
 ];
 

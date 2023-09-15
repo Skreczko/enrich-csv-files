@@ -24,9 +24,9 @@ export const SearchInput: React.FC = () => {
   // Debounced function to delay dispatching the search action until the user stops typing.
   const debouncedSearch = useCallback(
     _.debounce((value: string) => {
-      fetchListData({ search: value });
+      fetchListData({ ...params, search: value });
     }, 1000),
-    [],
+    [params],
   );
 
   useEffect(() => {

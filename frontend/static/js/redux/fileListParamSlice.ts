@@ -1,11 +1,13 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { SortList } from '../api/enums';
+import { FileListFilters, pageSizeType } from '../api/types';
 
 export type FileListParamState = {
   search: string;
   page: number;
   sort: SortList;
-  page_size: number; //todo assing correct type
+  page_size: typeof pageSizeType;
+  filters: FileListFilters;
 };
 
 const fileListParamSlice = createSlice({
@@ -15,6 +17,12 @@ const fileListParamSlice = createSlice({
     page: 1,
     sort: SortList.CREATED_DESC,
     page_size: 20,
+    filters: {
+      status: null,
+      file_type: null,
+      date_from: null,
+      date_to: null,
+    },
   } as FileListParamState,
   reducers: {
     setSearch: (state, { payload: value }: PayloadAction<string>) => {

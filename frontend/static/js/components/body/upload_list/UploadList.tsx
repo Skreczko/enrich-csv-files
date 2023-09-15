@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { UploadListWrapper } from './UploadList.styled';
-import { UploadListManagement } from './list_management/UploadListManagement';
+import { ListManagement } from './list_management/ListManagement';
 import { useFetchUploadList } from './useFetchUploadList';
 import { UploadTable } from './table/UploadTable';
 
@@ -13,7 +13,7 @@ export const UploadList: React.FC = () => {
 
   return (
     <UploadListWrapper>
-      <UploadListManagement />
+      <ListManagement />
       <UploadTable />
     </UploadListWrapper>
   );

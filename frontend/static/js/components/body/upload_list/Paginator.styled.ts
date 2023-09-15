@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import ReactPaginate from 'react-paginate';
-import { activePaginationTab, mainDisabled, tableMainColor } from '../../../App.styled';
+import { mainDisabled, mainGreen, tableMainColor } from '../../../App.styled';
 
 export const PaginatorWrapper = styled(ReactPaginate)`
   display: flex;
@@ -28,7 +28,7 @@ export const PaginatorWrapper = styled(ReactPaginate)`
     }
 
     &.active {
-      background-color: ${activePaginationTab};
+      background-color: ${mainGreen};
     }
 
     &.disabled {

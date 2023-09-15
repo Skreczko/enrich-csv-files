@@ -28,7 +28,6 @@ export const StyledInput = styled.input`
   padding: 13px;
   border: 1px solid darkgray;
   border-right: none;
-  border-radius: 15px 0 0 15px;
   width: 250px;
   max-width: 320px;
 

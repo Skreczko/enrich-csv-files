@@ -6,6 +6,14 @@ export enum SortList {
   // Matches the structure of backend's CsvListSortColumn
   CREATED_ASC = 'created',
   CREATED_DESC = '-created',
+  ORIGINAL_FILE_NAME_ASC = 'original_file_name',
+  ORIGINAL_FILE_NAME_DESC = '-original_file_name',
+  STATUS_ASC = 'status',
+  STATUS_DESC = '-status',
+  SOURCE_ORIGINAL_FILE_NAME_ASC = 'source_original_file_name',
+  SOURCE_ORIGINAL_FILE_NAME_DESC = '-source_original_file_name',
+  ENRICH_URL_ASC = 'enrich_url',
+  ENRICH_URL_DESC = '-enrich_url',
 }
 
 export enum EnrichDetailStatus {

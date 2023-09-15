@@ -58,7 +58,7 @@ const statusDetails: Record<EnrichDetailStatus, TableRowStatusDetails> = {
   [EnrichDetailStatus.FAILED_COLUMN_SELECTION]: {
     backgroundColor: errorColor,
     popupText: 'Column selection failed.',
-    progress: 10,
+    progress: 60,
     type: TableRowStatusEnum.PROGRESS,
   },
   [EnrichDetailStatus.ENRICHING]: {

@@ -41,6 +41,15 @@ export const useFetchUploadList = (): ((
 
     dispatch(setParams(params));
 
+    // as "filters" is an object - manually unpack
+    if (params.filters) {
+      params.filter_status = params.filters.status;
+      params.filter_file_type = params.filters.file_type;
+      params.filter_date_from = params.filters.date_from;
+      params.filter_date_to = params.filters.date_to;
+    }
+    delete params.filters;
+
     return params;
   };
 

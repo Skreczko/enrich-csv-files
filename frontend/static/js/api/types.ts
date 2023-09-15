@@ -53,3 +53,21 @@ export type FetchUploadListResponse = {
 };
 
 export type ApiRequest = FetchUploadListRequest;
+
+export enum StatusFilter {
+  IN_PROGRESS = 'in_progress',
+  FAILED = 'failed',
+  COMPLETED = 'completed',
+}
+
+export enum FileTypeFilter {
+  SOURCE = 'source',
+  ENRICHED = 'enriched',
+}
+
+export type FileListFilters = {
+  status: StatusFilter;
+  file_type: FileTypeFilter;
+  date_from: string;
+  date_to: string;
+};
