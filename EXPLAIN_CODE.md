@@ -87,3 +87,4 @@ in this case, using django and put react to django template we can
 
 # TODO
 * `Sentry` has default setup. May be required to add additional sentry envs for local/test/prod
+* Handle the deletion of files. Currently, we only delete records from the database, but the files remain. Depending on business requirements, we may want to retain them for a certain period or delete them immediately. If we choose the latter, it should be managed with a Celery task for cleanup and optimization purposes.
