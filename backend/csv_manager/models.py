@@ -117,7 +117,7 @@ class EnrichDetail(models.Model):
     status = models.CharField(
         max_length=50,
         choices=[(e.value, e.name) for e in EnrichmentStatus],
-        default=EnrichmentStatus.INITIATED,
+        default=EnrichmentStatus.FETCHING_RESPONSE,
         help_text="Status of process of enrichment csv file",
     )
     external_url = models.URLField(

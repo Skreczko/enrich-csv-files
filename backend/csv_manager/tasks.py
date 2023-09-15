@@ -81,6 +81,13 @@ def process_fetch_external_url(
             status=EnrichmentStatus.FAILED_FETCHING_RESPONSE_OTHER_REQUEST_EXCEPTION
         )
         raise ValueError(f"Other request exeption occurs: {e}")
+    except Exception as e:
+        capture_exception(e)
+        EnrichDetail.objects.filter(uuid=enrich_detail_uuid).update(
+            status=EnrichmentStatus.FAILED_FETCHING_RESPONSE
+        )
+
+
 
     # Use a temporary file to stream the content
     with NamedTemporaryFile(delete=True) as temp_file:
@@ -149,7 +156,8 @@ def clear_empty_csvfile() -> None:
         # check if file exists
         (Q(file="") | Q(file__isnull=True))
         # check status and date
-        & Q(enrich_detail__status=EnrichmentStatus.INITIATED, created__lte=check_date)
+        # TODO filter by correct status - to rethink
+        & Q(enrich_detail__status=EnrichmentStatus.FETCHING_RESPONSE, created__lte=check_date)
     ).delete()
 
 

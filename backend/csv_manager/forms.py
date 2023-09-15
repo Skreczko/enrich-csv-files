@@ -2,7 +2,7 @@ from typing import Any
 
 from django import forms
 
-from csv_manager.enums import CsvListSortColumn, EnrichmentJoinType
+from csv_manager.enums import CsvListFileTypeFilter, CsvListSortColumn, CsvListStatusFilter, EnrichmentJoinType
 from csv_manager.fields import CharListField
 
 
@@ -22,24 +22,39 @@ class CSVUploadRequestForm(forms.Form):
 
 
 class CSVListFileRequestForm(forms.Form):
-    date_from = forms.DateField(required=False)
-    date_to = forms.DateField(required=False)
     page = forms.IntegerField()
     page_size = forms.IntegerField(required=False)
     search = forms.CharField(required=False)
     sort = forms.ChoiceField(
         choices=[(e.value, e.name) for e in CsvListSortColumn],
     )
+    filter_date_from = forms.DateTimeField(required=False)
+    filter_date_to = forms.DateTimeField(required=False)
+    filter_status = forms.ChoiceField(
+        choices=[(e.value, e.name) for e in CsvListStatusFilter],
+        required=False,
+    )
+    filter_file_type = forms.ChoiceField(
+        choices=[(e.value, e.name) for e in CsvListFileTypeFilter],
+        required=False,
+    )
+
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
-        available_choices = ", ".join(
+        available_sort_choices = ", ".join(
             [choice[1] for choice in self.fields["sort"].choices]
         )
         self.fields["sort"].error_messages[
             "invalid_choice"
-        ] = f"Select a valid choice. Available choices are: {available_choices}."
+        ] = f"Select a valid choice. Available choices are: {available_sort_choices}."
 
+        available_file_type_choices = ", ".join(
+            [choice[1] for choice in self.fields["filter_file_type"].choices]
+        )
+        self.fields["filter_file_type"].error_messages[
+            "invalid_choice"
+        ] = f"Select a valid choice. Available choices are: {available_file_type_choices}."
 
 class CSVLDetailFileRequestForm(forms.Form):
     chunk_number = forms.IntegerField(required=False)
