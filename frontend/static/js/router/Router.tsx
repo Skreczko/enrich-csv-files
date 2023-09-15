@@ -1,12 +1,12 @@
 import React, { ReactElement } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import routes from './config/routes';
-import { Test1 } from '../components/body/Test1';
+import { UploadList } from '../components/body/upload_list/UploadList';
 import { UploadFile } from '../components/body/upload/UploadFile';
 
 export const Router = (): ReactElement => (
   <Routes>
-    <Route index element={<Test1 />} />
+    <Route index element={<UploadList />} />
     <Route path={routes.UPLOAD} element={<UploadFile />} />
   </Routes>
 );

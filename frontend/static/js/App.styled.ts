@@ -1,6 +1,15 @@
 import styled from 'styled-components';
 import { customScrollbar } from './components/body/CustomScrollbar';
 
+export const mainGreen = '#4bc5ac';
+export const toolbarBackground = '#1b2028';
+export const tableMainColor = '#84b1b5';
+export const tableTextColor = '#405c60';
+export const mainDisabled = '#b0b0b0';
+export const lightGrey = '#f1f1f1';
+export const errorColor = '#ff0000';
+export const warningColor = '#ffd300';
+
 export const AppWrapper = styled.div`
   position: relative;
   display: flex;

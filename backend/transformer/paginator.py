@@ -5,7 +5,7 @@ from typing import TypeVar, TypedDict
 
 class PaginatorDetailsType(TypedDict):
     total_pages: int
-    page_number: int
+    page: int
     page_size: int
 
 
@@ -23,10 +23,10 @@ class CustomPaginator:
     def __init__(
         self,
         queryset: QuerySet[T],
-        page_number: int = 1,
+        page: int = 1,
         page_size: int | None = None,
     ) -> None:
-        self.page_number = page_number
+        self.page = page
         self.queryset = queryset
         self.page_size = page_size or CustomPaginator.page_size
         self.paginator = Paginator(self.queryset, self.page_size)
@@ -38,7 +38,7 @@ class CustomPaginator:
 
         return PaginatorDetailsType(
             total_pages=self.paginator.num_pages,
-            page_number=self.page_number,
+            page=self.page,
             page_size=self.page_size,
         )
 
@@ -47,7 +47,7 @@ class CustomPaginator:
         Paginate the queryset and return a queryset for the given page number.
         An error will be raised for an empty page or an invalid page number.
         """
-        page = self.paginator.page(page_number or self.page_number)
+        page = self.paginator.page(page_number or self.page)
         try:
             return page.object_list
         except (EmptyPage, InvalidPage):

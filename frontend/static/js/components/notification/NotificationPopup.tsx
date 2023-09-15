@@ -15,6 +15,7 @@ import SuccessImage from '../../../img/notification/success.png';
 import WarningImage from '../../../img/notification/warning.png';
 import InfoImage from '../../../img/notification/info.png';
 import { NotificationPopupHeader } from './NotificationPopupHeader';
+import { NotificationAppearanceType } from './types';
 
 export enum NotificationAppearanceEnum {
   // https://react.semantic-ui.com/collections/message/
@@ -24,9 +25,6 @@ export enum NotificationAppearanceEnum {
   INFO = 'info',
 }
 
-type NotificationAppearanceType = {
-  imgSrc: string;
-};
 export const NotificationAppearance: Record<
   NotificationAppearanceEnum,
   NotificationAppearanceType

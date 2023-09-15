@@ -3,27 +3,17 @@ import { UploadFileWrapper } from './UploadFile.styled';
 import { useDispatch } from 'react-redux';
 import { setNotificationPopupOpen } from '../../../redux/NotificationPopupSlice';
 import { UploadedFileList } from './UploadedFileList';
-import { uploadFile } from '../../../api/action';
 import { v4 as uuidv4 } from 'uuid';
 import {
-  FileDetailsType,
-  FileStatusEnum,
+  clearFileDetails,
   setFileDetails,
   updateFileDetail,
-} from '../../../redux/FileDetailsManagementSlice';
+} from '../../../redux/UploadSectionSlice';
 import { FileUploadControls } from './FileUploadControls';
 import { NotificationAppearanceEnum } from '../../notification/NotificationPopup';
 import { ErrorType, generateHTMLErrorMessages } from '../../notification/helpers';
-
-export type FileType = FileDetailsType & { file: File };
-type IncorrectFileDetailsType = {
-  reason: string;
-  file: File;
-};
-export enum UploadStateEnum {
-  IN_ADDING = 'in_adding',
-  SENDING = 'sending',
-}
+import { uploadFile } from '../../../api/actions';
+import { FileStatusEnum, FileType, IncorrectFileDetailsType, UploadStateEnum } from './types';
 
 export const UploadFile: React.FC = () => {
   const dispatch = useDispatch();
@@ -50,6 +40,13 @@ export const UploadFile: React.FC = () => {
       }
     })();
   }, [uploadState]);
+
+  useEffect(() => {
+    // clear redux uploadSection state - remove all FileStatusEnum.LOADED on unmount
+    return (): void => {
+      dispatch(clearFileDetails());
+    };
+  }, []);
 
   const onFileRemove = (uuid: string): void => {
     setFileElements(prevFiles => prevFiles.filter(file => file.uuid !== uuid));

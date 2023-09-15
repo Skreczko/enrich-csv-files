@@ -1,8 +1,10 @@
 from http import HTTPStatus
 from typing import Any, cast
 
+from celery import Task
 from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_POST
+from sentry_sdk import capture_exception  # type: ignore  #todo fix stubs
 
 from csv_manager.forms import CSVUploadRequestForm
 from csv_manager.models import CSVFile
@@ -28,30 +30,36 @@ def csv_upload(
     :return: JsonResponse object with the name of the uploaded file.
 
     Note:
+    - Used TemporaryFileUploadHandler and FILE_UPLOAD_MAX_MEMORY_SIZE - chunks number can be checked with `list(file.chunks())`
+      for more details check https://docs.djangoproject.com/en/3.2/ref/files/uploads/#uploaded-files
     - CSRF protection is currently missing as there is no user instance. This should be addressed in future development.
     - OPTIMIZATION: Consider refactoring to process chunks of the file, merge them, and then create the CSVFile object.
     """
 
     from csv_manager.tasks import process_csv_metadata
-    from celery import Task
 
-    file = request_form.cleaned_data["file"]
-    instance = CSVFile.objects.create(file=file, original_file_name=file.name)
+    try:
+        file = request_form.cleaned_data["file"]
+        instance = CSVFile.objects.create(file=file, original_file_name=file.name)
 
-    celery_task = cast(
-        Task, process_csv_metadata
-    )  # mypy has problem because it does not recognize that process_csv_metadata as Task. TODO Fix to future development
-    celery_task.apply_async(
-        args=(),
-        kwargs={
-            "uuid": str(instance.uuid),
-        },
-        serializer="json",  # didn't use pickle (which could reduce database requests) due to security concerns.
-    )
+        cast(Task, process_csv_metadata).apply_async(
+            args=(),
+            kwargs={
+                "uuid": str(instance.uuid),
+            },
+            serializer="json",  # didn't use pickle (which could reduce database requests) due to security concerns.
+        )
 
-    return JsonResponse(
-        data=serialize_instance(
-            instance=instance, fields=["uuid", "original_file_name"]
-        ),
-        status=HTTPStatus.OK,
-    )
+        return JsonResponse(
+            data=serialize_instance(
+                instance=instance, fields=["uuid", "original_file_name"]
+            ),
+            status=HTTPStatus.OK,
+        )
+
+    except Exception as e:
+        capture_exception(e)
+        return JsonResponse(
+            {"error": f"An error occurred while uploading the file: {str(e)}"},
+            status=HTTPStatus.INTERNAL_SERVER_ERROR,
+        )

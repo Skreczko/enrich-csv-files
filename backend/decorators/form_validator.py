@@ -18,6 +18,8 @@ def validate_request_form(
     This decorator checks if the request data is valid according to the form class specified in request_serializer.
     If the data is valid, it calls the wrapped function. Otherwise, it returns a JsonResponse with the form errors.
 
+    Before validation, the decorator cleans the data by removing keys with values set to `None` or "null".
+
     The wrapped function can accept additional arguments and keyword arguments. These will be passed through by the
     decorator. (ie. id or uuid, like "/csv_list/<uuid:uuid>")
 
@@ -34,15 +36,17 @@ def validate_request_form(
     def decorator(func: GenericFunc) -> WrapperFunc:
         @wraps(func)  # to keep metadata
         def wrapper(request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
-            if request.method == "POST":
-                form = request_serializer(data=request.POST, files=request.FILES)
-            elif request.method == "GET":
-                form = request_serializer(data=request.GET)
-            else:
+            if request.method not in ["GET", "POST"]:
                 return JsonResponse(
                     {"error": f"Method {request.method} not implemented"},
                     status=HTTPStatus.NOT_IMPLEMENTED,
                 )
+
+            data = request.POST if request.method == "POST" else request.GET
+            files = request.FILES if request.method == "POST" else None
+            cleaned_data = {k: v for k, v in data.items() if v not in [None, "null"]}
+
+            form = request_serializer(data=cleaned_data, files=files)
 
             if not form.is_valid():
                 return JsonResponse(

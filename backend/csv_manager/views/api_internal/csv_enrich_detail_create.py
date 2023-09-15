@@ -1,13 +1,14 @@
-import json
 from http import HTTPStatus
+from typing import cast
 
-import requests
+from celery import Task
 from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_POST
 
 from csv_manager.forms import CSVEnrichDetailCreateRequestForm
 from csv_manager.models import CSVFile, EnrichDetail
 from decorators.form_validator import validate_request_form
+from csv_manager.tasks import process_fetch_external_url
 
 
 @require_POST
@@ -16,54 +17,40 @@ def csv_enrich_detail_create(
     request: HttpRequest, request_form: CSVEnrichDetailCreateRequestForm, uuid: str
 ) -> JsonResponse:
     """
-    Endpoint to enrich a CSV file using data from an external URL.
+    Endpoint to initiate the enrichment of a CSV file using data from an external URL.
 
-    This endpoint fetches data from the provided external URL and attempts to enrich the CSV file identified by its UUID.
-    The response includes the keys from the external data and the ID of the enrichment detail.
+    This endpoint creates a new enrichment detail for a given CSV file (identified by its UUID) and
+    schedules an asynchronous task to fetch data from the provided external URL. Once the data
+     is fetched, it will be used to enrich the CSV file.
 
     :param request: HttpRequest object containing the request data.
-    :param request_form: CSVEnrichFileRequestForm object containing the validated form data.
+    :param request_form: CSVEnrichDetailCreateRequestForm object containing the validated form data, including the external URL.
     :param uuid: The UUID of the CSVFile instance to be enriched.
-    :return: JsonResponse object containing the keys from the external data and the ID of the enrichment detail.
+    :return: JsonResponse object containing the UUID of the created enrichment detail and the ID of the scheduled task.
 
     Note:
-    - If the provided external URL does not return a valid JSON, a 400 BAD REQUEST response is returned.
-    - Network errors, such as timeouts or connection failures when accessing the external URL, are not explicitly
-      handled in this function and might raise exceptions.
+    - The endpoint immediately returns after scheduling the asynchronous task and does not wait for the task to complete.
+    - If the provided external URL does not return a valid JSON, the asynchronous task will handle the error and
+      update the enrichment detail's status accordingly.
+    - The function uses the Celery task system to manage the asynchronous fetching of data.
+    - For security reasons, the JSON serializer is used for the Celery task instead of pickle.
     """
 
-    # create base instance of CSVFile with relation to CSVFile source
-    # file and file_row_count will be added after merge with external_response
-    # in celery task when user made a choice which column to merge
-
-    # added that first, as it will fail with 500 and will not request to external_url
     csvfile_instance = CSVFile.objects.create(source_instance_id=uuid)
-
-    external_url = request_form.cleaned_data["external_url"]
-    external_response = requests.get(external_url)
-    try:
-        data_json = external_response.json()
-    except json.JSONDecodeError:
-        return JsonResponse(
-            {"error": f"URL is not JSON"}, status=HTTPStatus.BAD_REQUEST
-        )
-
-    data_json_keys = list(data_json[0].keys()) if data_json else []
-
-    if not data_json_keys:
-        return JsonResponse(
-            {"error": f"{external_url} is empty"}, status=HTTPStatus.BAD_REQUEST
-        )
 
     enrich_model = EnrichDetail.objects.create(
         csv_file_id=csvfile_instance.uuid,
-        external_url=external_url,
-        external_response=data_json,
-        external_elements_key_list=json.dumps(data_json_keys),
-        external_elements_count=len(data_json),
+        external_url=request_form.cleaned_data["external_url"],
+    )
+    task = cast(Task, process_fetch_external_url).apply_async(
+        args=(),
+        kwargs={
+            "enrich_detail_uuid": str(enrich_model.uuid),
+        },
+        serializer="json",  # didn't use pickle (which could reduce database requests) due to security concerns.
     )
 
     return JsonResponse(
-        {"external_url_keys": data_json_keys, "enrich_detail_id": enrich_model.id},
+        {"enrich_detail_uuid": enrich_model.uuid, "task_id": task.id},
         status=HTTPStatus.OK,
     )

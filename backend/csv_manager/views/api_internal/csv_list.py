@@ -1,12 +1,18 @@
-from datetime import date
+from datetime import date, timedelta
 from http import HTTPStatus
 from typing import Any, TypedDict
 
-from django.db.models import F
+from django.db import models
+from django.db.models import Case, F, IntegerField, Q, QuerySet, Value, When
 from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_GET
 
-from csv_manager.enums import EnrichmentStatus
+from csv_manager.enums import (
+    CsvListFileTypeFilter,
+    CsvListSortColumn,
+    CsvListStatusFilter,
+    EnrichmentStatus,
+)
 from csv_manager.forms import CSVListFileRequestForm
 from csv_manager.models import CSVFile
 from decorators.form_validator import validate_request_form
@@ -17,9 +23,9 @@ from transformer.exceptions import SerializationError
 
 class EnrichDetailSerializerType(TypedDict):
     created: date
+    external_elements_key_list: list[str]
     external_url: str
-    id: int
-    status: EnrichmentStatus
+    uuid: str
 
 
 @require_GET
@@ -44,31 +50,99 @@ def csv_list(
     - missing csrf
     """
 
-    page_number = request_form.cleaned_data["page_number"] or 1
+    page = request_form.cleaned_data["page"] or 1
     page_size = request_form.cleaned_data["page_size"]
     sort = request_form.cleaned_data["sort"]
     search = request_form.cleaned_data["search"]
-    date_from = request_form.cleaned_data["date_from"]
-    date_to = request_form.cleaned_data["date_to"]
+
+    filter_date_from = request_form.cleaned_data["filter_date_from"]
+    filter_date_to = request_form.cleaned_data["filter_date_to"]
+    filter_status = request_form.cleaned_data["filter_status"]
+    filter_file_type = request_form.cleaned_data["filter_file_type"]
 
     queryset = CSVFile.objects.select_related("enrich_detail").annotate(
-        source_instance_uuid=F("source_instance__uuid")
+        source_uuid=F("source_instance__uuid"),
+        source_original_file_name=F("source_instance__original_file_name"),
+        enrich_url=F("enrich_detail__external_url"),
+        # take status from "enrich_detail.status". If "enrich_detail" does not exist - that mean file has been created
+        # in upload process. Return status "finished" by default.
+        status=Case(
+            When(enrich_detail__isnull=False, then=F("enrich_detail__status")),
+            default=Value(EnrichmentStatus.COMPLETED),
+            output_field=models.CharField(),
+        ),
     )
-    filter_kwargs: dict = {}
+    query_filters = Q()
 
     if search:
-        filter_kwargs.update(uuid__icontains=search)
-    if date_from:
-        filter_kwargs.update(created__gte=date_from)
-    if date_to:
-        filter_kwargs.update(created__lte=date_to)
+        query_filters &= (
+            Q(uuid__icontains=search)
+            | Q(original_file_name__icontains=search)
+            | Q(enrich_detail__external_url__icontains=search)
+        )
 
-    queryset = queryset.filter(**filter_kwargs)
+    if filter_date_from:
+        query_filters &= Q(created__gte=filter_date_from)
+
+    if filter_date_to:
+        # Adding one day to 'filter_date_to' to include the entire specified day in the filter.
+        query_filters &= Q(created__lt=filter_date_to + timedelta(days=1))
+
+    if filter_status:
+        if filter_status == CsvListStatusFilter.COMPLETED:
+            query_filters &= Q(status=EnrichmentStatus.COMPLETED)
+        elif filter_status == CsvListStatusFilter.FAILED:
+            query_filters &= ~Q(
+                status__in=[
+                    EnrichmentStatus.FETCHING_RESPONSE,
+                    EnrichmentStatus.AWAITING_COLUMN_SELECTION,
+                    EnrichmentStatus.ENRICHING,
+                    EnrichmentStatus.COMPLETED,
+                ]
+            )
+        elif filter_status == CsvListStatusFilter.IN_PROGRESS:
+            query_filters &= Q(
+                status__in=[
+                    EnrichmentStatus.FETCHING_RESPONSE,
+                    EnrichmentStatus.AWAITING_COLUMN_SELECTION,
+                    EnrichmentStatus.ENRICHING,
+                ]
+            )
+
+    if filter_file_type:
+        query_filters &= Q(
+            enrich_detail__isnull=filter_file_type == CsvListFileTypeFilter.SOURCE
+        )
+
+    queryset = queryset.filter(query_filters)
+
     if sort:
-        queryset = queryset.order_by(sort)
+        if sort in [CsvListSortColumn.STATUS_ASC, CsvListSortColumn.STATUS_DESC]:
+
+            def order_by_status(
+                queryset: QuerySet[CSVFile], reverse: bool = False
+            ) -> QuerySet[CSVFile]:
+                ordering = [
+                    When(status=value, then=Value(index))
+                    for index, value in enumerate(
+                        EnrichmentStatus.get_all_values(reverse=reverse)
+                    )
+                ]
+
+                return queryset.annotate(
+                    order_status=Case(*ordering, output_field=IntegerField())
+                ).order_by("order_status")
+
+            if sort == CsvListSortColumn.STATUS_ASC:
+                queryset = order_by_status(queryset)
+            if sort == CsvListSortColumn.STATUS_DESC:
+                queryset = order_by_status(queryset, reverse=True)
+
+        else:
+            queryset = queryset.order_by(sort)
 
     paginator = CustomPaginator(queryset=queryset, page_size=page_size)
-    queryset = paginator.paginate_queryset(page_number)
+    queryset = paginator.paginate_queryset(page)
     try:
         result = serialize_queryset(
             queryset=queryset,
@@ -79,7 +153,9 @@ def csv_list(
                 "file_headers",
                 "file_row_count",
                 "original_file_name",
-                "source_instance_uuid",
+                "source_original_file_name",
+                "source_uuid",
+                "status",
                 "uuid",
             ],
             select_related_model_mapping={"enrich_detail": EnrichDetailSerializerType},

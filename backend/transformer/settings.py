@@ -13,22 +13,30 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 import os
 import sys
 from pathlib import Path
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.celery import CeleryIntegration
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DATA_DIR = os.path.dirname(BASE_DIR)
 FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
 
+# https://docs.djangoproject.com/en/3.2/ref/files/uploads/#uploaded-files
+FILE_UPLOAD_MAX_MEMORY_SIZE = 0
+FILE_UPLOAD_HANDLERS = [
+    "django.core.files.uploadhandler.TemporaryFileUploadHandler",
+]
+
 MYPY = "mypy" in sys.argv[0]
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
-TEST: str = 1
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ["SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DEBUG", False)
 
 ALLOWED_HOSTS = [os.environ.get("ALLOWED_HOSTS", "")]
 
@@ -49,6 +57,11 @@ if not MYPY:
 
 INSTALLED_APPS += [
     "csv_manager",
+]
+
+MIDDLEWARE = [
+    # https://docs.djangoproject.com/en/3.2/_modules/django/middleware/gzip/#GZipMiddleware
+    "django.middleware.gzip.GZipMiddleware",
 ]
 
 ROOT_URLCONF = "transformer.urls"
@@ -147,3 +160,25 @@ WEBPACK_LOADER = {
         "STATS_FILE": os.path.join(FRONTEND_DIR, "webpack-stats.json"),
     }
 }
+
+SENTRY_DNS = os.environ.get("SENTRY_DNS")
+
+if SENTRY_DNS:
+    # https://adverity-transformer-197cd18c7.sentry.io/issues/
+    sentry_sdk.init(
+        dsn=SENTRY_DNS,
+        integrations=[CeleryIntegration(), DjangoIntegration()],
+        environment="transformer",
+    )
+
+if DEBUG:
+    # django-debug-toolbar https://pypi.org/project/django-debug-toolbar/
+    from transformer.dev_settings import *
+
+    INSTALLED_APPS += [
+        "debug_toolbar",
+    ]
+    MIDDLEWARE += [
+        "django.middleware.common.CommonMiddleware",
+        "debug_toolbar.middleware.DebugToolbarMiddleware",
+    ]

@@ -6,7 +6,7 @@ from typing import Any
 
 from django.core.cache import cache
 from django.http import HttpRequest, HttpResponse, JsonResponse
-
+from sentry_sdk import capture_exception  # type: ignore  #todo fix stubs
 
 GenericFuncCache = Callable[[HttpRequest, Any, Any], HttpResponse]
 WrapperFuncCache = Callable[[HttpRequest, Any, Any], HttpResponse]
@@ -36,8 +36,11 @@ def cache_view_response(
       unmatched path in urls.py is redirected with an HTTP 200 status to React, where further
       handling occurs. Django's default behavior would cache these redirects, which is undesirable
       in this context.
-    - This decorator is specifically designed for JsonResponse.
-
+    - This decorator is specifically designed for JsonResponse. If the response is not a JsonResponse,
+      it will bypass the caching mechanism and directly return the original response.
+    - In case of any exception during caching, the decorator will bypass the cache and return the
+      original response. This ensures that the end user always receives a response even if there's
+      an issue with the caching mechanism.
 
     Usage:
     ------
@@ -50,15 +53,20 @@ def cache_view_response(
         @wraps(view_func)  # to keep metadata
         def wrapper(request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
             cache_key = f"{request.path}_{request.GET.urlencode()}"
-            cached_data = cache.get(cache_key)
 
-            if cached_data:
-                return JsonResponse(cached_data, status=HTTPStatus.OK)
+            try:
+                cached_data = cache.get(cache_key)
+                if cached_data:
+                    return JsonResponse(cached_data, status=HTTPStatus.OK)
 
-            response = view_func(request, *args, **kwargs)
+                response = view_func(request, *args, **kwargs)
 
-            if isinstance(response, JsonResponse):
-                cache.set(cache_key, json.loads(response.content), timeout)
+                if isinstance(response, JsonResponse):
+                    cache.set(cache_key, json.loads(response.content), timeout)
+
+            except Exception as e:
+                capture_exception(e)
+                response = view_func(request, *args, **kwargs)
 
             return response
 
