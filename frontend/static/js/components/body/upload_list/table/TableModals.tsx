@@ -4,11 +4,13 @@ import { truncateString } from '../../../notification/helpers';
 import { CsvFileElement } from '../../../../api/types';
 import {
   EnrichModalDescription,
+  EnrichModalError,
   EnrichModalURLInput,
   EnrichModalWrapper,
 } from './TableModals.style';
 import InfoImage from '../../../../../img/notification/info.png';
-// import validator from 'validator'
+import ErrorImage from '../../../../../img/notification/error.png';
+import isURL from 'validator/lib/isURL';
 
 type Props = {
   selectedFileElement: CsvFileElement;
@@ -34,15 +36,23 @@ export const TableModals: React.FC<Props> = ({
 
   const handleEnrichInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { value } = e.currentTarget;
+    if (enrichInputError) setEnrichInputError(false);
     setEnrichInputValue(value);
   };
 
   const handleEnrichActionWithValidation = (): void => {
-    // if (validator.isURL(enrichInputValue)) {
-    //   onEnrichAction();
-    // } else {
-    //   setEnrichInputError(true);
-    // }
+    if (isURL(enrichInputValue)) {
+      onEnrichAction();
+      handleEnrichOnCLose();
+    } else {
+      setEnrichInputError(true);
+    }
+  };
+
+  const handleEnrichOnCLose = (): void => {
+    setEnrichInputError(false);
+    setEnrichInputValue('');
+    onCloseEnrichModal();
   };
 
   return (
@@ -51,7 +61,10 @@ export const TableModals: React.FC<Props> = ({
         <CustomGenericModal
           open={openDeleteModal}
           onClose={onCloseDeleteModal}
-          onAction={onDeleteAction}
+          onAction={(): void => {
+            onDeleteAction();
+            onCloseDeleteModal();
+          }}
           header={'Delete CSV record'}
           actionLabel={'Delete'}
           actionLabelColor={'red'}
@@ -65,12 +78,12 @@ export const TableModals: React.FC<Props> = ({
       {openEnrichModal && (
         <CustomGenericModal
           open={openEnrichModal}
-          onClose={onCloseEnrichModal}
+          onClose={handleEnrichOnCLose}
           onAction={handleEnrichActionWithValidation}
           header={`Enrich file data`}
           subHeader={`Step 1/2: Provide external URL`}
           actionLabel={'Process'}
-          actionLabelColor={'blue'}
+          actionLabelColor={'green'}
         >
           <EnrichModalWrapper>
             <EnrichModalDescription>
@@ -90,7 +103,12 @@ export const TableModals: React.FC<Props> = ({
               value={enrichInputValue}
               onChange={handleEnrichInputChange}
             />
-            <small>Invalid URL format</small>
+            {enrichInputError && (
+              <EnrichModalError>
+                <img src={ErrorImage} alt={'error'} />
+                <small>Invalid URL format</small>
+              </EnrichModalError>
+            )}
           </EnrichModalWrapper>
         </CustomGenericModal>
       )}

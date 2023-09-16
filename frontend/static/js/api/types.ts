@@ -4,10 +4,10 @@ import { ApiAction, EnrichDetailStatus, SortList } from './enums';
 export const pageSizeType = 20 | 50 | 100;
 
 type EnrichDetail = {
-  created: string;
-  external_elements_key_list: string[];
+  created?: string;
+  external_elements_key_list?: string[];
   external_url: string;
-  id: number;
+  uuid?: string;
 };
 
 type FileDetail = {
@@ -19,14 +19,16 @@ export type CsvFileElement = {
   // Matches the structure of backend's csv_list.py::csv_list.serialize_queryset.fields
   created: string;
   enrich_detail: EnrichDetail;
-  file: FileDetail;
-  file_headers: string[];
-  file_row_count: number;
+  file?: FileDetail;
+  file_headers?: string[];
+  file_row_count?: number;
   original_file_name: string;
   source_original_file_name: string;
   source_uuid: string;
   status: EnrichDetailStatus;
   uuid: string;
+  // Only for frontend purposes - optional elements will be filled after fetching additional info from related enndpoint
+  fetchedDetailInfo: boolean;
 };
 
 export type PaginatorType = {

@@ -87,11 +87,11 @@ urlpatterns = [
                                 name="csv_list",
                             ),
                             path(
-                                "/<uuid:uuid>/read_detail_chunk",
+                                "/<uuid:uuid>/read_preview_chunk",
                                 lazy_function_view(
-                                    "csv_manager.views.api_internal.csv_detail_chunks_get.csv_detail_chunks_get"
+                                    "csv_manager.views.api_internal.csv_preview_chunks_get.csv_preview_chunks_get"
                                 ),
-                                name="csv_detail_chunks_get",
+                                name="csv_preview_chunks_get",
                             ),
                             path(
                                 "/<uuid:uuid>/enrich_detail_create",

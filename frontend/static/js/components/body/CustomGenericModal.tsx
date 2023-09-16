@@ -42,7 +42,6 @@ export const CustomGenericModal: React.FC<Props> = ({
         color={actionLabelColor}
         onClick={(): void => {
           onAction();
-          onClose();
         }}
       >
         {actionLabel}

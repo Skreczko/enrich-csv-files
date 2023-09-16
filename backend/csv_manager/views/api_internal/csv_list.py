@@ -22,10 +22,10 @@ from transformer.exceptions import SerializationError
 
 
 class EnrichDetailSerializerType(TypedDict):
-    created: date
-    external_elements_key_list: list[str]
+    # created: date
+    # external_elements_key_list: list[str]
     external_url: str
-    uuid: str
+    # uuid: str
 
 
 @require_GET
@@ -60,7 +60,15 @@ def csv_list(
     filter_status = request_form.cleaned_data["filter_status"]
     filter_file_type = request_form.cleaned_data["filter_file_type"]
 
-    queryset = CSVFile.objects.select_related("enrich_detail").annotate(
+    queryset = CSVFile.objects.select_related("enrich_detail", "source_instance").only(
+        "original_file_name",
+        "created",
+        "uuid",
+        "source_instance__original_file_name",
+        "source_instance__uuid",
+        "enrich_detail__external_url",
+        "enrich_detail__status",
+    ).annotate(
         source_uuid=F("source_instance__uuid"),
         source_original_file_name=F("source_instance__original_file_name"),
         enrich_url=F("enrich_detail__external_url"),
@@ -149,9 +157,9 @@ def csv_list(
             fields=[
                 "created",
                 "enrich_detail",
-                "file",
-                "file_headers",
-                "file_row_count",
+                # "file",
+                # "file_headers",
+                # "file_row_count",
                 "original_file_name",
                 "source_original_file_name",
                 "source_uuid",

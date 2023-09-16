@@ -9,6 +9,7 @@ export const EnrichModalWrapper = styled.div`
 
 export const EnrichModalDescription = styled.div`
   display: flex;
+  align-items: flex-start;
   gap: 20px;
 
   img {
@@ -25,5 +26,16 @@ export const EnrichModalURLInput = styled.input`
   &:focus {
     border: 1px solid ${mainGreen};
     outline: none;
+  }
+`;
+
+export const EnrichModalError = styled.div`
+  display: flex;
+  align-items: center;
+  color: red;
+  img {
+    height: 12px;
+    width: 12px;
+    margin-right: 5px;
   }
 `;

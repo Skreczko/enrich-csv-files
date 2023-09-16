@@ -2,7 +2,7 @@ import axios from 'axios';
 import { mapKeys, snakeCase, throttle } from 'lodash';
 import { store } from '../redux/store';
 import { updateFileDetail } from '../redux/UploadSectionSlice';
-import { ApiRequest, FetchUploadListResponse } from './types';
+import { ApiRequest, CsvFileElement, FetchUploadListResponse } from './types';
 import { FileType } from '../components/body/upload/types';
 
 const convertKeysToSnakeCase = (obj: any): any =>
@@ -40,12 +40,30 @@ export async function uploadFile(fileElement: FileType): Promise<{ original_file
 }
 
 export async function fetchUploadList(request: ApiRequest): Promise<FetchUploadListResponse> {
+  /**
+   * Fetches the upload list.
+   *
+   * Note: The response is modified to include a "fetchedDetailInfo" field for frontend purposes.
+   * This field indicates whether the element has been fetched using the list endpoint.
+   *
+   * @param request The API request.
+   * @returns The response with additional frontend-specific field.
+   */
+
   const { action, ...request_data } = request;
 
   const queryParams = new URLSearchParams(convertKeysToSnakeCase(request_data)).toString();
 
   const { data } = await api.get(`/api/_internal/${action}?${queryParams}`);
-  return data;
+  return {
+    ...data,
+    result: data.result.map(
+      (element: Omit<CsvFileElement, 'fetchedDetailInfo'>): CsvFileElement => ({
+        ...element,
+        fetchedDetailInfo: false,
+      }),
+    ),
+  };
 }
 
 export async function deleteUploadFile(uuid: string): Promise<{ csvfile_uuid: string }> {
