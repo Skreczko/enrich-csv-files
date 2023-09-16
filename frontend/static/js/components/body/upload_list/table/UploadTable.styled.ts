@@ -7,7 +7,7 @@ export const CustomTable = styled.div`
 `;
 export const TableGrid = styled.div`
   display: grid;
-  grid-template-columns: 3% 23% 12% 10% 23% 21% 8%;
+  grid-template-columns: 3% 21% 12% 10% 21% 21% 12%;
 `;
 
 interface TableRowProps {

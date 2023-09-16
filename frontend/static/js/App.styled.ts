@@ -30,6 +30,6 @@ export const MiddleSectionWrapper = styled.div`
 
 export const BodyWrapper = styled.div`
   ${customScrollbar};
-  overflow: auto;
+  overflow-y: scroll;
   height: 100%;
 `;
