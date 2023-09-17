@@ -1,9 +1,9 @@
 import React from 'react';
 import { DetailElementWrapper, DetailRow } from './TableRowDetailSection.styled';
 
-export const TableRowDetailEnrichUrl: React.FC = () => (
+export const TableRowDetailSourceFile: React.FC = () => (
   <DetailElementWrapper>
-    <h5>External url details</h5>
+    <h5>Source file details</h5>
     <DetailRow>
       <p>id</p>
       <p>39c0ad10-a4dd-4c7e-aa57-755d224af7f9</p>
@@ -13,17 +13,20 @@ export const TableRowDetailEnrichUrl: React.FC = () => (
       <p>20mb</p>
     </DetailRow>
     <DetailRow>
-      <p>saved url response</p>
-      <p>external_response</p>
+      <p>file rows</p>
+      <p>3000 file_row_count</p>
     </DetailRow>
     <DetailRow>
-      <p>response elements</p>
-      <p>3000 external_elements_count</p>
+      <p>file headers</p>
+      <p>file_headers</p>
     </DetailRow>
     <DetailRow>
-      <p>response keys</p>
-      <p>response_keys</p>
+      <p>file headers</p>
+      <p>file_headers</p>
     </DetailRow>
-
+    <DetailRow>
+      <p>enrichment selected header</p>
+      <p>selected_header</p>
+    </DetailRow>
   </DetailElementWrapper>
 );

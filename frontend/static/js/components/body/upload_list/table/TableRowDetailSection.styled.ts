@@ -2,23 +2,27 @@ import styled from 'styled-components';
 import { lightGrey } from '../../../../App.styled';
 
 export const DetailWrapper = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
   border-top: 2px solid ${lightGrey};
   > div {
     padding: 20px 40px;
-    border-right: 2px solid ${lightGrey};
+
+    &:last-child {
+      border-right: none;
+    }
   }
 `;
 
 export const DetailElementWrapper = styled.div`
   padding: 20px 40px;
-  border-right: 2px solid ${lightGrey};
+
+  h5 {
+    margin-bottom: 20px;
+  }
 `;
 
 export const DetailRow = styled.div`
   display: grid;
-  grid-template-columns: 40% 60%;
+  grid-template-columns: 30% 70%;
   gap: 10px;
   font-size: 12px;
 `;

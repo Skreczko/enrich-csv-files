@@ -94,7 +94,7 @@ export const TableRow: React.FC<Props> = ({
           completed={status === EnrichDetailStatus.COMPLETED}
         />
       </CsvElementRow>
-      {openDetails && <TableRowDetailSection />}
+      {openDetails && <TableRowDetailSection fileElement={fileElement}/>}
     </TableRowWrapper>
   );
 };

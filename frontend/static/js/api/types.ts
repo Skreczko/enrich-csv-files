@@ -1,5 +1,4 @@
-// used Discriminated Union pattern
-import { ApiAction, EnrichDetailStatus, SortList } from './enums';
+import { EnrichDetailStatus, SortList } from './enums';
 
 export const pageSizeType = 20 | 50 | 100;
 
@@ -39,7 +38,6 @@ export type PaginatorType = {
 
 export type FetchUploadListRequest = {
   // Matches the structure of backend's CSVListFileRequestForm
-  action: ApiAction.FETCH_UPLOAD_LIST;
   dateFrom?: string;
   dateTo?: string;
   page?: number;
@@ -53,8 +51,6 @@ export type FetchUploadListResponse = {
   result: CsvFileElement[];
   paginator: PaginatorType;
 };
-
-export type ApiRequest = FetchUploadListRequest;
 
 export enum StatusFilter {
   IN_PROGRESS = 'in_progress',
