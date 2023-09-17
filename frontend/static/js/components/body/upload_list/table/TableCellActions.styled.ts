@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { TableCell } from './TableRow.styled';
-import {mainGreen, warningColor} from '../../../../App.styled';
+import { mainGreen, warningColor } from '../../../../App.styled';
 
 export const TableCellActionsWrapper = styled(TableCell)`
   width: 100%;
@@ -41,12 +41,11 @@ export const EnrichButton = styled.div`
 
 export const EnrichPendingButton = styled(EnrichButton)`
   background-color: ${warningColor};
-    width: 110px;
+  width: 110px;
 
-    h5 {
+  h5 {
     color: black;
     text-transform: uppercase;
     font-size: 9px;
   }
-
 `;

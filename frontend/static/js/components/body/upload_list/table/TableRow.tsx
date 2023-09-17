@@ -8,7 +8,6 @@ import { Popup } from 'semantic-ui-react';
 import { TableRowStatusDetails } from './types';
 import { Link } from 'react-router-dom';
 import { ProgressBar, ProgressBarFiller } from '../../upload/UploadedFileListRowDetail.styled';
-import { EnrichDetailStatus } from '../../../../api/enums';
 import { lightGrey } from '../../../../App.styled';
 import { TableRowDetailSection } from './TableRowDetailSection';
 import { TableCellActions } from './TableCellActions';

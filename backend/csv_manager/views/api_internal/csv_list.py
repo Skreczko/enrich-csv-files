@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import timedelta
 from http import HTTPStatus
 from typing import Any, TypedDict
 
@@ -57,25 +57,29 @@ def csv_list(
     filter_status = request_form.cleaned_data["filter_status"]
     filter_file_type = request_form.cleaned_data["filter_file_type"]
 
-    queryset = CSVFile.objects.select_related("enrich_detail", "source_instance").only(
-        "original_file_name",
-        "created",
-        "uuid",
-        "source_instance__original_file_name",
-        "source_instance__uuid",
-        "enrich_detail__external_url",
-        "enrich_detail__status",
-    ).annotate(
-        source_uuid=F("source_instance__uuid"),
-        source_original_file_name=F("source_instance__original_file_name"),
-        enrich_url=F("enrich_detail__external_url"),
-        # take status from "enrich_detail.status". If "enrich_detail" does not exist - that mean file has been created
-        # in upload process. Return status "finished" by default.
-        status=Case(
-            When(enrich_detail__isnull=False, then=F("enrich_detail__status")),
-            default=Value(EnrichmentStatus.COMPLETED),
-            output_field=models.CharField(),
-        ),
+    queryset = (
+        CSVFile.objects.select_related("enrich_detail", "source_instance")
+        .only(
+            "original_file_name",
+            "created",
+            "uuid",
+            "source_instance__original_file_name",
+            "source_instance__uuid",
+            "enrich_detail__external_url",
+            "enrich_detail__status",
+        )
+        .annotate(
+            source_uuid=F("source_instance__uuid"),
+            source_original_file_name=F("source_instance__original_file_name"),
+            enrich_url=F("enrich_detail__external_url"),
+            # take status from "enrich_detail.status". If "enrich_detail" does not exist - that mean file has been created
+            # in upload process. Return status "finished" by default.
+            status=Case(
+                When(enrich_detail__isnull=False, then=F("enrich_detail__status")),
+                default=Value(EnrichmentStatus.COMPLETED),
+                output_field=models.CharField(),
+            ),
+        )
     )
     query_filters = Q()
 

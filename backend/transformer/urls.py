@@ -120,11 +120,11 @@ try:
 except ImportError:
     pass
 
-# redirect rest paths to React Router, as path above MUST be handled by django
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# Redirect all paths (except those starting with "/media") to React Router.
+# Paths starting with "/media" should be handled by Django to allow direct links to files.
 urlpatterns += [
     re_path(r"^.*$", TemplateView.as_view(template_name="index.html")),
 ]
-
-
-urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

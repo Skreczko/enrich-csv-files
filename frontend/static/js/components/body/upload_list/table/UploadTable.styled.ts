@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { tableMainColor, tableTextColor } from '../../../../App.styled';
+import { tableTextColor } from '../../../../App.styled';
 
 export const CustomTable = styled.div`
   width: 100%;

@@ -131,7 +131,7 @@ export const TableRows: React.FC = () => {
 
   // @ts-ignore
   const onEnrichAction = (fileElement: CsvFileElement): Promise<void> => {
-    console.log(123);
+    console.log(fileElement, 123);
   };
 
   return (

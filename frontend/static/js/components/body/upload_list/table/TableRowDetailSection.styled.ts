@@ -18,6 +18,11 @@ export const DetailElementWrapper = styled.div`
   h5 {
     margin-bottom: 20px;
   }
+
+  .in-progress {
+    font-weight: normal;
+    font-size: 12px;
+  }
 `;
 
 export const DetailRow = styled.div`
@@ -25,4 +30,24 @@ export const DetailRow = styled.div`
   grid-template-columns: 30% 70%;
   gap: 10px;
   font-size: 12px;
+  margin: 2px 0;
+
+  p {
+    word-wrap: break-word;
+    &.text-transform-none {
+      text-transform: none;
+    }
+  }
+
+  img {
+    height: 12px;
+    width: 12px;
+  }
+`;
+
+export const AdditionalInfoWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
 `;

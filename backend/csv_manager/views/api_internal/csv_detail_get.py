@@ -3,12 +3,14 @@ from http import HTTPStatus
 from typing import TypedDict
 
 from django.db import models
-from django.db.models import Case, F, FieldFile, Value, When
+from django.db.models import Case, F, Value, When
+from django.db.models.fields.files import FieldFile
 from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_GET
 
 from csv_manager.enums import (
-    EnrichmentJoinType, EnrichmentStatus,
+    EnrichmentJoinType,
+    EnrichmentStatus,
 )
 from csv_manager.models import CSVFile
 from transformer.serializers import serialize_queryset
@@ -28,11 +30,19 @@ class EnrichDetailSerializerType(TypedDict):
     uuid: str
 
 
+class SourceInstanceSerializerType(TypedDict):
+    created: date
+    uuid: str
+    original_file_name: str
+    file: FieldFile
+    file_row_count: int
+    file_headers: list[str]
+
 
 @require_GET
 def csv_detail_get(
     request: HttpRequest,
-        uuid: str,
+    uuid: str,
 ) -> JsonResponse:
     """
     Endpoint to retrieve details of a specific CSV file by UUID.
@@ -52,17 +62,22 @@ def csv_detail_get(
     - Missing csrf protection.
     """
 
-    queryset = CSVFile.objects.select_related("enrich_detail", "source_instance").annotate(
-        source_uuid=F("source_instance__uuid"),
-        source_original_file_name=F("source_instance__original_file_name"),
-        enrich_url=F("enrich_detail__external_url"),
-        # take status from "enrich_detail.status". If "enrich_detail" does not exist - that mean file has been created
-        # in upload process. Return status "finished" by default.
-        status=Case(
-            When(enrich_detail__isnull=False, then=F("enrich_detail__status")),
-            default=Value(EnrichmentStatus.COMPLETED), output_field=models.CharField(),
-        ),
-    ).filter(uuid=uuid)
+    queryset = (
+        CSVFile.objects.select_related("enrich_detail", "source_instance")
+        .annotate(
+            source_uuid=F("source_instance__uuid"),
+            source_original_file_name=F("source_instance__original_file_name"),
+            enrich_url=F("enrich_detail__external_url"),
+            # take status from "enrich_detail.status". If "enrich_detail" does not exist - that mean file has been created
+            # in upload process. Return status "finished" by default.
+            status=Case(
+                When(enrich_detail__isnull=False, then=F("enrich_detail__status")),
+                default=Value(EnrichmentStatus.COMPLETED),
+                output_field=models.CharField(),
+            ),
+        )
+        .filter(uuid=uuid)
+    )
 
     # need to base on queryset as my custom serializer does not handle select_related objects.
     if not queryset.exists():
@@ -84,8 +99,12 @@ def csv_detail_get(
                 "source_uuid",
                 "status",
                 "uuid",
+                "source_instance",
             ],
-            select_related_model_mapping={"enrich_detail": EnrichDetailSerializerType},
+            select_related_model_mapping={
+                "enrich_detail": EnrichDetailSerializerType,
+                "source_instance": SourceInstanceSerializerType,
+            },
         )
     except SerializationError as e:
         return JsonResponse(
