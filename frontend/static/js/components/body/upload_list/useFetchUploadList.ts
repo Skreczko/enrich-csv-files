@@ -4,7 +4,6 @@ import { setFileList, setIsLoading, setPaginator } from '../../../redux/FileList
 import { fetchUploadList } from '../../../api/actions';
 import { RootState } from '../../../redux/store';
 import { FileListParamState, setParams } from '../../../redux/fileListParamSlice';
-import { ApiAction } from '../../../api/enums';
 import { useLocation } from 'react-router-dom';
 
 export const useFetchUploadList = (): ((
@@ -57,10 +56,7 @@ export const useFetchUploadList = (): ((
     const params = updateRequestParams(updateParams);
     dispatch(setIsLoading(true));
     try {
-      const { result, paginator } = await fetchUploadList({
-        action: ApiAction.FETCH_UPLOAD_LIST,
-        ...params,
-      });
+      const { result, paginator } = await fetchUploadList(params);
       dispatch(setFileList(result));
       dispatch(setPaginator(paginator));
     } catch (error) {

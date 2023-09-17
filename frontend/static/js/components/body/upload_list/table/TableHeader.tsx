@@ -3,11 +3,11 @@ import { TableHeaderCell, TableHeaderWrapper } from './TableHeader.styled';
 
 export const columns: string[] = [
   '#',
-  'file name',
+  'csv file',
   'created',
   'status',
-  'source file name',
-  'enrich url',
+  'source csv file',
+  'enrichment url',
   'actions',
 ];
 

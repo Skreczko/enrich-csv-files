@@ -22,12 +22,23 @@ const fileListSlice = createSlice({
     setIsLoading: (state, { payload: value }: PayloadAction<boolean>) => {
       state.isLoading = value;
     },
+    updateFileElement: (
+      state,
+      {
+        payload: { uuid, csv_detail },
+      }: PayloadAction<{ uuid: string; csv_detail: CsvFileElement }>,
+    ) => {
+      const index = state.fileList.findIndex(file => file.uuid === uuid);
+      if (index !== -1) {
+        state.fileList[index] = csv_detail;
+      }
+    },
     setPaginator: (state, { payload: value }: PayloadAction<PaginatorType>) => {
       state.paginator = value;
     },
   },
 });
 
-export const { setFileList, setIsLoading, setPaginator } = fileListSlice.actions;
+export const { setFileList, setIsLoading, setPaginator, updateFileElement } = fileListSlice.actions;
 
 export default fileListSlice.reducer;

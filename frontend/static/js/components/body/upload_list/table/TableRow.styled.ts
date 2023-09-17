@@ -1,19 +1,25 @@
 import styled from 'styled-components';
-import { TableRowWrapper } from './UploadTable.styled';
+import { TableRowContainer } from './UploadTable.styled';
+import { tableMainColor } from '../../../../App.styled';
 
-export const CsvElementRow = styled(TableRowWrapper)`
+export const TableRowWrapper = styled.div`
+  border-bottom: 2px solid ${tableMainColor};
+  transition: 1s linear;
+`;
+
+export const CsvElementRow = styled(TableRowContainer)`
   height: auto;
   min-height: 35px;
 `;
 
-interface RowCellProps {
+interface TableCellProps {
   centred?: boolean;
   pointer?: boolean;
   column?: boolean;
   paddingLeft?: number;
 }
 
-export const RowCell = styled.div<RowCellProps>`
+export const TableCell = styled.div<TableCellProps>`
   display: flex;
   flex-direction: ${({ column }): string => (column ? 'column' : ' row')};
   justify-content: ${({ centred }): string => (centred ? 'center' : ' flex-start')};
@@ -38,26 +44,6 @@ export const RowCell = styled.div<RowCellProps>`
     }
   }
 
-  .actions {
-    width: 100%;
-    display: flex;
-    justify-content: flex-end;
-    padding-right: 20px;
-
-    img {
-      cursor: pointer;
-      &.delete {
-        height: 18px;
-        width: 18px;
-      }
-
-      &.preview {
-        height: 18px;
-        width: 18px;
-        margin-right: 15px;
-      }
-    }
-  }
   img {
     height: 12px;
     width: 12px;

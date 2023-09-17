@@ -1,5 +1,5 @@
-import React from 'react';
-import { useSelector } from 'react-redux';
+import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../../redux/store';
 import { NoRecordWrapper } from './TableRows.styled';
 import SandClockImage from '../../../../../img/body/list/sand-clock.png';
@@ -7,9 +7,16 @@ import { TableRow } from './TableRow';
 import SuccessImage from '../../../../../img/notification/success.png';
 import { EnrichDetailStatus } from '../../../../api/enums';
 import { TableRowStatusDetails } from './types';
-import { CsvFileElement } from '../../../../api/types';
 import { errorColor, warningColor } from '../../../../App.styled';
 import { TableRowStatusEnum } from './enums';
+import { FileListState } from '../../../../redux/FileListSlice';
+import { generateHTMLErrorMessages, truncateString } from '../../../notification/helpers';
+import { deleteUploadFile } from '../../../../api/actions';
+import { setNotificationPopupOpen } from '../../../../redux/NotificationPopupSlice';
+import { NotificationAppearanceEnum } from '../../../notification/NotificationPopup';
+import { useFetchUploadList } from '../useFetchUploadList';
+import { CsvFileElement } from '../../../../api/types';
+import { TableModals } from './TableModals';
 
 const statusDetails: Record<EnrichDetailStatus, TableRowStatusDetails> = {
   [EnrichDetailStatus.FETCHING_RESPONSE]: {
@@ -51,7 +58,7 @@ const statusDetails: Record<EnrichDetailStatus, TableRowStatusDetails> = {
   },
   [EnrichDetailStatus.AWAITING_COLUMN_SELECTION]: {
     backgroundColor: warningColor,
-    popupText: 'Enrichment is pending. Open details and specify columns to merge.',
+    popupText: 'Enrichment is pending. Specify columns to merge.',
     progress: 50,
     type: TableRowStatusEnum.PROGRESS,
   },
@@ -74,25 +81,89 @@ const statusDetails: Record<EnrichDetailStatus, TableRowStatusDetails> = {
   },
   [EnrichDetailStatus.COMPLETED]: {
     imgSrc: SuccessImage,
-    popupText: 'CSV file is ready to preview',
+    popupText: 'CSV file is ready.',
     type: TableRowStatusEnum.ICON,
   },
 };
 
 export const TableRows: React.FC = () => {
-  const fileList: CsvFileElement[] = useSelector((state: RootState) => state.fileList.fileList);
+  const dispatch = useDispatch();
+  const fetchListData = useFetchUploadList();
+
+  const { fileList, paginator }: FileListState = useSelector((state: RootState) => state.fileList);
+
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [openEnrichModal, setOpenEnrichModal] = useState(false);
+  const [selectedFileElement, setSelectedFileElement] = useState<CsvFileElement>(null);
+
+  const getFileIndex = (index: number): number => {
+    return index + (paginator.page - 1) * paginator.page_size;
+  };
+
+  const onDeleteAction = async ({
+    uuid,
+    original_file_name: fileName,
+  }: CsvFileElement): Promise<void> => {
+    try {
+      await deleteUploadFile(uuid);
+      dispatch(
+        setNotificationPopupOpen({
+          appearance: NotificationAppearanceEnum.SUCCESS,
+          content: `File ${truncateString(fileName, 100)} (${uuid}) has been deleted.`,
+        }),
+      );
+    } catch (e) {
+      dispatch(
+        setNotificationPopupOpen({
+          appearance: NotificationAppearanceEnum.ERROR,
+          content: 'An error occurred during the upload process',
+          additionalContent: generateHTMLErrorMessages(
+            e.response.data.error,
+            truncateString(fileName, 100),
+          ),
+          permanent: true,
+        }),
+      );
+    }
+
+    fetchListData();
+  };
+
+  // @ts-ignore
+  const onEnrichAction = (fileElement: CsvFileElement): Promise<void> => {
+    console.log(fileElement, 123);
+  };
 
   return (
     <div>
       {fileList?.length ? (
-        fileList.map((fileElement, index) => (
-          <TableRow
-            key={fileElement.uuid}
-            fileElement={fileElement}
-            counter={index + 1}
-            statusDetail={statusDetails[fileElement.status]}
+        <>
+          {fileList.map((fileElement, index) => (
+            <TableRow
+              key={fileElement.uuid}
+              fileElement={fileElement}
+              counter={getFileIndex(index) + 1}
+              statusDetail={statusDetails[fileElement.status]}
+              onOpenDeleteModal={(): void => {
+                setSelectedFileElement(fileElement);
+                setOpenDeleteModal(true);
+              }}
+              onOpenEnrichModal={(): void => {
+                setSelectedFileElement(fileElement);
+                setOpenEnrichModal(true);
+              }}
+            />
+          ))}
+          <TableModals
+            selectedFileElement={selectedFileElement}
+            openDeleteModal={openDeleteModal}
+            onCloseDeleteModal={(): void => setOpenDeleteModal(false)}
+            onDeleteAction={(): Promise<void> => onDeleteAction(selectedFileElement)}
+            openEnrichModal={openEnrichModal}
+            onCloseEnrichModal={(): void => setOpenEnrichModal(false)}
+            onEnrichAction={(): Promise<void> => onEnrichAction(selectedFileElement)}
           />
-        ))
+        </>
       ) : (
         <NoRecordWrapper>
           <img src={SandClockImage} alt={'sand-clock'} />

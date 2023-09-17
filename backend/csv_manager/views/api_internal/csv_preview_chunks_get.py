@@ -7,7 +7,7 @@ from django.views.decorators.http import require_GET
 from sentry_sdk import capture_exception  # type: ignore  #todo fix stubs
 
 from csv_manager.enums import EnrichmentStatus
-from csv_manager.forms import CSVLDetailFileRequestForm
+from csv_manager.forms import CSVLPreviewChunkRequestForm
 from csv_manager.models import CSVFile
 from decorators.cache_view import cache_view_response
 from decorators.form_validator import validate_request_form
@@ -15,10 +15,10 @@ import petl as etl
 
 
 @require_GET
-@validate_request_form(CSVLDetailFileRequestForm)
+@validate_request_form(CSVLPreviewChunkRequestForm)
 @cache_view_response()
-def csv_detail_chunks_get(
-    request: HttpRequest, request_form: CSVLDetailFileRequestForm, uuid: str
+def csv_preview_chunks_get(
+    request: HttpRequest, request_form: CSVLPreviewChunkRequestForm, uuid: str
 ) -> JsonResponse:
     """
     Endpoint to retrieve a specific chunk of rows from a CSV file.

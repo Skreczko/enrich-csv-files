@@ -2,7 +2,7 @@ import axios from 'axios';
 import { mapKeys, snakeCase, throttle } from 'lodash';
 import { store } from '../redux/store';
 import { updateFileDetail } from '../redux/UploadSectionSlice';
-import { ApiRequest, FetchUploadListResponse } from './types';
+import { CsvFileElement, FetchUploadListRequest, FetchUploadListResponse } from './types';
 import { FileType } from '../components/body/upload/types';
 
 const convertKeysToSnakeCase = (obj: any): any =>
@@ -39,13 +39,44 @@ export async function uploadFile(fileElement: FileType): Promise<{ original_file
   return data;
 }
 
-export async function fetchUploadList(request: ApiRequest): Promise<FetchUploadListResponse> {
-  const { action, ...request_data } = request;
+export async function fetchUploadList(
+  params: FetchUploadListRequest,
+): Promise<FetchUploadListResponse> {
+  /**
+   * Fetches the upload list.
+   *
+   * Note: The response is modified to include a "fetchedDetailInfo" field for frontend purposes.
+   * This field indicates whether the element has been fetched using the list endpoint.
+   *
+   */
 
-  const queryParams = new URLSearchParams(convertKeysToSnakeCase(request_data)).toString();
+  const queryParams = new URLSearchParams(convertKeysToSnakeCase(params)).toString();
 
-  const { data } = await api.get(`/api/_internal/${action}?${queryParams}`);
-  return data;
+  const { data } = await api.get(`/api/_internal/csv_list?${queryParams}`);
+  return {
+    ...data,
+    result: data.result.map(
+      (element: Omit<CsvFileElement, 'fetchedDetailInfo'>): CsvFileElement => ({
+        ...element,
+        fetchedDetailInfo: false,
+      }),
+    ),
+  };
+}
+
+export async function fetchUploadDetails(uuid: string): Promise<{ csv_detail: CsvFileElement }> {
+  /**
+   * Fetches the upload details.
+   *
+   * Note: The response is modified to include a "fetchedDetailInfo" field for frontend purposes.
+   * This field indicates whether the element has been fetched using the list endpoint.
+   *
+   */
+
+  const { data } = await api.get(`/api/_internal/csv_list/${uuid}`);
+  return {
+    csv_detail: { ...data.csv_detail, fetchedDetailInfo: true },
+  };
 }
 
 export async function deleteUploadFile(uuid: string): Promise<{ csvfile_uuid: string }> {

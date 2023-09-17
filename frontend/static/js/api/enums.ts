@@ -1,8 +1,3 @@
-export enum ApiAction {
-  FETCH_UPLOAD_LIST = 'csv_list',
-  DELETE = 'delete',
-}
-
 export enum SortList {
   // Matches the structure of backend's CsvListSortColumn
   CREATED_ASC = 'created',

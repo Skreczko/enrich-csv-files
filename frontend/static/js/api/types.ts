@@ -1,16 +1,28 @@
-// used Discriminated Union pattern
-import { ApiAction, EnrichDetailStatus, SortList } from './enums';
+import { EnrichDetailStatus, SortList } from './enums';
 
 export const pageSizeType = 20 | 50 | 100;
 
+export enum EnrichmentJoinType {
+  LEFT = 'left',
+  RIGHT = 'right',
+  INNER = 'inner',
+}
+
 type EnrichDetail = {
-  created: string;
-  external_elements_key_list: string[];
   external_url: string;
-  id: number;
+  // Optional parameters are populated upon receiving a response from the instance details endpoint.
+  created?: string;
+  external_elements_count?: number;
+  external_elements_key_list?: string[];
+  external_response?: FileDetail;
+  is_flat?: boolean;
+  join_type?: EnrichmentJoinType;
+  selected_header?: string;
+  selected_key?: string;
+  uuid?: string;
 };
 
-type FileDetail = {
+export type FileDetail = {
   size: number;
   url: string;
 };
@@ -19,14 +31,18 @@ export type CsvFileElement = {
   // Matches the structure of backend's csv_list.py::csv_list.serialize_queryset.fields
   created: string;
   enrich_detail: EnrichDetail;
-  file: FileDetail;
-  file_headers: string[];
-  file_row_count: number;
   original_file_name: string;
   source_original_file_name: string;
   source_uuid: string;
   status: EnrichDetailStatus;
   uuid: string;
+  // Used exclusively for frontend optimization to prevent redundant backend requests each time instance details are accessed.
+  fetchedDetailInfo: boolean;
+  // Optional parameters are populated upon receiving a response from the instance details endpoint.
+  file?: FileDetail;
+  file_headers?: string[];
+  file_row_count?: number;
+  source_instance?: CsvFileElement;
 };
 
 export type PaginatorType = {
@@ -37,7 +53,6 @@ export type PaginatorType = {
 
 export type FetchUploadListRequest = {
   // Matches the structure of backend's CSVListFileRequestForm
-  action: ApiAction.FETCH_UPLOAD_LIST;
   dateFrom?: string;
   dateTo?: string;
   page?: number;
@@ -51,8 +66,6 @@ export type FetchUploadListResponse = {
   result: CsvFileElement[];
   paginator: PaginatorType;
 };
-
-export type ApiRequest = FetchUploadListRequest;
 
 export enum StatusFilter {
   IN_PROGRESS = 'in_progress',

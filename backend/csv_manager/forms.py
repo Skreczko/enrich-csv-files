@@ -61,7 +61,7 @@ class CSVListFileRequestForm(forms.Form):
         ] = f"Select a valid choice. Available choices are: {available_file_type_choices}."
 
 
-class CSVLDetailFileRequestForm(forms.Form):
+class CSVLPreviewChunkRequestForm(forms.Form):
     chunk_number = forms.IntegerField(required=False)
 
 
