@@ -87,6 +87,13 @@ urlpatterns = [
                                 name="csv_list",
                             ),
                             path(
+                                "/<uuid:uuid>",
+                                lazy_function_view(
+                                    "csv_manager.views.api_internal.csv_detail_get.csv_detail_get"
+                                ),
+                                name="csv_detail_get",
+                            ),
+                            path(
                                 "/<uuid:uuid>/read_preview_chunk",
                                 lazy_function_view(
                                     "csv_manager.views.api_internal.csv_preview_chunks_get.csv_preview_chunks_get"

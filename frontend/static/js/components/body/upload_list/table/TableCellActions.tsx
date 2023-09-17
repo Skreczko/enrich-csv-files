@@ -2,21 +2,40 @@ import React from 'react';
 import PreviewImage from '../../../../../img/body/list/preview.png';
 import DeleteImage from '../../../../../img/body/list/delete-red.png';
 import { Popup } from 'semantic-ui-react';
-import { EnrichButton, TableCellActionsWrapper } from './TableCellActions.styled';
+import {
+  EnrichButton,
+  EnrichPendingButton,
+  TableCellActionsWrapper,
+} from './TableCellActions.styled';
+import { EnrichDetailStatus } from '../../../../api/enums';
 
 type Props = {
   onOpenDeleteModal: () => void;
   onOpenEnrichModal: () => void;
-  completed: boolean;
+  status: EnrichDetailStatus;
 };
 
 export const TableCellActions: React.FC<Props> = ({
-  completed,
+  status,
   onOpenDeleteModal,
   onOpenEnrichModal,
 }) => (
   <TableCellActionsWrapper>
-    {completed && (
+    {status === EnrichDetailStatus.AWAITING_COLUMN_SELECTION && (
+      <Popup
+        content={'Enrichment is pending. Click and specify columns to merge.'}
+        inverted
+        mouseEnterDelay={50}
+        position={'top center'}
+        size='mini'
+        trigger={
+          <EnrichPendingButton>
+            <h5>action required</h5>
+          </EnrichPendingButton>
+        }
+      />
+    )}
+    {status === EnrichDetailStatus.COMPLETED && (
       <>
         <Popup
           content={'Enrich with external URL'}

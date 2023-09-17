@@ -124,27 +124,6 @@ def serialize_queryset(
     return serialized_data
 
 
-# TODO to remove
-def serialize_instance_list(
-    *, instance_list: list[T], fields: FieldsType = None
-) -> list[dict[str, Any]]:
-    """
-    Serializes a list of Django model instances into a list of dictionaries with optional fields.
-
-    :param instance_list: List of Django model instances to be serialized.
-    :param fields: Optional list of field names to include in the serialized output.
-                   If not provided, all fields will be included.
-    :return: List of dictionaries representing the serialized instances.
-    """
-
-    return list(
-        map(
-            lambda instance: serialize_instance(instance=instance, fields=fields),
-            instance_list,
-        )
-    )
-
-
 # `django.core.serializers` is not so good, ie it has problem to serialize primary_keys.
 #  Also, FileField is serialized by django in not expected way.
 def serialize_instance(*, instance: T, fields: FieldsType = None) -> dict[str, Any]:

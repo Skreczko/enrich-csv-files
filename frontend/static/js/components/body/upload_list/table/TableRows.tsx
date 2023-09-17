@@ -58,7 +58,7 @@ const statusDetails: Record<EnrichDetailStatus, TableRowStatusDetails> = {
   },
   [EnrichDetailStatus.AWAITING_COLUMN_SELECTION]: {
     backgroundColor: warningColor,
-    popupText: 'Enrichment is pending. Open details and specify columns to merge.',
+    popupText: 'Enrichment is pending. Specify columns to merge.',
     progress: 50,
     type: TableRowStatusEnum.PROGRESS,
   },
@@ -81,7 +81,7 @@ const statusDetails: Record<EnrichDetailStatus, TableRowStatusDetails> = {
   },
   [EnrichDetailStatus.COMPLETED]: {
     imgSrc: SuccessImage,
-    popupText: 'CSV file is ready to preview',
+    popupText: 'CSV file is ready.',
     type: TableRowStatusEnum.ICON,
   },
 };

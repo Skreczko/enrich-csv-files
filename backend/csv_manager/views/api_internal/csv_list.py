@@ -21,11 +21,8 @@ from transformer.serializers import serialize_queryset
 from transformer.exceptions import SerializationError
 
 
-class EnrichDetailSerializerType(TypedDict):
-    # created: date
-    # external_elements_key_list: list[str]
+class EnrichSerializerType(TypedDict):
     external_url: str
-    # uuid: str
 
 
 @require_GET
@@ -166,7 +163,7 @@ def csv_list(
                 "status",
                 "uuid",
             ],
-            select_related_model_mapping={"enrich_detail": EnrichDetailSerializerType},
+            select_related_model_mapping={"enrich_detail": EnrichSerializerType},
         )
     except SerializationError as e:
         return JsonResponse(

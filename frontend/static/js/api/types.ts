@@ -2,20 +2,34 @@ import { EnrichDetailStatus, SortList } from './enums';
 
 export const pageSizeType = 20 | 50 | 100;
 
+export enum EnrichmentJoinType {
+  LEFT = 'left',
+  RIGHT = 'right',
+  INNER = 'inner',
+}
+
 type EnrichDetail = {
+  // Optional parameters are populated upon receiving a response from the instance details endpoint.
   created?: string;
+  external_elements_count?: number;
   external_elements_key_list?: string[];
+  external_response?: FileDetail;
   external_url: string;
+  is_flat?: boolean;
+  join_type?: EnrichmentJoinType;
+  selected_header?: string;
+  selected_key?: string;
   uuid?: string;
 };
 
-type FileDetail = {
+export type FileDetail = {
   size: number;
   url: string;
 };
 
 export type CsvFileElement = {
   // Matches the structure of backend's csv_list.py::csv_list.serialize_queryset.fields
+  // Optional parameters are populated upon receiving a response from the instance details endpoint.
   created: string;
   enrich_detail: EnrichDetail;
   file?: FileDetail;
@@ -26,7 +40,7 @@ export type CsvFileElement = {
   source_uuid: string;
   status: EnrichDetailStatus;
   uuid: string;
-  // Only for frontend purposes - optional elements will be filled after fetching additional info from related enndpoint
+  // Used exclusively for frontend optimization to prevent redundant backend requests each time instance details are accessed.
   fetchedDetailInfo: boolean;
 };
 

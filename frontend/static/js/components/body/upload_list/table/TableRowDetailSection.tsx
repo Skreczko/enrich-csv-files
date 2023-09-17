@@ -18,7 +18,8 @@ export const TableRowDetailSection: React.FC<Props> = ({ fileElement }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetchDetailedData(fileElement.uuid).then(() => setIsLoading(false));
+    if (!fileElement.fetchedDetailInfo) fetchDetailedData(fileElement.uuid);
+    setIsLoading(false);
   }, []);
 
   return (

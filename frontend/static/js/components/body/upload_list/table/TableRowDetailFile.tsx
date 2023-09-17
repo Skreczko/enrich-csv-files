@@ -1,16 +1,32 @@
 import React from 'react';
-import { DetailElementWrapper, DetailRow } from './TableRowDetailSection.styled';;
+import { DetailElementWrapper, DetailRow } from './TableRowDetailSection.styled';
+import {EnrichmentJoinType, FileDetail} from '../../../../api/types';
 
-export const TableRowDetailFile: React.FC = () => (
+type Props = {
+  // fileHeader: string[];
+  // joinType?: EnrichmentJoinType;
+  // size: string;
+  uuid: string;
+  file: FileDetail;
+};
+
+export const TableRowDetailFile: React.FC<Props> = ({
+  uuid,
+  file
+                                                    }) => (
   <DetailElementWrapper>
     <h5>File details</h5>
     <DetailRow>
       <p>id</p>
-      <p>39c0ad10-a4dd-4c7e-aa57-755d224af7f9</p>
+      <p>{uuid}</p>
+    </DetailRow>
+      <DetailRow>
+      <p>file name</p>
+      <p>{fileSize}</p>
     </DetailRow>
     <DetailRow>
       <p>size</p>
-      <p>20mb</p>
+      <p>{fileSize}</p>
     </DetailRow>
     <DetailRow>
       <p>file rows</p>

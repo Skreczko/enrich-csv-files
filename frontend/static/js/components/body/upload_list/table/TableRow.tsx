@@ -91,10 +91,10 @@ export const TableRow: React.FC<Props> = ({
         <TableCellActions
           onOpenDeleteModal={onOpenDeleteModal}
           onOpenEnrichModal={onOpenEnrichModal}
-          completed={status === EnrichDetailStatus.COMPLETED}
+          status={status}
         />
       </CsvElementRow>
-      {openDetails && <TableRowDetailSection fileElement={fileElement}/>}
+      {openDetails && <TableRowDetailSection fileElement={fileElement} />}
     </TableRowWrapper>
   );
 };
