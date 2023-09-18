@@ -32,6 +32,10 @@ export const TableCell = styled.div<TableCellProps>`
     color: inherit;
     background-color: transparent;
     cursor: pointer;
+    text-transform: none;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
   p {
     text-transform: none;

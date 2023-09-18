@@ -19,7 +19,7 @@ type Props = {
   onDeleteAction: () => void;
   openEnrichModal: boolean;
   onCloseEnrichModal: () => void;
-  onEnrichAction: () => void;
+  onEnrichAction: (enrichUrl: string) => void;
 };
 
 export const TableModals: React.FC<Props> = ({
@@ -42,7 +42,7 @@ export const TableModals: React.FC<Props> = ({
 
   const handleEnrichActionWithValidation = (): void => {
     if (isURL(enrichInputValue)) {
-      onEnrichAction();
+      onEnrichAction(enrichInputValue);
       handleEnrichOnCLose();
     } else {
       setEnrichInputError(true);

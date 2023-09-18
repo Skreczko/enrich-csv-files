@@ -56,9 +56,9 @@ export const TableRowDetailSection: React.FC<Props> = ({ fileElement }) => {
             <TableRowDetailEnrichDetail
               created={fileElement.enrich_detail.created}
               uuid={fileElement.enrich_detail.uuid}
-              file={fileElement.enrich_detail.external_response}
-              responseElements={fileElement.enrich_detail.external_elements_count}
-              responseKeys={fileElement.enrich_detail.external_elements_key_list}
+              file={fileElement.enrich_detail?.external_response}
+              responseElements={fileElement.enrich_detail?.external_elements_count}
+              responseKeys={fileElement.enrich_detail?.external_elements_key_list}
             />
           )}
         </>

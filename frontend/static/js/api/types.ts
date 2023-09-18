@@ -1,4 +1,4 @@
-import { EnrichDetailStatus, SortList } from './enums';
+import { CeleryTaskStatus, EnrichDetailStatus, SortList } from './enums';
 
 export const pageSizeType = 20 | 50 | 100;
 
@@ -84,3 +84,20 @@ export type FileListFilters = {
   date_from: string;
   date_to: string;
 };
+
+export type FailureTaskResult = {
+  error: string;
+};
+export type TaskResultPending = {
+  status: CeleryTaskStatus.PENDING;
+  results: null;
+};
+export type TaskResultSuccess = {
+  status: CeleryTaskStatus.SUCCESS;
+  results: CsvFileElement;
+};
+export type TaskResultFailure = {
+  status: CeleryTaskStatus.FAILURE;
+  results: FailureTaskResult;
+};
+export type TaskResult = TaskResultSuccess | TaskResultPending | TaskResultFailure;

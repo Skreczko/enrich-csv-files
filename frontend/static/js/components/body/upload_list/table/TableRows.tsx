@@ -11,17 +11,18 @@ import { errorColor, warningColor } from '../../../../App.styled';
 import { TableRowStatusEnum } from './enums';
 import { FileListState } from '../../../../redux/FileListSlice';
 import { generateHTMLErrorMessages, truncateString } from '../../../notification/helpers';
-import { deleteUploadFile } from '../../../../api/actions';
+import { deleteUploadFile, enrichFile } from '../../../../api/actions';
 import { setNotificationPopupOpen } from '../../../../redux/NotificationPopupSlice';
 import { NotificationAppearanceEnum } from '../../../notification/NotificationPopup';
 import { useFetchUploadList } from '../useFetchUploadList';
 import { CsvFileElement } from '../../../../api/types';
 import { TableModals } from './TableModals';
+import { setTask } from '../../../../redux/TaskListReducer';
 
 const statusDetails: Record<EnrichDetailStatus, TableRowStatusDetails> = {
   [EnrichDetailStatus.FETCHING_RESPONSE]: {
     popupText: 'Retrieving data from the provided URL.',
-    progress: 20,
+    progress: 10,
     type: TableRowStatusEnum.PROGRESS,
   },
   [EnrichDetailStatus.FAILED_FETCHING_RESPONSE]: {
@@ -125,13 +126,38 @@ export const TableRows: React.FC = () => {
         }),
       );
     }
-
+    console.log(2)
     fetchListData();
   };
 
-  // @ts-ignore
-  const onEnrichAction = (fileElement: CsvFileElement): Promise<void> => {
-    console.log(fileElement, 123);
+  const onEnrichAction = async (enrichUrl: string): Promise<void> => {
+    try {
+      const { task_id, csv_file_uuid } = await enrichFile(selectedFileElement.uuid, enrichUrl);
+      dispatch(
+        setNotificationPopupOpen({
+          appearance: NotificationAppearanceEnum.INFO,
+          content: `Enrichment in process for file ${truncateString(
+            selectedFileElement.original_file_name,
+            100,
+          )} (ID: ${selectedFileElement.uuid})`,
+        }),
+      );
+      dispatch(setTask({ [task_id]: { instance: 'CsvFile', uuid: csv_file_uuid } }));
+      console.log(3)
+      fetchListData();
+    } catch (e) {
+      dispatch(
+        setNotificationPopupOpen({
+          appearance: NotificationAppearanceEnum.ERROR,
+          content: 'An error occurred during the enrichment process',
+          additionalContent: generateHTMLErrorMessages(
+            e.response.data.error,
+            truncateString(selectedFileElement.original_file_name, 100),
+          ),
+          permanent: true,
+        }),
+      );
+    }
   };
 
   return (
@@ -161,7 +187,7 @@ export const TableRows: React.FC = () => {
             onDeleteAction={(): Promise<void> => onDeleteAction(selectedFileElement)}
             openEnrichModal={openEnrichModal}
             onCloseEnrichModal={(): void => setOpenEnrichModal(false)}
-            onEnrichAction={(): Promise<void> => onEnrichAction(selectedFileElement)}
+            onEnrichAction={(enrichUrl: string): Promise<void> => onEnrichAction(enrichUrl)}
           />
         </>
       ) : (

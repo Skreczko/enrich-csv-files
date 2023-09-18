@@ -7,7 +7,7 @@ export const useFetchUploadDetail = (): ((uuid: string) => Promise<void>) => {
 
   const getUploadDetail = async (uuid: string): Promise<void> => {
     try {
-      const { csv_detail } = await fetchUploadDetails(uuid);
+      const csv_detail = await fetchUploadDetails(uuid);
       dispatch(updateFileElement({ uuid, csv_detail }));
     } catch (error) {
       console.log(error);

@@ -32,35 +32,36 @@ def process_csv_metadata(uuid: str, *args: Any, **kwargs: Any) -> None:
 
 @shared_task()
 def process_fetch_external_url(
-    enrich_detail_uuid: str, *args: Any, **kwargs: Any
-) -> None:
+    enrich_detail_uuid: str, csv_file_uuid: str, *args: Any, **kwargs: Any
+) -> Any:
     """
-    Asynchronously fetch and process external JSON data to enrich a given CSV detail.
+    Asynchronously fetch and process external JSON data to enrich a specific CSV detail.
 
-    This function performs the following steps:
-    1. Fetches the external URL associated with the given enrich detail UUID.
-    2. Streams the response content and saves it to a temporary file.
-    3. Uses ijson[yajl2] to parse the JSON content without loading the entire file into memory.
-    4. Extracts the keys from the first item in the JSON and counts the total number of items.
-    5. Updates the EnrichDetail model with the extracted keys, item count, and sets the status to AWAITING_COLUMN_SELECTION.
+    Steps:
+    1. Retrieve the external URL associated with the provided enrich detail UUID.
+    2. Stream the response content and save it to a temporary file.
+    3. Utilize ijson[yajl2] to parse the JSON content iteratively, avoiding loading the entire file into memory.
+    4. Extract keys from the first JSON item and count the total number of items.
+    5. Update the EnrichDetail model with the extracted keys, item count, and set the status to AWAITING_COLUMN_SELECTION.
 
-    :param enrich_detail_uuid: The UUID of the EnrichDetail instance to be processed.
+    :param enrich_detail_uuid: UUID of the EnrichDetail instance to process.
+    :param csv_file_uuid: UUID of the CSVFile instance associated with the enrichment detail.
     :return: None
 
-    Note:
-    - If the external URL does not return a valid JSON or if the JSON is empty, the status of the EnrichDetail instance will be updated accordingly.
-    - The function will raise exceptions for invalid enrich detail UUIDs or HTTP errors.
-    - The function uses the yajl2 backend of ijson for efficient JSON parsing.
-    - The approach prioritizes memory efficiency over speed. While the reading speed might be slower due to
-      streaming and iterative parsing, this ensures minimal RAM usage. Given that this task runs asynchronously
-      in Celery and doesn't block the main thread, the trade-off is considered acceptable to prevent potential memory issues.
+    Notes:
+    - If the external URL fails to return valid JSON or if the JSON is empty, the EnrichDetail instance's status will be updated.
+    - Exceptions will be raised for invalid enrich detail UUIDs or HTTP errors.
+    - The yajl2 backend of ijson is used for efficient JSON parsing.
+    - This approach emphasizes memory efficiency over speed. While reading might be slower due to streaming and iterative parsing,
+      it ensures minimal RAM usage. As this task runs asynchronously in Celery without blocking the main thread,
+      this trade-off is deemed acceptable to mitigate potential memory issues.
     """
 
+    from csv_manager.helpers import get_and_serialize_csv_detail
     import ijson.backends.yajl2 as ijson  # https://lpetr.org/2016/05/30/faster-json-parsing-python-ijson/
     import requests
     from django.core.files import File
     from tempfile import NamedTemporaryFile
-    from itertools import islice
 
     enrich_detail = EnrichDetail.objects.filter(uuid=enrich_detail_uuid).first()
     if not enrich_detail:
@@ -120,12 +121,19 @@ def process_fetch_external_url(
         enrich_detail.external_response.save(filename, File(temp_file))
 
         enrich_detail.external_elements_key_list = list(first_item.keys())
-        enrich_detail.external_elements_count = (
-            sum(1 for _ in islice(items, 1, None)) + 1
-        )  # 1 as first item has been already read as "first_item"
+
+        # After consuming the first item from the 'items' generator, it becomes exhausted for that item.
+        # Hence, we create a new generator 'items_for_count' to count the total number of items.
+        temp_file.seek(0)
+        items_for_count = ijson.items(temp_file, "item")
+        enrich_detail.external_elements_count = sum(1 for _ in items_for_count)
 
         enrich_detail.status = EnrichmentStatus.AWAITING_COLUMN_SELECTION
         enrich_detail.save()
+
+    serialized_csv_detail = get_and_serialize_csv_detail(uuid=csv_file_uuid)
+
+    return serialized_csv_detail.get("csv_detail", serialized_csv_detail.get("error"))
 
 
 @shared_task()

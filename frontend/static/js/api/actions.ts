@@ -2,8 +2,14 @@ import axios from 'axios';
 import { mapKeys, snakeCase, throttle } from 'lodash';
 import { store } from '../redux/store';
 import { updateFileDetail } from '../redux/UploadSectionSlice';
-import { CsvFileElement, FetchUploadListRequest, FetchUploadListResponse } from './types';
+import {
+  CsvFileElement,
+  FetchUploadListRequest,
+  FetchUploadListResponse,
+  TaskResult,
+} from './types';
 import { FileType } from '../components/body/upload/types';
+import { TaskType } from '../redux/TaskListReducer';
 
 const convertKeysToSnakeCase = (obj: any): any =>
   mapKeys(obj, (_value: any, key: any) => snakeCase(key));
@@ -64,7 +70,7 @@ export async function fetchUploadList(
   };
 }
 
-export async function fetchUploadDetails(uuid: string): Promise<{ csv_detail: CsvFileElement }> {
+export async function fetchUploadDetails(uuid: string): Promise<CsvFileElement> {
   /**
    * Fetches the upload details.
    *
@@ -75,15 +81,41 @@ export async function fetchUploadDetails(uuid: string): Promise<{ csv_detail: Cs
 
   const { data } = await api.get(`/api/_internal/csv_list/${uuid}`);
   return {
-    csv_detail: { ...data.csv_detail, fetchedDetailInfo: true },
+    ...data,
+    fetchedDetailInfo: true,
   };
 }
 
 export async function deleteUploadFile(uuid: string): Promise<{ csvfile_uuid: string }> {
-  const formData = new FormData();
-
-  formData.append('uuid', uuid);
-  const { data } = await api.post(`/api/_internal/csv_delete`, formData);
+  const { data } = await api.post(`/api/_internal/csv_delete`, { uuid });
 
   return data;
+}
+
+export async function enrichFile(
+  uuid: string,
+  enrichUrl: string,
+): Promise<{ task_id: string; csv_file_uuid: string }> {
+  /**
+   * Endpoint to initiate the enrichment of a CSV file using data from an external URL.
+   *
+   * return: JsonResponse object containing the ID of the scheduled task.
+   *
+   */
+
+  const { data } = await api.post(`/api/_internal/csv_list/${uuid}/enrich_detail_create`, {
+    external_url: enrichUrl,
+  });
+  return data;
+}
+
+export async function fetchTaskResults(taskIds: string[]): Promise<Record<string, TaskResult>> {
+  try {
+    const { data } = await api.post('/api/_internal/fetch_task_results', {
+      task_ids: JSON.stringify(taskIds),
+    });
+    return data;
+  } catch (error) {
+    return Promise.resolve({});
+  }
 }

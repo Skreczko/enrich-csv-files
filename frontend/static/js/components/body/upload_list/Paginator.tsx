@@ -12,7 +12,8 @@ export const Paginator: React.FC = () => {
   );
 
   const onChangePageNumber = ({ selected }: { selected: number }): void => {
-    fetchListData({ page: selected + 1 });
+    const selectedPage = selected + 1;
+    if (selectedPage !== page) fetchListData({ page: selectedPage });
   };
 
   return (

@@ -34,3 +34,9 @@ export enum EnrichDetailStatus {
   // completed
   COMPLETED = 'completed',
 }
+
+export enum CeleryTaskStatus {
+  PENDING = "PENDING",
+  SUCCESS = "SUCCESS",
+  FAILURE = "FAILURE",
+}
