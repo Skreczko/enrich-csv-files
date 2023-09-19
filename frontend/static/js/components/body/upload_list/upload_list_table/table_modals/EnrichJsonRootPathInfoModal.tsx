@@ -1,7 +1,7 @@
 import React from 'react';
 import { CustomGenericModal } from '../../../CustomGenericModal';
 import { jsonFirstExample, jsonSecondExample, jsonThirdExample } from './jsonExamples';
-import {EnrichModalJsonRootPathModalBody} from "./EnrichJsonRootPathInfoModal.styled";
+import { EnrichModalJsonRootPathModalBody } from './EnrichJsonRootPathInfoModal.styled';
 
 type Props = {
   onClose: () => void;

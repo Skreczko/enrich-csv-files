@@ -9,7 +9,6 @@ import {
   TaskResult,
 } from './types';
 import { FileType } from '../components/body/upload_csv/types';
-import { TaskType } from '../redux/TaskListReducer';
 
 const convertKeysToSnakeCase = (obj: any): any =>
   mapKeys(obj, (_value: any, key: any) => snakeCase(key));

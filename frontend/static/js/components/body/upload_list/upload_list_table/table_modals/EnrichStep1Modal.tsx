@@ -8,7 +8,9 @@ import QuestionMarkImage from '../../../../../../img/body/list/question-mark.png
 import isURL from 'validator/lib/isURL';
 import {
   EnrichModalDescription,
-  EnrichModalError, EnrichModalJsonRootInput, EnrichModalJsonRootWrapper,
+  EnrichModalError,
+  EnrichModalJsonRootInput,
+  EnrichModalJsonRootWrapper,
   EnrichModalURLInput,
   EnrichModalWrapper,
 } from './EnrichStep1Modal.styled';
