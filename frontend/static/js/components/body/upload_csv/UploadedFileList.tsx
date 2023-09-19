@@ -1,5 +1,5 @@
 import React from 'react';
-import { CustomButton } from '../../utils/CustomButton.styled';
+import { CustomButton } from '../CustomButton.styled';
 import {
   FileListWrapper,
   UploadButtonWrapper,

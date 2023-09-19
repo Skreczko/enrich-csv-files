@@ -14,9 +14,9 @@ import { generateHTMLErrorMessages, truncateString } from '../../../notification
 import { deleteUploadFile, enrichFile } from '../../../../api/actions';
 import { setNotificationPopupOpen } from '../../../../redux/NotificationPopupSlice';
 import { NotificationAppearanceEnum } from '../../../notification/NotificationPopup';
-import { useFetchUploadList } from '../useFetchUploadList';
+import { useFetchUploadList } from '../../../hooks/useFetchUploadList';
 import { CsvFileElement } from '../../../../api/types';
-import { TableModals } from './TableModals';
+import { TableModals } from './table_modals/TableModals';
 import { setTask } from '../../../../redux/TaskListReducer';
 
 const statusDetails: Record<EnrichDetailStatus, TableRowStatusDetails> = {
@@ -53,7 +53,7 @@ const statusDetails: Record<EnrichDetailStatus, TableRowStatusDetails> = {
   },
   [EnrichDetailStatus.FAILED_FETCHING_RESPONSE_EMPTY_JSON]: {
     backgroundColor: errorColor,
-    popupText: 'The provided URL returned empty data.',
+    popupText: 'The provided URL returned empty data or URL JSON root path is wrong.',
     progress: 30,
     type: TableRowStatusEnum.PROGRESS,
   },
@@ -126,13 +126,17 @@ export const TableRows: React.FC = () => {
         }),
       );
     }
-    console.log(2)
+    console.log(2);
     fetchListData();
   };
 
-  const onEnrichAction = async (enrichUrl: string): Promise<void> => {
+  const onEnrichAction = async (enrichUrl: string, jsonRootPath: string): Promise<void> => {
     try {
-      const { task_id, csv_file_uuid } = await enrichFile(selectedFileElement.uuid, enrichUrl);
+      const { task_id, csv_file_uuid } = await enrichFile(
+        selectedFileElement.uuid,
+        enrichUrl,
+        jsonRootPath,
+      );
       dispatch(
         setNotificationPopupOpen({
           appearance: NotificationAppearanceEnum.INFO,
@@ -143,7 +147,7 @@ export const TableRows: React.FC = () => {
         }),
       );
       dispatch(setTask({ [task_id]: { instance: 'CsvFile', uuid: csv_file_uuid } }));
-      console.log(3)
+      console.log(3);
       fetchListData();
     } catch (e) {
       dispatch(
@@ -187,7 +191,9 @@ export const TableRows: React.FC = () => {
             onDeleteAction={(): Promise<void> => onDeleteAction(selectedFileElement)}
             openEnrichModal={openEnrichModal}
             onCloseEnrichModal={(): void => setOpenEnrichModal(false)}
-            onEnrichAction={(enrichUrl: string): Promise<void> => onEnrichAction(enrichUrl)}
+            onEnrichAction={(enrichUrl: string, jsonRootPath: string): Promise<void> =>
+              onEnrichAction(enrichUrl, jsonRootPath)
+            }
           />
         </>
       ) : (

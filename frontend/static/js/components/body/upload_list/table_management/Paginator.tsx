@@ -1,8 +1,8 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { RootState } from '../../../redux/store';
-import { PaginatorType } from '../../../api/types';
-import { useFetchUploadList } from './useFetchUploadList';
+import { RootState } from '../../../../redux/store';
+import { PaginatorType } from '../../../../api/types';
+import { useFetchUploadList } from '../../../hooks/useFetchUploadList';
 import { PaginatorWrapper } from './Paginator.styled';
 
 export const Paginator: React.FC = () => {

@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { FileStatusEnum } from '../components/body/upload/types';
+import { FileStatusEnum } from '../components/body/upload_csv/types';
 
 export type UploadElementState = {
   fileName: string;

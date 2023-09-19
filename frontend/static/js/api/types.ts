@@ -17,6 +17,7 @@ type EnrichDetail = {
   external_response?: FileDetail;
   is_flat?: boolean;
   join_type?: EnrichmentJoinType;
+  json_root_path?: string;
   selected_header?: string;
   selected_key?: string;
   uuid?: string;

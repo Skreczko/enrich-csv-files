@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { UploadListWrapper } from './UploadList.styled';
-import { ListManagement } from './list_management/ListManagement';
-import { useFetchUploadList } from './useFetchUploadList';
-import { UploadTable } from './table/UploadTable';
+import { TableManagement } from './table_management/TableManagement';
+import { useFetchUploadList } from '../../hooks/useFetchUploadList';
+import { UploadListTable } from './upload_list_table/UploadListTable';
 import { RootState } from '../../../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
 import { removeTasks, setTask, TaskType } from '../../../redux/TaskListReducer';
@@ -11,7 +11,8 @@ import { CeleryTaskStatus } from '../../../api/enums';
 import { updateFileElement } from '../../../redux/FileListSlice';
 import { CsvFileElement } from '../../../api/types';
 import _ from 'lodash';
-import { useFetchUploadDetail } from './useFetchUploadDetail';
+import { useFetchUploadDetail } from '../../hooks/useFetchUploadDetail';
+import {TableNavigation} from "./table_management/TableNavigation";
 
 export const UploadList: React.FC = () => {
   const fetchListData = useFetchUploadList();
@@ -75,8 +76,9 @@ export const UploadList: React.FC = () => {
 
   return (
     <UploadListWrapper>
-      <ListManagement />
-      <UploadTable />
+      <TableManagement />
+      <UploadListTable />
+      <TableNavigation />
     </UploadListWrapper>
   );
 };

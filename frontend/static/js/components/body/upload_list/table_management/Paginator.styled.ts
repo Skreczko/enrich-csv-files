@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import ReactPaginate from 'react-paginate';
-import { mainDisabled, mainGreen, tableMainColor } from '../../../App.styled';
+import { mainDisabled, mainGreen, tableMainColor } from '../../../../App.styled';
 
 export const PaginatorWrapper = styled(ReactPaginate)`
   display: flex;

@@ -1,6 +1,6 @@
 import { useDispatch } from 'react-redux';
-import { updateFileElement } from '../../../redux/FileListSlice';
-import { fetchUploadDetails } from '../../../api/actions';
+import { updateFileElement } from '../../redux/FileListSlice';
+import { fetchUploadDetails } from '../../api/actions';
 
 export const useFetchUploadDetail = (): ((uuid: string) => Promise<void>) => {
   const dispatch = useDispatch();

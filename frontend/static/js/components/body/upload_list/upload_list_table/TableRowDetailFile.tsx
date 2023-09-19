@@ -19,8 +19,9 @@ type Props = {
   fileRows: number;
   isFlat?: boolean;
   joinType?: EnrichmentJoinType;
-  selected_header?: string;
-  selected_key?: string;
+  jsonRootPath?: string;
+  selectedHeader?: string;
+  selectedKey?: string;
   uuid: string;
 };
 
@@ -32,8 +33,9 @@ export const TableRowDetailFile: React.FC<Props> = ({
   fileRows,
   isFlat,
   joinType,
-  selected_header,
-  selected_key,
+  jsonRootPath,
+  selectedHeader,
+  selectedKey,
   uuid,
 }) => (
   <DetailElementWrapper>
@@ -131,7 +133,7 @@ export const TableRowDetailFile: React.FC<Props> = ({
         </p>
       </DetailRow>
     )}
-    {selected_header && (
+    {selectedHeader && (
       <DetailRow>
         <Popup
           content={'Header selected from source csv'}
@@ -146,10 +148,10 @@ export const TableRowDetailFile: React.FC<Props> = ({
             </AdditionalInfoWrapper>
           }
         />
-        <p className={'text-transform-none'}>{selected_header}</p>
+        <p className={'text-transform-none'}>{selectedHeader}</p>
       </DetailRow>
     )}
-    {selected_key && (
+    {selectedKey && (
       <DetailRow>
         <Popup
           content={'Key selected from external URL response'}
@@ -164,7 +166,27 @@ export const TableRowDetailFile: React.FC<Props> = ({
             </AdditionalInfoWrapper>
           }
         />
-        <p className={'text-transform-none'}>{selected_key}</p>
+        <p className={'text-transform-none'}>{selectedKey}</p>
+      </DetailRow>
+    )}
+    {selectedKey && (
+      <DetailRow>
+        <Popup
+          content={
+            'Specifies the starting path in the JSON structure from which data is extracted. If not set, the default root is used.'
+          }
+          inverted
+          mouseEnterDelay={50}
+          position={'top left'}
+          size='mini'
+          trigger={
+            <AdditionalInfoWrapper>
+              <img src={InfoImage} />
+              <p>json root path</p>
+            </AdditionalInfoWrapper>
+          }
+        />
+        <p className={'text-transform-none'}>{jsonRootPath}</p>
       </DetailRow>
     )}
   </DetailElementWrapper>

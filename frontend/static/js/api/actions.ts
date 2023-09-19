@@ -8,7 +8,7 @@ import {
   FetchUploadListResponse,
   TaskResult,
 } from './types';
-import { FileType } from '../components/body/upload/types';
+import { FileType } from '../components/body/upload_csv/types';
 import { TaskType } from '../redux/TaskListReducer';
 
 const convertKeysToSnakeCase = (obj: any): any =>
@@ -95,6 +95,7 @@ export async function deleteUploadFile(uuid: string): Promise<{ csvfile_uuid: st
 export async function enrichFile(
   uuid: string,
   enrichUrl: string,
+  jsonRootPath: string,
 ): Promise<{ task_id: string; csv_file_uuid: string }> {
   /**
    * Endpoint to initiate the enrichment of a CSV file using data from an external URL.
@@ -105,6 +106,7 @@ export async function enrichFile(
 
   const { data } = await api.post(`/api/_internal/csv_list/${uuid}/enrich_detail_create`, {
     external_url: enrichUrl,
+    json_root_path: jsonRootPath,
   });
   return data;
 }

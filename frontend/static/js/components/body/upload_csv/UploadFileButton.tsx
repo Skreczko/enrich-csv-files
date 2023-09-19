@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { CustomButton, HiddenUploadInput } from '../../utils/CustomButton.styled';
+import { CustomButton, HiddenUploadInput } from '../CustomButton.styled';
 
 type Props = {
   onAdd: (file: File[]) => void;

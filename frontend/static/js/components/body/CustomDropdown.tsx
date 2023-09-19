@@ -7,7 +7,7 @@ import {
   DropdownItemEnum,
   DropdownOptions,
   DropdownValueType,
-} from './upload_list/list_management/types';
+} from './upload_list/table_management/types';
 
 type Props = {
   clearable?: boolean;

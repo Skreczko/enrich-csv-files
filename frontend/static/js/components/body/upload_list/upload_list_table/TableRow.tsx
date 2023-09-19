@@ -7,7 +7,7 @@ import MaximizeImage from '../../../../../img/body/list/maximize.png';
 import { Popup } from 'semantic-ui-react';
 import { TableRowStatusDetails } from './types';
 import { Link } from 'react-router-dom';
-import { ProgressBar, ProgressBarFiller } from '../../upload/UploadedFileListRowDetail.styled';
+import { ProgressBar, ProgressBarFiller } from '../../upload_csv/UploadedFileListRowDetail.styled';
 import { lightGrey } from '../../../../App.styled';
 import { TableRowDetailSection } from './TableRowDetailSection';
 import { TableCellActions } from './TableCellActions';

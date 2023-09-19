@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { tableMainColor } from '../../../../App.styled';
-import { TableGrid } from './UploadTable.styled';
+import { TableGrid } from './UploadListTable.styled';
 
 export const TableHeaderWrapper = styled(TableGrid)`
   width: 100%;
