@@ -22,6 +22,7 @@ type Props = {
   jsonRootPath?: string;
   selectedHeader?: string;
   selectedKey?: string;
+  showJsonRootPath: boolean;
   uuid: string;
 };
 
@@ -36,6 +37,7 @@ export const TableRowDetailFile: React.FC<Props> = ({
   jsonRootPath,
   selectedHeader,
   selectedKey,
+  showJsonRootPath,
   uuid,
 }) => (
   <DetailElementWrapper>
@@ -169,7 +171,7 @@ export const TableRowDetailFile: React.FC<Props> = ({
         <p className={'text-transform-none'}>{selectedKey}</p>
       </DetailRow>
     )}
-    {selectedKey && (
+    {showJsonRootPath && (
       <DetailRow>
         <Popup
           content={

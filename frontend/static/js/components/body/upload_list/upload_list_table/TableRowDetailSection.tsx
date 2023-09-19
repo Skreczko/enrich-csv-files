@@ -41,6 +41,7 @@ export const TableRowDetailSection: React.FC<Props> = ({ fileElement }) => {
             jsonRootPath={fileElement?.enrich_detail?.json_root_path}
             selectedHeader={fileElement?.enrich_detail?.selected_header}
             selectedKey={fileElement?.enrich_detail?.selected_key}
+            showJsonRootPath={!!fileElement.enrich_detail}
             uuid={fileElement.uuid}
           />
           {fileElement?.source_instance && (
