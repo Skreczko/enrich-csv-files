@@ -23,7 +23,7 @@ export const PageSizeDropdown: React.FC = () => {
         options={pageSizeOptions}
         value={paginator?.page_size}
         onClick={(value): Promise<void> => fetchListData({ page_size: value as number, page: 1 })}
-        placeholderOnSelected={'Per page'}
+        placeholderOnSelected={'Per page:'}
         placeholderOnChoice={'Select per page'}
         width={'120px'}
       />

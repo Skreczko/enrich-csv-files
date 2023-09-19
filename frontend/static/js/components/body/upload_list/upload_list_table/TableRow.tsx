@@ -16,7 +16,8 @@ type Props = {
   counter: number;
   fileElement: CsvFileElement;
   onOpenDeleteModal: () => void;
-  onOpenEnrichModal: () => void;
+  onOpenEnrichStep1Modal: () => void;
+  onOpenEnrichStep2Modal: () => void;
   statusDetail: TableRowStatusDetails;
 };
 
@@ -24,7 +25,8 @@ export const TableRow: React.FC<Props> = ({
   counter,
   fileElement,
   onOpenDeleteModal,
-  onOpenEnrichModal,
+  onOpenEnrichStep1Modal,
+  onOpenEnrichStep2Modal,
   statusDetail,
 }) => {
   const [openDetails, setOpenDetails] = useState(false);
@@ -89,7 +91,8 @@ export const TableRow: React.FC<Props> = ({
         </TableCell>
         <TableCellActions
           onOpenDeleteModal={onOpenDeleteModal}
-          onOpenEnrichModal={onOpenEnrichModal}
+          onOpenEnrichStep1Modal={onOpenEnrichStep1Modal}
+          onOpenEnrichStep2Modal={onOpenEnrichStep2Modal}
           status={status}
         />
       </CsvElementRow>

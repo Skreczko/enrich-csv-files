@@ -56,7 +56,7 @@ export const Sorting: React.FC = () => {
         options={sortOptions}
         value={sort}
         onClick={(value): Promise<void> => fetchListData({ sort: value as SortList, page: 1 })}
-        placeholderOnSelected={'Sorted by'}
+        placeholderOnSelected={'Sorted by:'}
         placeholderOnChoice={'Select sorting'}
         width={'220px'}
       />

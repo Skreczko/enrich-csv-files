@@ -27,6 +27,10 @@ export const CustomDatePickerWrapper = styled.div<{ width?: string }>`
       background-color: ${tableMainColor};
     }
 
+    &__aria-live {
+      display: none;
+    }
+
     &__input-container {
       width: ${({ width }): string => width ?? '150px'};
 

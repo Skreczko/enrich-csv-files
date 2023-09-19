@@ -11,6 +11,7 @@ import {
 
 type Props = {
   clearable?: boolean;
+  defaultValue?: string;
   onClick: (value: DropdownValueType) => void;
   options: DropdownOptions[];
   placeholderOnChoice: string;
@@ -21,6 +22,7 @@ type Props = {
 
 export const CustomDropdown: React.FC<Props> = ({
   clearable,
+  defaultValue,
   onClick,
   options,
   placeholderOnChoice,
@@ -65,7 +67,8 @@ export const CustomDropdown: React.FC<Props> = ({
         clearable={clearable ?? false}
         onChange={handleChange}
         value={selectedValue}
-        text={selectedValue ? `${placeholderOnSelected}: ${selectedText}` : placeholderOnChoice}
+        text={selectedValue ? `${placeholderOnSelected} ${selectedText}` : placeholderOnChoice}
+        defaultValue={defaultValue}
       >
         <Dropdown.Menu>
           {options.map(

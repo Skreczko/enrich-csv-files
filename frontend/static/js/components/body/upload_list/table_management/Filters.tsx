@@ -40,7 +40,7 @@ export const Filters: React.FC = () => {
             page: 1,
           })
         }
-        placeholderOnSelected={'File type'}
+        placeholderOnSelected={'File type:'}
         placeholderOnChoice={'Filter by: File type'}
         width={'150px'}
       />
@@ -57,7 +57,7 @@ export const Filters: React.FC = () => {
             page: 1,
           })
         }
-        placeholderOnSelected={'Status'}
+        placeholderOnSelected={'Status:'}
         placeholderOnChoice={'Filter by: Status'}
         width={'150px'}
       />
@@ -72,7 +72,7 @@ export const Filters: React.FC = () => {
           })
         }
         placeholderOnChoice={'Filter by: Created from'}
-        placeholderOnSelected={'Created from'}
+        placeholderOnSelected={'Created from:'}
         selectedDate={filters.date_from}
         maxDate={filters.date_to}
         width={'200px'}
@@ -88,7 +88,7 @@ export const Filters: React.FC = () => {
           })
         }
         placeholderOnChoice={'Filter by: Created to'}
-        placeholderOnSelected={'Created to'}
+        placeholderOnSelected={'Created to:'}
         selectedDate={filters.date_to}
         minDate={filters.date_from}
         width={'200px'}

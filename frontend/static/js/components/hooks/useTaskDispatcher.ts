@@ -88,7 +88,7 @@ export const useTaskDispatcher = (): {
         dispatch(
           setNotificationPopupOpen({
             appearance: NotificationAppearanceEnum.ERROR,
-            content: 'An error occurred enrichment process',
+            content: 'An error occurred during enrichment process.',
           }),
         );
       }

@@ -28,7 +28,7 @@ export const UploadList: React.FC = () => {
       // clear current timeout every component close
       clearTimeoutRef();
       if (!Object.keys(taskObject).length) {
-        // for situation where all tasks has been finished.
+        // for situation where all tasks have been finished.
         callCounter.current = 0;
       }
     };
