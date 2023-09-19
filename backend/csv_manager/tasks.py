@@ -88,6 +88,11 @@ def process_fetch_external_url(
             status=EnrichmentStatus.FAILED_FETCHING_RESPONSE
         )
 
+    # Determine the root path in the JSON structure from which data should be extracted.
+    # If a specific root path is provided in the `enrich_detail`, it's used as the base path and appended with ".item".
+    # Otherwise, the default "item" is used as the root path.
+    json_root_path = f"{enrich_detail.json_root_path}.item" if enrich_detail.json_root_path else "item"
+
     # Use a temporary file to stream the content
     with NamedTemporaryFile(delete=True) as temp_file:
         for chunk in response.iter_content(
@@ -98,7 +103,7 @@ def process_fetch_external_url(
         # Use ijson to process the JSON file piece by piece
         temp_file.seek(0)
         items = ijson.items(
-            temp_file, "item"
+            temp_file, json_root_path
         )  # 'item' is a placeholder, adjust if the JSON structure is different
         try:
             first_item = next(items, None)
@@ -112,7 +117,7 @@ def process_fetch_external_url(
             EnrichDetail.objects.filter(uuid=enrich_detail_uuid).update(
                 status=EnrichmentStatus.FAILED_FETCHING_RESPONSE_EMPTY_JSON
             )
-            raise ValueError("The JSON response is empty")
+            raise ValueError("The JSON response is empty or URL JSON root path is wrong")
 
         temp_file.seek(0)
         filename = f"{enrich_detail_uuid}.json"
@@ -125,7 +130,7 @@ def process_fetch_external_url(
         # After consuming the first item from the 'items' generator, it becomes exhausted for that item.
         # Hence, we create a new generator 'items_for_count' to count the total number of items.
         temp_file.seek(0)
-        items_for_count = ijson.items(temp_file, "item")
+        items_for_count = ijson.items(temp_file, json_root_path)
         enrich_detail.external_elements_count = sum(1 for _ in items_for_count)
 
         enrich_detail.status = EnrichmentStatus.AWAITING_COLUMN_SELECTION

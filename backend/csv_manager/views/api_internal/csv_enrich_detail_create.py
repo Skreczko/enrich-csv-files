@@ -41,6 +41,7 @@ def csv_enrich_detail_create(
     enrich_model = EnrichDetail.objects.create(
         csv_file_id=csv_file_instance.uuid,
         external_url=request_form.cleaned_data["external_url"],
+        json_root_path=request_form.cleaned_data["json_root_path"],
     )
     task = cast(Task, process_fetch_external_url).apply_async(
         args=(),

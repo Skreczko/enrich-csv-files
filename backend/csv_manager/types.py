@@ -67,6 +67,7 @@ class EnrichDetailSerializerType(TypedDict):
     external_url: str
     is_flat: bool
     join_type: EnrichmentJoinType
+    json_root_path: str
     selected_header: str
     selected_key: str
     uuid: str
