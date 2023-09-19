@@ -91,7 +91,11 @@ def process_fetch_external_url(
     # Determine the root path in the JSON structure from which data should be extracted.
     # If a specific root path is provided in the `enrich_detail`, it's used as the base path and appended with ".item".
     # Otherwise, the default "item" is used as the root path.
-    json_root_path = f"{enrich_detail.json_root_path}.item" if enrich_detail.json_root_path else "item"
+    json_root_path = (
+        f"{enrich_detail.json_root_path}.item"
+        if enrich_detail.json_root_path
+        else "item"
+    )
 
     # Use a temporary file to stream the content
     with NamedTemporaryFile(delete=True) as temp_file:
@@ -117,7 +121,9 @@ def process_fetch_external_url(
             EnrichDetail.objects.filter(uuid=enrich_detail_uuid).update(
                 status=EnrichmentStatus.FAILED_FETCHING_RESPONSE_EMPTY_JSON
             )
-            raise ValueError("The JSON response is empty or URL JSON root path is wrong")
+            raise ValueError(
+                "The JSON response is empty or URL JSON root path is wrong"
+            )
 
         temp_file.seek(0)
         filename = f"{enrich_detail_uuid}.json"

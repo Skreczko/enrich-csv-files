@@ -152,7 +152,7 @@ class EnrichDetail(models.Model):
     )
     json_root_path = models.TextField(
         default="",
-        help_text="Path pointing to the root element in the JSON structure from which data should be extracted. Use this path if the data you want to process isn't directly at the top level of the JSON."
+        help_text="Path pointing to the root element in the JSON structure from which data should be extracted. Use this path if the data you want to process isn't directly at the top level of the JSON.",
     )
     # For future development - that should include type of data related to key. check docstring for csv_enrich_file_create view for more details
     external_elements_key_list = models.JSONField(

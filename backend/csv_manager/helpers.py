@@ -5,7 +5,11 @@ from django.db.models import Case, F, Value, When
 
 from csv_manager.enums import EnrichmentStatus
 from csv_manager.models import CSVFile
-from csv_manager.types import CSVDetailResult, EnrichDetailSerializerType, SourceInstanceSerializerType
+from csv_manager.types import (
+    CSVDetailResult,
+    EnrichDetailSerializerType,
+    SourceInstanceSerializerType,
+)
 from transformer.exceptions import SerializationError
 from transformer.serializers import serialize_queryset
 
@@ -73,14 +77,8 @@ def get_and_serialize_csv_detail(uuid: str) -> CSVDetailResult:
         )
     except SerializationError as e:
         return {
-                "error": f"Could not serialize field {e.field} of instance {e.instance}",
-            "status": HTTPStatus.INTERNAL_SERVER_ERROR
-            }
-
-
-    return {
-            "csv_detail": result[0],
-        "status": HTTPStatus.OK
+            "error": f"Could not serialize field {e.field} of instance {e.instance}",
+            "status": HTTPStatus.INTERNAL_SERVER_ERROR,
         }
 
-
+    return {"csv_detail": result[0], "status": HTTPStatus.OK}

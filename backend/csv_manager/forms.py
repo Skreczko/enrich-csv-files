@@ -70,7 +70,6 @@ class CSVEnrichDetailCreateRequestForm(forms.Form):
     json_root_path = forms.CharField(required=False)
 
 
-
 class CSVEnrichFileRequestForm(forms.Form):
     enrich_detail_uuid = forms.CharField()
     selected_merge_key = forms.CharField()

@@ -29,7 +29,6 @@ def csv_detail_get(
     serialized_csv_detail = get_and_serialize_csv_detail(uuid=uuid)
     status = serialized_csv_detail.pop("status")
 
-
     return JsonResponse(
         serialized_csv_detail.get("csv_detail", serialized_csv_detail.get("error")),
         status=status,
