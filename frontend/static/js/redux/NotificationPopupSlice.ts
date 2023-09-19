@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { NotificationAppearanceEnum } from '../components/notification/NotificationPopup';
 
-const NOTIFICATION_MAX_MESSAGES = 5;
+const NOTIFICATION_MAX_MESSAGES = 3;
 
 export interface NotificationPopupData {
   additionalContent?: string;

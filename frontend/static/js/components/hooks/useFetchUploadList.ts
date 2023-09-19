@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setFileList, setIsLoading, setPaginator } from '../../../redux/FileListSlice';
-import { fetchUploadList } from '../../../api/actions';
-import { RootState } from '../../../redux/store';
-import { FileListParamState, setParams } from '../../../redux/fileListParamSlice';
+import { setFileList, setIsLoading, setPaginator } from '../../redux/FileListSlice';
+import { fetchUploadList } from '../../api/actions';
+import { RootState } from '../../redux/store';
+import { FileListParamState, setParams } from '../../redux/FileListParamSlice';
 import { useLocation } from 'react-router-dom';
 
 export const useFetchUploadList = (): ((

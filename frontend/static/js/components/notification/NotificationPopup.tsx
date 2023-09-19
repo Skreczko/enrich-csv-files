@@ -9,7 +9,7 @@ import {
 import { RootState } from '../../redux/store';
 import { NotificationWrapper } from './NotificationPopup.styled';
 import { Message } from 'semantic-ui-react';
-import { HTML } from '../utils/HTML';
+import { HTML } from '../body/HTML';
 import ErrorImage from '../../../img/notification/error.png';
 import SuccessImage from '../../../img/notification/success.png';
 import WarningImage from '../../../img/notification/warning.png';

@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { TableRowContainer } from './UploadTable.styled';
+import { TableRowContainer } from './UploadListTable.styled';
 import { tableMainColor } from '../../../../App.styled';
 
 export const TableRowWrapper = styled.div`
@@ -32,6 +32,10 @@ export const TableCell = styled.div<TableCellProps>`
     color: inherit;
     background-color: transparent;
     cursor: pointer;
+    text-transform: none;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
   p {
     text-transform: none;

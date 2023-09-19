@@ -3,7 +3,7 @@ import { FiltersWrappers } from './Filters.styled';
 import FilterImage from '../../../../../img/body/list/filter2.png';
 import { CustomDropdown } from '../../CustomDropdown';
 import { DropdownItemEnum, DropdownOptions } from './types';
-import { useFetchUploadList } from '../useFetchUploadList';
+import { useFetchUploadList } from '../../../hooks/useFetchUploadList';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../../redux/store';
 import { CustomDatePicker } from '../../CustomDatePicker';

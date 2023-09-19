@@ -153,6 +153,13 @@ def serialize_instance(*, instance: T, fields: FieldsType = None) -> dict[str, A
 
     for field, value in serialized.items():
         if isinstance(value, FieldFile):
-            serialized[field] = FileFieldType(url=value.url, size=value.size)
-
+            try:
+                serialized[field] = FileFieldType(url=value.url, size=value.size)
+            except ValueError:
+                # that means user selected file to enrich, made a request with external_url but didnt select columns to merge.
+                # this instance will be deleted with user (frontend show that this instance is not valid or removed with celery schedule task - clear_empty_csvfile)
+                serialized[field] = None
+            except FileNotFoundError:
+                # that mean someone has deleted related file
+                serialized[field] = "Not found"
     return serialized

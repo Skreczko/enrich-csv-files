@@ -1,11 +1,11 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { RootState } from '../../../redux/store';
-import { useFetchUploadList } from './useFetchUploadList';
+import { RootState } from '../../../../redux/store';
+import { useFetchUploadList } from '../../../hooks/useFetchUploadList';
 import { PageSizeWrapper } from './PageSizeDropdown.styled';
-import { PaginatorType } from '../../../api/types';
-import { CustomDropdown } from '../CustomDropdown';
-import { DropdownItemEnum, DropdownOptions } from './list_management/types';
+import { PaginatorType } from '../../../../api/types';
+import { CustomDropdown } from '../../CustomDropdown';
+import { DropdownItemEnum, DropdownOptions } from './types';
 
 const pageSizeOptions: DropdownOptions[] = [
   { type: DropdownItemEnum.OPTION, value: 10, text: '10' },

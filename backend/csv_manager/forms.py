@@ -67,6 +67,7 @@ class CSVLPreviewChunkRequestForm(forms.Form):
 
 class CSVEnrichDetailCreateRequestForm(forms.Form):
     external_url = forms.URLField()
+    json_root_path = forms.CharField(required=False)
 
 
 class CSVEnrichFileRequestForm(forms.Form):

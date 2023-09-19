@@ -1,8 +1,8 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { RootState } from '../../../redux/store';
-import { PaginatorType } from '../../../api/types';
-import { useFetchUploadList } from './useFetchUploadList';
+import { RootState } from '../../../../redux/store';
+import { PaginatorType } from '../../../../api/types';
+import { useFetchUploadList } from '../../../hooks/useFetchUploadList';
 import { PaginatorWrapper } from './Paginator.styled';
 
 export const Paginator: React.FC = () => {
@@ -12,7 +12,8 @@ export const Paginator: React.FC = () => {
   );
 
   const onChangePageNumber = ({ selected }: { selected: number }): void => {
-    fetchListData({ page: selected + 1 });
+    const selectedPage = selected + 1;
+    if (selectedPage !== page) fetchListData({ page: selectedPage });
   };
 
   return (

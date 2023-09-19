@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { mainGreen } from '../../../../App.styled';
+import { mainGreen } from '../../../../../App.styled';
 
 export const EnrichModalWrapper = styled.div`
   .file {
@@ -23,6 +23,7 @@ export const EnrichModalURLInput = styled.input`
   padding: 13px;
   border: 1px solid darkgray;
   width: 70%;
+
   &:focus {
     border: 1px solid ${mainGreen};
     outline: none;
@@ -38,4 +39,21 @@ export const EnrichModalError = styled.div`
     width: 12px;
     margin-right: 5px;
   }
+`;
+
+export const EnrichModalJsonRootWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  margin-top: 20px;
+
+  img {
+    height: 20px;
+    width: 20px;
+    margin-left: 10px;
+    cursor: pointer;
+  }
+`;
+
+export const EnrichModalJsonRootInput = styled(EnrichModalURLInput)`
+  width: 35%;
 `;

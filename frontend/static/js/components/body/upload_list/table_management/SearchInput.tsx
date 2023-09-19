@@ -4,8 +4,8 @@ import { SearchIconWrapper, SearchInputWrapper, StyledInput } from './SearchInpu
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../../redux/store';
 import _ from 'lodash';
-import { FileListParamState } from '../../../../redux/fileListParamSlice';
-import { useFetchUploadList } from '../useFetchUploadList';
+import { FileListParamState } from '../../../../redux/FileListParamSlice';
+import { useFetchUploadList } from '../../../hooks/useFetchUploadList';
 
 export const SearchInput: React.FC = () => {
   const params: FileListParamState = useSelector((state: RootState) => state.fileListParam);

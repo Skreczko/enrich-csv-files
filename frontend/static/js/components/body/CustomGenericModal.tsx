@@ -3,11 +3,11 @@ import { Button, Modal } from 'semantic-ui-react';
 import { SemanticCOLORS } from 'semantic-ui-react/src/generic';
 
 type Props = {
-  actionLabel: string;
-  actionLabelColor: SemanticCOLORS;
+  actionLabel?: string;
+  actionLabelColor?: SemanticCOLORS;
   children: React.ReactNode;
   header: string;
-  onAction: () => void;
+  onAction?: () => void;
   onClose: () => void;
   open: boolean;
   subHeader?: string;
@@ -23,7 +23,7 @@ export const CustomGenericModal: React.FC<Props> = ({
   open,
   subHeader,
 }) => (
-  <Modal onClose={onClose} open={open}>
+  <Modal onClose={onClose} open={open} closeOnDimmerClick={false}>
     <Modal.Header>{header}</Modal.Header>
     <Modal.Content>
       {!!subHeader && (
@@ -38,14 +38,16 @@ export const CustomGenericModal: React.FC<Props> = ({
       <Button color='grey' onClick={onClose}>
         Close
       </Button>
-      <Button
-        color={actionLabelColor}
-        onClick={(): void => {
-          onAction();
-        }}
-      >
-        {actionLabel}
-      </Button>
+      {onAction && (
+        <Button
+          color={actionLabelColor}
+          onClick={(): void => {
+            onAction();
+          }}
+        >
+          {actionLabel}
+        </Button>
+      )}
     </Modal.Actions>
   </Modal>
 );
