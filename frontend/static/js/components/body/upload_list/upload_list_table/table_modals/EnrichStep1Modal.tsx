@@ -2,18 +2,16 @@ import React, { useState } from 'react';
 import { CustomGenericModal } from '../../../CustomGenericModal';
 import { truncateString } from '../../../../notification/helpers';
 import { CsvFileElement } from '../../../../../api/types';
-import {
-  EnrichModalDescription,
-  EnrichModalError,
-  EnrichModalJsonRootInput,
-  EnrichModalJsonRootWrapper,
-  EnrichModalURLInput,
-  EnrichModalWrapper,
-} from './TableModals.style';
 import InfoImage from '../../../../../../img/notification/info.png';
 import ErrorImage from '../../../../../../img/notification/error.png';
 import QuestionMarkImage from '../../../../../../img/body/list/question-mark.png';
 import isURL from 'validator/lib/isURL';
+import {
+  EnrichModalDescription,
+  EnrichModalError, EnrichModalJsonRootInput, EnrichModalJsonRootWrapper,
+  EnrichModalURLInput,
+  EnrichModalWrapper,
+} from './EnrichStep1Modal.styled';
 
 type Props = {
   onAction: (enrichUrl: string, jsonRootPath: string) => void;
@@ -23,7 +21,7 @@ type Props = {
   selectedFileElement: CsvFileElement;
 };
 
-export const EnrichModal: React.FC<Props> = ({
+export const EnrichStep1Modal: React.FC<Props> = ({
   onAction,
   onClose,
   onOpenEnrichJsonRootPathModal,

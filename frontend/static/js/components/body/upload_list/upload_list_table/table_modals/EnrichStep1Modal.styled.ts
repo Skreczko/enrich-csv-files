@@ -23,9 +23,21 @@ export const EnrichModalURLInput = styled.input`
   padding: 13px;
   border: 1px solid darkgray;
   width: 70%;
+
   &:focus {
     border: 1px solid ${mainGreen};
     outline: none;
+  }
+`;
+
+export const EnrichModalError = styled.div`
+  display: flex;
+  align-items: center;
+  color: red;
+  img {
+    height: 12px;
+    width: 12px;
+    margin-right: 5px;
   }
 `;
 
@@ -44,36 +56,4 @@ export const EnrichModalJsonRootWrapper = styled.div`
 
 export const EnrichModalJsonRootInput = styled(EnrichModalURLInput)`
   width: 35%;
-`;
-
-export const EnrichModalError = styled.div`
-  display: flex;
-  align-items: center;
-  color: red;
-  img {
-    height: 12px;
-    width: 12px;
-    margin-right: 5px;
-  }
-`;
-
-export const EnrichModalJsonRootPathModalBody = styled.div`
-  display: grid;
-  grid-template-columns: 50% 50%;
-  gap: 10px;
-  justify-content: left;
-  align-items: center;
-
-  code {
-    font-size: 14px;
-  }
-
-  .inputValue {
-    margin-top: 20px;
-  }
-
-  span {
-    font-weight: bold;
-    color: red;
-  }
 `;

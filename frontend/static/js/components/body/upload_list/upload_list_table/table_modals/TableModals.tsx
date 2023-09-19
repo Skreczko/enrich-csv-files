@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { CsvFileElement } from '../../../../../api/types';
 import { DeleteModal } from './DeleteModal';
-import { EnrichModal } from './EnrichModal';
+import { EnrichStep1Modal } from './EnrichStep1Modal';
 import { EnrichJsonRootPathInfoModal } from './EnrichJsonRootPathInfoModal';
 
 type Props = {
@@ -36,7 +36,7 @@ export const TableModals: React.FC<Props> = ({
         />
       )}
       {openEnrichModal && (
-        <EnrichModal
+        <EnrichStep1Modal
           onAction={onEnrichAction}
           onClose={onCloseEnrichModal}
           onOpenEnrichJsonRootPathModal={(): void => setOpenEnrichJsonRootPathInfoModal(true)}
