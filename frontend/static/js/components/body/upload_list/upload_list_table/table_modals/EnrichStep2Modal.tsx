@@ -1,18 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { CustomGenericModal } from '../../../CustomGenericModal';
 import { truncateString } from '../../../../notification/helpers';
-import { CsvFileElement, EnrichmentJoinType } from '../../../../../api/types';
+import { CsvFileElement, EnrichFileRequest, EnrichmentJoinType } from '../../../../../api/types';
 import InfoImage from '../../../../../../img/notification/info.png';
-import { EnrichModalDescription, EnrichModalWrapper } from './EnrichStep1Modal.styled';
+import MergeImage from '../../../../../../img/body/list/merge.png';
+import CsvImage from '../../../../../../img/body/list/csv.png';
+import JsonImage from '../../../../../../img/body/list/json.png';
+import FlattenedImage from '../../../../../../img/body/list/flatenned.png';
+import {
+  EnrichModalDescription,
+  EnrichModalError,
+  EnrichModalWrapper,
+} from './EnrichStep1Modal.styled';
 import {
   EnrichJoinTypeDescription,
   EnrichProcessSelectionWrapper,
+  EnrichStep2CustomDropdownWrapper,
 } from './EnrichStep2Modal.styled';
 import { CustomDropdown } from '../../../CustomDropdown';
 import { DropdownItemEnum, DropdownOptions } from '../../table_management/types';
 import { useFetchUploadDetail } from '../../../../hooks/useFetchUploadDetail';
 import { Spinner } from '../../../Spinner';
-import MergeImage from '../../../../../../img/body/list/merge.png';
+import { Checkbox, Popup } from 'semantic-ui-react';
+import ErrorImage from '../../../../../../img/notification/error.png';
+import QuestionMarkImage from '../../../../../../img/body/list/question-mark.png';
+import { AdditionalInfoWrapper } from '../TableRowDetailSection.styled';
 
 const joinTypeOptions: DropdownOptions[] = [
   { type: DropdownItemEnum.OPTION, value: EnrichmentJoinType.LEFT, text: 'Left' },
@@ -32,8 +44,15 @@ const joinTypeDescription = (joinType: EnrichmentJoinType): string => {
 };
 
 type Props = {
-  onAction: (enrichUrl: string, jsonRootPath: string) => void;
+  onAction: ({
+    flattenJson,
+    selectedCsvHeader,
+    selectedJoinType,
+    selectedJsonKey,
+  }: Omit<EnrichFileRequest, 'enrichDetailUuid'>) => void;
   onClose: () => void;
+  setOpenJoinTypeModal: () => void;
+  setOpenFlattenStructureModal: () => void;
   open: boolean;
   selectedFileElement: CsvFileElement;
 };
@@ -43,11 +62,18 @@ export const EnrichStep2Modal: React.FC<Props> = ({
   onClose,
   open,
   selectedFileElement,
+  setOpenJoinTypeModal,
+  setOpenFlattenStructureModal,
 }) => {
   const fetchDetailedData = useFetchUploadDetail();
+
   const [selectedCsvHeader, setSelectedCsvHeader] = useState<string>(null);
+  const [selectedCsvHeaderError, setSelectedCsvHeaderError] = useState(false);
   const [selectedJsonKey, setSelectedJsonKey] = useState<string>(null);
+  const [selectedJsonKeyError, setSelectedJsonKeyError] = useState(false);
   const [selectedJoinType, setSelectedJoinType] = useState<EnrichmentJoinType>(null);
+  const [selectedJoinTypeError, setSelectedJoinTypeError] = useState(false);
+  const [flattenJson, setFlattenJson] = useState(false);
 
   useEffect(() => {
     if (!selectedFileElement.fetchedDetailInfo) fetchDetailedData(selectedFileElement.uuid);
@@ -56,12 +82,25 @@ export const EnrichStep2Modal: React.FC<Props> = ({
   }, [selectedFileElement]);
 
   const handleEnrichActionWithValidation = (): void => {
-    // if (isURL(enrichInputValue)) {
-    //   onAction(enrichInputValue, enrichJsonRootPath);
-    //   handleEnrichOnCLose();
-    // } else {
-    //   setEnrichInputError(true);
-    // }
+    if (!selectedCsvHeader) {
+      setSelectedCsvHeaderError(true);
+    }
+    if (!selectedJsonKey) {
+      setSelectedJsonKeyError(true);
+    }
+    if (!selectedJoinType) {
+      setSelectedJoinTypeError(true);
+    } else {
+      onAction({
+        selectedCsvHeader,
+        selectedJoinType,
+        selectedJsonKey,
+        flattenJson,
+      });
+      onClose();
+      // handleEnrichOnCLose();
+      // setEnrichInputError(true);
+    }
   };
 
   const handleEnrichOnCLose = (): void => {
@@ -74,17 +113,18 @@ export const EnrichStep2Modal: React.FC<Props> = ({
     <CustomGenericModal
       open={open}
       onClose={onClose}
-      onAction={(): void => console.log(1111111)}
+      onAction={handleEnrichActionWithValidation}
       header={`Enrich file data`}
       subHeader={`Step 2/2: Enrichment process`}
       actionLabel={'Enrich'}
       actionLabelColor={'green'}
+      size={'large'}
     >
       <EnrichModalWrapper>
         <EnrichModalDescription>
           <img src={InfoImage} alt={'info'} />
           <p>
-            Select csv file <b>header</b> and external response <b>JSON key</b> to be connected in
+            Select CSV file <b>header</b> and external response <b>JSON key</b> to be connected in
             enrichment process. Select join type which define how csv file and external resposne
             should be connected.
           </p>
@@ -92,78 +132,135 @@ export const EnrichStep2Modal: React.FC<Props> = ({
 
         <EnrichProcessSelectionWrapper>
           <div className={'center'}>
-            <p>File: </p>
+            <img src={CsvImage} alt={'csvfile'} />
+          </div>
+          <img src={MergeImage} alt={'merge'} />
+          <img src={FlattenedImage} alt={'flattenedimage'} />
+          <div className={'center'}>
+            <img src={JsonImage} alt={'jsonimage'} />
+          </div>
+        </EnrichProcessSelectionWrapper>
+        <EnrichProcessSelectionWrapper>
+          <div className={'center'}>
             <p>
               <b>{truncateString(selectedFileElement.source_original_file_name, 60)}</b>
             </p>
           </div>
-          <img src={MergeImage} alt={'merge'} />
-          <img src={MergeImage} alt={'merge'} />
+          <div></div>
+          <div></div>
+
           <div className={'center'}>
-            <p>URL address: </p>
             <p>
               <b>{truncateString(selectedFileElement.enrich_detail.external_url, 60)}</b>
             </p>
           </div>
         </EnrichProcessSelectionWrapper>
         <EnrichProcessSelectionWrapper>
-          <div>
+          <EnrichStep2CustomDropdownWrapper>
             {!selectedFileElement?.fetchedDetailInfo ? (
               <Spinner />
             ) : (
-              <CustomDropdown
-                options={selectedFileElement.source_instance.file_headers.map(header => ({
-                  type: DropdownItemEnum.OPTION,
-                  value: header,
-                  text: header,
-                }))}
-                value={selectedCsvHeader}
-                onClick={(value): void => setSelectedCsvHeader(value as string)}
-                placeholderOnSelected={'Selected header:'}
-                placeholderOnChoice={'Csv headers'}
-              width={'100%'}
-              />
+              <>
+                <CustomDropdown
+                  options={selectedFileElement.source_instance.file_headers.map(header => ({
+                    type: DropdownItemEnum.OPTION,
+                    value: header,
+                    text: header,
+                  }))}
+                  value={selectedCsvHeader}
+                  onClick={(value): void => {
+                    setSelectedCsvHeader(value as string);
+                    setSelectedCsvHeaderError(false);
+                  }}
+                  placeholderOnSelected={'Selected header:'}
+                  placeholderOnChoice={'Csv headers'}
+                  width={'100%'}
+                />
+                {selectedCsvHeaderError && (
+                  <EnrichModalError>
+                    <img src={ErrorImage} alt={'error'} />
+                    <small>Select CSV file header</small>
+                  </EnrichModalError>
+                )}
+              </>
             )}
-          </div>
-          <div>
+          </EnrichStep2CustomDropdownWrapper>
+          <EnrichStep2CustomDropdownWrapper>
             <CustomDropdown
-              clearable={true}
               options={joinTypeOptions}
               value={selectedJoinType}
-              onClick={(value): void => setSelectedJoinType(value as EnrichmentJoinType)}
+              onClick={(value): void => {
+                setSelectedJoinType(value as EnrichmentJoinType);
+                setSelectedJoinTypeError(false);
+              }}
               placeholderOnSelected={'Selected join type:'}
               placeholderOnChoice={'Join type'}
               width={'100%'}
             />
-          </div>
-          <div>isflat</div>
-          <div>
+            <img src={QuestionMarkImage} alt={'question'} onClick={setOpenJoinTypeModal} />
+            {selectedJoinTypeError && (
+              <EnrichModalError>
+                <img src={ErrorImage} alt={'error'} />
+                <small>Select join type</small>
+              </EnrichModalError>
+            )}
+          </EnrichStep2CustomDropdownWrapper>
+          <EnrichStep2CustomDropdownWrapper>
+            <Checkbox
+              label='Flatten JSON structure'
+              checked={flattenJson}
+              onChange={(e, { checked }): void => setFlattenJson(checked)}
+            />
+            <img src={QuestionMarkImage} alt={'question'} onClick={setOpenFlattenStructureModal} />
+          </EnrichStep2CustomDropdownWrapper>
+          <EnrichStep2CustomDropdownWrapper>
             {!selectedFileElement?.fetchedDetailInfo ? (
               <Spinner />
             ) : (
-              <CustomDropdown
-                options={selectedFileElement.enrich_detail.external_elements_key_list.map(
-                  jsonKey => ({
-                    type: DropdownItemEnum.OPTION,
-                    value: jsonKey,
-                    text: jsonKey,
-                  }),
+              <>
+                <CustomDropdown
+                  options={selectedFileElement.enrich_detail.external_elements_key_list.map(
+                    jsonKey => ({
+                      type: DropdownItemEnum.OPTION,
+                      value: jsonKey,
+                      text: jsonKey,
+                    }),
+                  )}
+                  value={selectedJsonKey}
+                  onClick={(value): void => {
+                    setSelectedJsonKey(value as string);
+                    setSelectedJsonKeyError(false);
+                  }}
+                  placeholderOnSelected={'Selected JSON key:'}
+                  placeholderOnChoice={'JSON key'}
+                  width={'100%'}
+                />
+                <Popup
+                  content={
+                    'Nested objects within your selected JSON key are not yet supported. We currently support only simple values such as strings and numbers.'
+                  }
+                  inverted
+                  mouseEnterDelay={50}
+                  position={'top right'}
+                  size='mini'
+                  trigger={<img src={InfoImage} alt={'info'} />}
+                />
+                {selectedJsonKeyError && (
+                  <EnrichModalError>
+                    <img src={ErrorImage} alt={'error'} />
+                    <small>Select JSON key</small>
+                  </EnrichModalError>
                 )}
-                value={selectedJsonKey}
-                onClick={(value): void => setSelectedJsonKey(value as string)}
-                placeholderOnSelected={'Selected JSON key:'}
-                placeholderOnChoice={'JSON key'}
-              width={'100%'}
-              />
+              </>
             )}
-          </div>
+          </EnrichStep2CustomDropdownWrapper>
         </EnrichProcessSelectionWrapper>
-        {selectedJoinType && (
-          <EnrichJoinTypeDescription>
-            <img src={InfoImage} alt={'info'} />
-            <p>{joinTypeDescription(selectedJoinType)}</p>
-          </EnrichJoinTypeDescription>
-        )}
+        {/*{selectedJoinType && (*/}
+        {/*  <EnrichJoinTypeDescription>*/}
+        {/*    <img src={InfoImage} alt={'info'} />*/}
+        {/*    <p>{joinTypeDescription(selectedJoinType)}</p>*/}
+        {/*  </EnrichJoinTypeDescription>*/}
+        {/*)}*/}
       </EnrichModalWrapper>
     </CustomGenericModal>
   );

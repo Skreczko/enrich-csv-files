@@ -46,12 +46,14 @@ export const EnrichStep1Modal: React.FC<Props> = ({
   };
 
   const handleEnrichActionWithValidation = (): void => {
-    if (isURL(enrichInputValue)) {
-      onAction(enrichInputValue, enrichJsonRootPath);
+    onAction(enrichInputValue, enrichJsonRootPath);
       handleEnrichOnCLose();
-    } else {
-      setEnrichInputError(true);
-    }
+    // if (isURL(enrichInputValue)) {
+    //   onAction(enrichInputValue, enrichJsonRootPath);
+    //   handleEnrichOnCLose();
+    // } else {
+    //   setEnrichInputError(true);
+    // }
   };
 
   const handleEnrichOnCLose = (): void => {

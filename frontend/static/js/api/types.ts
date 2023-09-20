@@ -62,6 +62,14 @@ export type FetchUploadListRequest = {
   sort?: SortList;
 };
 
+export type EnrichFileRequest = {
+  enrichDetailUuid: string;
+  flattenJson: boolean;
+  selectedCsvHeader: string;
+  selectedJoinType: EnrichmentJoinType;
+  selectedJsonKey: string;
+};
+
 export type FetchUploadListResponse = {
   // Matches the structure of backend's  TODO
   result: CsvFileElement[];

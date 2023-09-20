@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { mainGreen, tableMainColor } from '../../App.styled';
+import {customScrollbar} from "./CustomScrollbar";
 
 export const CustomDropdownWrapper = styled.div<{ width?: string }>`
   font-size: 12px !important;
@@ -8,6 +9,12 @@ export const CustomDropdownWrapper = styled.div<{ width?: string }>`
     padding: 5px 10px;
     border: 1px solid lightgray;
     width: ${({ width }): string => width ?? '100px'} !important;
+    
+    .menu {
+      ${customScrollbar};
+      max-height: 300px !important;
+      overflow-y: scroll !important;
+    }
   }
 
   .item {
