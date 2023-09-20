@@ -2,6 +2,7 @@ from typing import Any, cast
 
 from celery import shared_task
 from django.db.models import F
+from petl import FieldSelectionError
 from sentry_sdk import capture_exception  # type: ignore  #todo fix stubs
 
 from csv_manager.enrich_table_joins import create_enrich_table_by_join_type
@@ -192,15 +193,6 @@ def process_csv_enrichment(
             "csv_file",
             "csv_file__source_instance",
         )
-        .only(
-            "status",
-            "join_type",
-            "csv_file__file",
-            "csv_file__original_file_name",
-            "csv_file__uuid",
-            "csv_file__source_instance__file",
-            "csv_file__source_instance__original_file_name",
-        )
         .get(uuid=enrich_detail_uuid)
     )
 
@@ -210,14 +202,20 @@ def process_csv_enrichment(
     csvfile_instance = enrich_detail_instance.csv_file
     source_csvfile_instance = csvfile_instance.source_instance
 
-    output_path = create_enrich_table_by_join_type(
-        join_type=cast(
-            EnrichmentJoinType, enrich_detail_instance.join_type
-        ),  # mypy has problem, as in database its null=True, blank=True, but that value will be assigned when it reach this place (CSVEnrichFileRequestForm)
-        enriched_csv_file_name=str(csvfile_instance.uuid),
-        source_instance_file_path=source_csvfile_instance.file.path,  # type: ignore #same as above
-        enrich_detail_instance=enrich_detail_instance,
-    )
+    try:
+        output_path = create_enrich_table_by_join_type(
+            join_type=cast(
+                EnrichmentJoinType, enrich_detail_instance.join_type
+            ),  # mypy has problem, as in database its null=True, blank=True, but that value will be assigned when it reach this place (CSVEnrichFileRequestForm)
+            enriched_csv_file_name=str(csvfile_instance.uuid),
+            source_instance_file_path=source_csvfile_instance.file.path,  # type: ignore #same as above
+            enrich_detail_instance=enrich_detail_instance,
+        )
+    except (ValueError, FieldSelectionError):
+        enrich_detail_instance.status = EnrichmentStatus.FAILED_ENRICHING
+        enrich_detail_instance.save(update_fields=("status",))
+        raise
+
 
     # take into account potential SuspiciousFileOperation for future development when storing file in different path than project
     csvfile_instance.file.name = output_path

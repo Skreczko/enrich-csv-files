@@ -1,6 +1,8 @@
 from collections.abc import Iterable
 from typing import Any
 
+from petl import FieldSelectionError
+
 from csv_manager.enums import EnrichmentJoinType
 import petl as etl
 import ijson.backends.yajl2 as ijson
@@ -17,8 +19,10 @@ def create_csv_from_table(merged_table: Any, output_path: str) -> str:
     :param output_path: The path where the CSV file should be saved.
     :return: The path to the created CSV file.
     """
-
-    etl.tocsv(merged_table, output_path)
+    try:
+        etl.tocsv(merged_table, output_path)
+    except FieldSelectionError:
+        raise FieldSelectionError(output_path.rsplit("/", 1)[-1])
     return output_path
 
 
@@ -144,8 +148,17 @@ def create_enrich_table_by_join_type(
             :yield: A flattened dictionary for each item in the JSON file.
             """
 
+            # Determine the root path in the JSON structure from which data should be extracted.
+            # If a specific root path is provided in the `enrich_detail`, it's used as the base path and appended with ".item".
+            # Otherwise, the default "item" is used as the root path.
+            json_root_path = (
+                f"{enrich_detail_instance.json_root_path}.item"
+                if enrich_detail_instance.json_root_path
+                else "item"
+            )
+
             with open(enrich_detail_instance.external_response.path) as f:
-                for item in ijson.items(f, "item"):
+                for item in ijson.items(f, json_root_path):
                     flattened_item = flatdict.FlatDict(item, delimiter="_")
                     yield dict(
                         flattened_item
