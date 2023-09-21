@@ -121,7 +121,6 @@ export const TableModals: React.FC<Props> = ({
         }),
       );
       dispatch(setTask({ [task_id]: { instance: 'CsvFile', uuid: csv_file_uuid } }));
-      // fetchListData();
     } catch (e) {
       dispatch(
         setNotificationPopupOpen({

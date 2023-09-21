@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { removeTasks, TaskType } from '../../redux/TaskListReducer';
 import { RootState } from '../../redux/store';
 import { fetchTaskResults } from '../../api/actions';
-import { CeleryTaskStatus } from '../../api/enums';
+import { CeleryTaskStatus, EnrichDetailStatus } from '../../api/enums';
 import { updateFileElement } from '../../redux/FileListSlice';
 import { useFetchUploadDetail } from './useFetchUploadDetail';
 import { setNotificationPopupOpen } from '../../redux/NotificationPopupSlice';
@@ -47,7 +47,8 @@ export const useTaskDispatcher = (): {
   };
 
   const taskDispatcher = async (taskIds: string[]): Promise<any> => {
-    const successIds: string[] = [];
+    const successCompletedIds: string[] = [];
+    const successNextStepdIds: string[] = [];
     const pendingIds: string[] = [];
     const failureIds: string[] = [];
 
@@ -64,7 +65,9 @@ export const useTaskDispatcher = (): {
                 csv_detail: taskResult.results,
               }),
             );
-            successIds.push(taskId);
+            if (taskResult.results.status === EnrichDetailStatus.COMPLETED)
+              successCompletedIds.push(taskId);
+            else successNextStepdIds.push(taskId);
           } else if (taskResult.status == CeleryTaskStatus.FAILURE) {
             fetchDetailedData(csvDetail.uuid);
             failureIds.push(taskId);
@@ -76,11 +79,19 @@ export const useTaskDispatcher = (): {
     } catch (e) {
       console.log(e);
     } finally {
-      if (successIds.length) {
+      if (successNextStepdIds.length) {
         dispatch(
           setNotificationPopupOpen({
             appearance: NotificationAppearanceEnum.INFO,
             content: 'Enrichment process completed successfully. Please proceed to the next step.',
+          }),
+        );
+      }
+      if (successCompletedIds.length) {
+        dispatch(
+          setNotificationPopupOpen({
+            appearance: NotificationAppearanceEnum.SUCCESS,
+            content: 'Enrichment process completed successfully. Now you can preview your file(s).',
           }),
         );
       }
@@ -93,7 +104,7 @@ export const useTaskDispatcher = (): {
         );
       }
       clearTimeout(timeoutRef.current);
-      dispatch(removeTasks([...successIds, ...failureIds]));
+      dispatch(removeTasks([...successCompletedIds, ...successNextStepdIds, ...failureIds]));
       if (pendingIds.length) {
         timeoutTaskDispatcher(pendingIds);
       }

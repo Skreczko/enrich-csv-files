@@ -58,10 +58,6 @@ export const TableRow: React.FC<Props> = ({
           <p>{moment(created).format('HH:mm')}</p>
           <p className={'padding-left'}>{moment(created).format('YYYY-MM-DD')}</p>
         </TableCell>
-
-        todo fix on that as it fails when status changed from progress bar to icon
-
-
         <Popup
           content={statusDetail.popupText}
           inverted
