@@ -29,7 +29,7 @@ export const EnrichJoinTypeDescription = styled(EnrichModalDescription)`
 export const EnrichStep2CustomDropdownWrapper = styled.div`
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 5px;
   img {
     height: 20px;
     width: 20px;

@@ -1,7 +1,14 @@
 import React from 'react';
 import { CustomGenericModal } from '../../../CustomGenericModal';
-import { jsonFirstExample, jsonSecondExample, jsonThirdExample } from './jsonExamples';
-import { EnrichModalJsonRootPathModalBody } from './EnrichJsonRootPathInfoModal.styled';
+import CustomerTable from '../../../../../../img/body/list/join_type_examples/table_customers.png';
+import OrderTable from '../../../../../../img/body/list/join_type_examples/table_orders.png';
+import LeftJoinTable from '../../../../../../img/body/list/join_type_examples/table_left_join.png';
+import RightJoinTable from '../../../../../../img/body/list/join_type_examples/table_right_join.png';
+import InnerJoinTable from '../../../../../../img/body/list/join_type_examples/table_inner_join.png';
+import {
+  EnrichJsonJoinTypeExampleTablesWrapper,
+  EnrichJsonJoinTypeTableWrapper,
+} from './EnrichJsonJoinTypeInfoModal.styled';
 
 type Props = {
   onClose: () => void;
@@ -17,64 +24,75 @@ export const EnrichJsonJoinTypeInfoModal: React.FC<Props> = ({ onClose, open }) 
       subHeader={'Examples'}
     >
       <p>
-        Please open the URL you provided in a browser and inspect its structure. Below are some
-        examples to guide you in correctly filling out the URL JSON root path input. Keys should be
-        separated with dot (.), without any other characters (i.e. &quot;&quot;, &apos;&apos;, _, {}
-        )
+        In this project, you have three options for joining data from a CSV file and a URL JSON
+        response. Below, you will find a brief description of each method, illustrated with examples
+        using two sample tables.
       </p>
-      <EnrichModalJsonRootPathModalBody>
+      <EnrichJsonJoinTypeExampleTablesWrapper>
         <div>
-          <pre>
-            <code>{jsonFirstExample}</code>
-          </pre>
-        </div>
-        <div>
+          <h3>CSV File</h3>
+          <img src={CustomerTable} alt={'customer-table'} />
           <p>
-            In this example, the response is in the form of a list, where objects are directly
-            within that list. In this case, you should leave the input field empty.
+            The <b>Customers</b> table is sourced from a CSV file and contains basic information
+            about individual customers. Each customer is identified by a unique ID, along with their
+            First Name and Last Name.
           </p>
           <p className={'inputValue'}>
-            <b>Input value must be empty</b>
+            Selected header: <b>ID</b>
           </p>
         </div>
         <div>
-          <pre>
-            <code>{jsonSecondExample}</code>
-          </pre>
-        </div>
-        <div>
+          <h3>URL JSON response</h3>
+          <img src={OrderTable} alt={'order-table'} />
           <p>
-            In this example, the response is in the form of a dictionary where the key is{' '}
-            <span>results</span> and its value is a list of objects. You should provide the key (
-            <span>results</span>) in the input as the root of the objects to be used in the
-            enrichment process.
-          </p>
-          <br />
-          <p>
-            Only records from <span>results</span> will be included in the enrichment process. Other
-            records, such as those under the <span>next</span> key, should be enriched individually.
+            The <b>Orders</b> table is populated from a URL JSON response and tracks customer
+            orders. Each order has a unique Order ID, a Customer ID that links to the{' '}
+            <b>Customers</b> table, the Product ordered, and the Quantity of the product.
           </p>
           <p className={'inputValue'}>
-            Input value: <b>results</b>
+            Selected JSON Key: <b>CUSTOMER ID</b>
           </p>
         </div>
+      </EnrichJsonJoinTypeExampleTablesWrapper>
+      <EnrichJsonJoinTypeTableWrapper>
         <div>
-          <pre>
-            <code>{jsonThirdExample}</code>
-          </pre>
+          <img src={LeftJoinTable} alt={'left-join-table'} />
         </div>
         <div>
           <p>
-            In this example, the response is in the form of a dictionary with keys{' '}
-            <span>results</span> and <span>data</span>. The list of objects is the value of{' '}
-            <span>data</span> and should be used in the enrichment process. The input you provide
-            should be <span>results.data</span>.
-          </p>
-          <p className={'inputValue'}>
-            Input value: <b>results.data</b>
+            The Left Join table includes all rows from the <b>Customers</b> table (sourced from a
+            CSV file) and the matching rows from the <b>Orders</b> table (populated from a URL JSON
+            response). If a customer has not made any orders, the fields from the <b>Orders</b>{' '}
+            table will be left empty.
           </p>
         </div>
-      </EnrichModalJsonRootPathModalBody>
+      </EnrichJsonJoinTypeTableWrapper>
+      <EnrichJsonJoinTypeTableWrapper>
+        <div>
+          <img src={RightJoinTable} alt={'right-join-table'} />
+        </div>
+        <div>
+          <p>
+            The Right Join table includes all rows from the <b>Orders</b> table (populated from a
+            URL JSON response) and the matching rows from the <b>Customers</b> table (sourced from a
+            CSV file). If there is no match, the fields from the <b>Customers</b> table will be left
+            empty.
+          </p>
+        </div>
+      </EnrichJsonJoinTypeTableWrapper>
+      <EnrichJsonJoinTypeTableWrapper>
+        <div>
+          <img src={InnerJoinTable} alt={'inner-join-table'} />
+        </div>
+        <div>
+          <p>
+            The Inner Join table merges rows from both the <b>Customers</b> (sourced from a CSV
+            file) and <b>Orders</b> (populated from a URL JSON response) tables based on matching ID
+            and Customer ID. This table will only include customers who have made an order and
+            orders that have a corresponding customer.
+          </p>
+        </div>
+      </EnrichJsonJoinTypeTableWrapper>
     </CustomGenericModal>
   );
 };

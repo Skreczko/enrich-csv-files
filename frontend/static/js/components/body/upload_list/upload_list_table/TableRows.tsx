@@ -69,7 +69,8 @@ const statusDetails: Record<EnrichDetailStatus, TableRowStatusDetails> = {
   },
   [EnrichDetailStatus.FAILED_ENRICHING]: {
     backgroundColor: errorColor,
-    popupText: 'Enrichment failed. Please contact support for assistance.',
+    popupText:
+      'Enrichment failed. Please check the file details for possible errors, or contact support for assistance.',
     progress: 90,
     type: TableRowStatusEnum.PROGRESS,
   },
