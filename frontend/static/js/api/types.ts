@@ -71,9 +71,18 @@ export type EnrichFileRequest = {
 };
 
 export type FetchUploadListResponse = {
-  // Matches the structure of backend's  TODO
+  // Matches the structure of backend's csv_list.csv_list response
   result: CsvFileElement[];
   paginator: PaginatorType;
+};
+
+export type FetchChunkDataResponse = {
+  // Matches the structure of backend's  csv_preview_chunks_get.csv_preview_chunks_get response
+  chunk_number: number; //starts from 0
+  chunk_size: number;
+  headers: string[];
+  rows: any[][];
+  uuid: string;
 };
 
 export enum StatusFilter {

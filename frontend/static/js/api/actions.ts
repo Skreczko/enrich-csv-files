@@ -4,6 +4,7 @@ import { store } from '../redux/store';
 import { updateFileDetail } from '../redux/UploadSectionSlice';
 import {
   CsvFileElement,
+    FetchChunkDataResponse,
   EnrichFileRequest,
   FetchUploadListRequest,
   FetchUploadListResponse,
@@ -135,5 +136,10 @@ export async function enrichFile({
     join_type: selectedJoinType,
     is_flat: flattenJson,
   });
+  return data;
+}
+
+export async function fetchChunkData(uuid: string): Promise<FetchChunkDataResponse> {
+  const { data } = await api.get(`/api/_internal/csv_list/${uuid}/read_preview_chunk`);
   return data;
 }
