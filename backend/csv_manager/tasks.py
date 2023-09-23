@@ -7,6 +7,7 @@ from sentry_sdk import capture_exception  # type: ignore  #todo fix stubs
 
 from csv_manager.enrich_table_joins import create_enrich_table_by_join_type
 from csv_manager.enums import EnrichmentJoinType, EnrichmentStatus
+from csv_manager.helpers import get_and_serialize_csv_detail
 from csv_manager.models import CSVFile, EnrichDetail
 from csv_manager.types import ProcessCsvEnrichmentResponse
 
@@ -58,7 +59,6 @@ def process_fetch_external_url(
       this trade-off is deemed acceptable to mitigate potential memory issues.
     """
 
-    from csv_manager.helpers import get_and_serialize_csv_detail
     import ijson.backends.yajl2 as ijson  # https://lpetr.org/2016/05/30/faster-json-parsing-python-ijson/
     import requests
     from django.core.files import File
@@ -227,7 +227,6 @@ def process_csv_enrichment(
 
     csvfile_instance.update_csv_metadata()
 
-    return {
-        "enrich_detail_uuid": str(enrich_detail_instance.uuid)
-        # todo serialize new csvfile + select_related on enrich detail?
-    }
+    serialized_csv_detail = get_and_serialize_csv_detail(uuid=csvfile_instance.uuid)
+
+    return serialized_csv_detail.get("csv_detail", serialized_csv_detail.get("error"))

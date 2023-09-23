@@ -41,7 +41,7 @@ class CSVFile(models.Model):
         "self",
         null=True,
         blank=True,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         related_name="enriched_instances",
     )
     created = models.DateTimeField(auto_now_add=True)
