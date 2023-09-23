@@ -119,4 +119,7 @@ def csv_enrich_file_create(
         serializer="json",  # didn't use pickle (which could reduce database requests) due to security concerns.
     )
     # process_csv_enrichment(**{"enrich_detail_uuid": str(enrich_detail_uuid)})
-    return JsonResponse({"task_id": task.id, "csv_file_uuid": enrich_detail_instance.csv_file_uuid}, status=HTTPStatus.OK)
+    return JsonResponse(
+        {"task_id": task.id, "csv_file_uuid": enrich_detail_instance.csv_file_uuid},
+        status=HTTPStatus.OK,
+    )
