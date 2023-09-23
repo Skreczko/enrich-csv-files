@@ -108,8 +108,6 @@ export async function fetchExternalUrlJson(
   enrichUrl: string,
   jsonRootPath: string,
 ): Promise<{ task_id: string; csv_file_uuid: string }> {
-
-
   const { data } = await api.post(`/api/_internal/csv_list/${uuid}/enrich_detail_create`, {
     external_url: enrichUrl,
     json_root_path: jsonRootPath,

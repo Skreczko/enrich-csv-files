@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import { EnrichModalDescription } from './EnrichStep1Modal.styled';
 
 export const EnrichProcessSelectionWrapper = styled.div`
   display: grid;
@@ -20,10 +19,6 @@ export const EnrichProcessSelectionWrapper = styled.div`
     align-items: center;
     word-break: break-all;
   }
-`;
-
-export const EnrichJoinTypeDescription = styled(EnrichModalDescription)`
-  margin-top: 50px;
 `;
 
 export const EnrichStep2CustomDropdownWrapper = styled.div`

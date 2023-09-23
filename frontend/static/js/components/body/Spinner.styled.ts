@@ -1,10 +1,11 @@
 import styled from 'styled-components';
 
-export const SpinnerWrapper = styled.div`
+export const SpinnerWrapper = styled.div<{ scale?: number }>`
   width: 100%;
   height: 100%;
   display: grid;
   place-items: center;
+  transform: scale(${({ scale }): number => (scale ? scale : 1)});
 `;
 
 export const SpinnerDetails = styled.div`

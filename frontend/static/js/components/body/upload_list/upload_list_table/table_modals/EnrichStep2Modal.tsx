@@ -13,7 +13,6 @@ import {
   EnrichModalWrapper,
 } from './EnrichStep1Modal.styled';
 import {
-  EnrichJoinTypeDescription,
   EnrichProcessSelectionWrapper,
   EnrichStep2CustomDropdownWrapper,
 } from './EnrichStep2Modal.styled';
@@ -24,24 +23,12 @@ import { Spinner } from '../../../Spinner';
 import { Checkbox, Popup } from 'semantic-ui-react';
 import ErrorImage from '../../../../../../img/notification/error.png';
 import QuestionMarkImage from '../../../../../../img/body/list/question-mark.png';
-import { AdditionalInfoWrapper } from '../TableRowDetailSection.styled';
 
 const joinTypeOptions: DropdownOptions[] = [
   { type: DropdownItemEnum.OPTION, value: EnrichmentJoinType.LEFT, text: 'Left' },
   { type: DropdownItemEnum.OPTION, value: EnrichmentJoinType.RIGHT, text: 'Right' },
   { type: DropdownItemEnum.OPTION, value: EnrichmentJoinType.INNER, text: 'Inner' },
 ];
-
-const joinTypeDescription = (joinType: EnrichmentJoinType): string => {
-  switch (joinType) {
-    case EnrichmentJoinType.LEFT:
-      return 'Includes all records from the source CSV file and matched records from the external URL response.';
-    case EnrichmentJoinType.RIGHT:
-      return 'Includes all records from the external URL response and matched records from the source CSV file.';
-    case EnrichmentJoinType.INNER:
-      return 'Only includes records that have matching values in both the source CSV file and the external URL response.';
-  }
-};
 
 type Props = {
   onAction: ({
@@ -98,15 +85,7 @@ export const EnrichStep2Modal: React.FC<Props> = ({
         flattenJson,
       });
       onClose();
-      // handleEnrichOnCLose();
-      // setEnrichInputError(true);
     }
-  };
-
-  const handleEnrichOnCLose = (): void => {
-    // setEnrichInputError(false);
-    // setEnrichInputValue('');
-    onClose();
   };
 
   return (
@@ -124,9 +103,10 @@ export const EnrichStep2Modal: React.FC<Props> = ({
         <EnrichModalDescription>
           <img src={InfoImage} alt={'info'} />
           <p>
-            Select CSV file <b>header</b> and external response <b>JSON key</b> to be connected in
-            enrichment process. Select join type which define how csv file and external resposne
-            should be connected.
+            Select the CSV file <b>header</b> and the external response <b>JSON key</b> to be used
+            in the enrichment process. Choose the <b>join type</b> to define how the CSV file and
+            external response should be connected. Optionally, you can also select to{' '}
+            <b>Flatten JSON Structure</b> for easier data manipulation.
           </p>
         </EnrichModalDescription>
 
@@ -158,7 +138,7 @@ export const EnrichStep2Modal: React.FC<Props> = ({
         <EnrichProcessSelectionWrapper>
           <EnrichStep2CustomDropdownWrapper>
             {!selectedFileElement?.fetchedDetailInfo ? (
-              <Spinner />
+              <Spinner scale={0.5} />
             ) : (
               <>
                 <CustomDropdown
@@ -215,7 +195,7 @@ export const EnrichStep2Modal: React.FC<Props> = ({
           </EnrichStep2CustomDropdownWrapper>
           <EnrichStep2CustomDropdownWrapper>
             {!selectedFileElement?.fetchedDetailInfo ? (
-              <Spinner />
+              <Spinner scale={0.5} />
             ) : (
               <>
                 <CustomDropdown
@@ -255,12 +235,6 @@ export const EnrichStep2Modal: React.FC<Props> = ({
             )}
           </EnrichStep2CustomDropdownWrapper>
         </EnrichProcessSelectionWrapper>
-        {/*{selectedJoinType && (*/}
-        {/*  <EnrichJoinTypeDescription>*/}
-        {/*    <img src={InfoImage} alt={'info'} />*/}
-        {/*    <p>{joinTypeDescription(selectedJoinType)}</p>*/}
-        {/*  </EnrichJoinTypeDescription>*/}
-        {/*)}*/}
       </EnrichModalWrapper>
     </CustomGenericModal>
   );

@@ -84,3 +84,81 @@ export const jsonThirdExample = `
   "status": "success"
 }
 `;
+
+export const jsonFlattenFirstExample = `
+[
+  {
+    "name": "John",
+    "age": 30,
+    "email": "john@example.com",
+    "is_subscribed": true
+  },
+  {
+    "name": "Jane",
+    "age": 25,
+    "email": "jane@example.com",
+    "is_subscribed": false
+  },
+  ...
+]
+`;
+
+export const jsonFlattenSecondExample = `
+[
+  {
+    "name": "John",
+    "age": 30,
+    "email": "john@example.com",
+    "is_subscribed": true,
+    "address": {
+      "city": "New York",
+      "zip": "10001"
+    }
+  },
+  {
+    "name": "Jane",
+    "age": 25,
+    "email": "jane@example.com",
+    "is_subscribed": false,
+    "address": {
+      "city": "San Francisco",
+      "zip": "94101"
+    }
+  },
+  ...
+]
+`;
+
+export const jsonFlattenThirdExample = `
+[
+  {
+    "name": "John",
+    "age": 30,
+    "email": "john@example.com",
+    "is_subscribed": true,
+    "address": {
+      "city": "New York",
+      "zip": "10001",
+      "coordinates": {
+        "lat": 40.7128,
+        "lon": -74.0060
+      }
+    }
+  },
+  {
+    "name": "Jane",
+    "age": 25,
+    "email": "jane@example.com",
+    "is_subscribed": false,
+    "address": {
+      "city": "San Francisco",
+      "zip": "94101",
+      "coordinates": {
+        "lat": 37.7749,
+        "lon": -122.4194
+      }
+    }
+  },
+  ...
+]
+`;

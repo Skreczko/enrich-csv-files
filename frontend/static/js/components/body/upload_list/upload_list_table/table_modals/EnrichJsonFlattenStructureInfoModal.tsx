@@ -1,7 +1,16 @@
 import React from 'react';
 import { CustomGenericModal } from '../../../CustomGenericModal';
-import { jsonFirstExample, jsonSecondExample, jsonThirdExample } from './jsonExamples';
-import { EnrichModalJsonRootPathModalBody } from './EnrichJsonRootPathInfoModal.styled';
+import {
+  jsonFlattenFirstExample,
+  jsonFlattenSecondExample,
+  jsonFlattenThirdExample,
+} from './jsonExamples';
+import { EnrichModalJsonFlatten2Columns } from './EnrichJsonFlattenStructureInfoModal.styled';
+import Example1Image from '../../../../../../img/body/list/flatten_dict_examples/example_1.png';
+import Example2FlattenedImage from '../../../../../../img/body/list/flatten_dict_examples/example_2_flattened.png';
+import Example2NonFlattenedImage from '../../../../../../img/body/list/flatten_dict_examples/example_2_non_flattened.png';
+import Example3FlattenedImage from '../../../../../../img/body/list/flatten_dict_examples/example_3_flattened.png';
+import Example3NonFlattenedImage from '../../../../../../img/body/list/flatten_dict_examples/example_3_non_flattened.png';
 
 type Props = {
   onClose: () => void;
@@ -15,66 +24,68 @@ export const EnrichJsonFlattenStructureInfoModal: React.FC<Props> = ({ onClose, 
       onClose={onClose}
       header={'JSON flatten structure'}
       subHeader={'Examples'}
+      size={'fullscreen'}
     >
       <p>
-        Please open the URL you provided in a browser and inspect its structure. Below are some
-        examples to guide you in correctly filling out the URL JSON root path input. Keys should be
-        separated with dot (.), without any other characters (i.e. &quot;&quot;, &apos;&apos;, _, {}
-        )
+        Flattening a JSON structure involves transforming nested keys into a flat, tabular form.
+        This is particularly useful when converting JSON data into a CSV format, where nested
+        structures are not easily represented. In the flattened version, each nested key is combined
+        with its parent key, separated by an underscore (_). This process creates new, unique
+        columns in the CSV representation, making the data easier to analyze and manipulate.
       </p>
-      <EnrichModalJsonRootPathModalBody>
+      <EnrichModalJsonFlatten2Columns>
         <div>
           <pre>
-            <code>{jsonFirstExample}</code>
+            <code>{jsonFlattenFirstExample}</code>
           </pre>
         </div>
         <div>
+          <img src={Example1Image} alt={'example-1'} />
           <p>
-            In this example, the response is in the form of a list, where objects are directly
-            within that list. In this case, you should leave the input field empty.
-          </p>
-          <p className={'inputValue'}>
-            <b>Input value must be empty</b>
-          </p>
-        </div>
-        <div>
-          <pre>
-            <code>{jsonSecondExample}</code>
-          </pre>
-        </div>
-        <div>
-          <p>
-            In this example, the response is in the form of a dictionary where the key is{' '}
-            <span>results</span> and its value is a list of objects. You should provide the key (
-            <span>results</span>) in the input as the root of the objects to be used in the
-            enrichment process.
-          </p>
-          <br />
-          <p>
-            Only records from <span>results</span> will be included in the enrichment process. Other
-            records, such as those under the <span>next</span> key, should be enriched individually.
-          </p>
-          <p className={'inputValue'}>
-            Input value: <b>results</b>
+            In this example, the JSON structure is already flat, meaning there are no nested
+            objects. Whether you choose to <b>Flatten JSON Structure</b> or not, the CSV
+            representation will remain the same, with a straightforward one-to-one mapping between
+            the JSON keys and the CSV columns. Essentially, flattening has no effect on already flat
+            structures.
           </p>
         </div>
         <div>
           <pre>
-            <code>{jsonThirdExample}</code>
+            <code>{jsonFlattenSecondExample}</code>
           </pre>
         </div>
         <div>
+          <img src={Example2NonFlattenedImage} alt={'example-2-non-flatten'} />
+          <img src={Example2FlattenedImage} alt={'example-2-flatten'} />
           <p>
-            In this example, the response is in the form of a dictionary with keys{' '}
-            <span>results</span> and <span>data</span>. The list of objects is the value of{' '}
-            <span>data</span> and should be used in the enrichment process. The input you provide
-            should be <span>results.data</span>.
-          </p>
-          <p className={'inputValue'}>
-            Input value: <b>results.data</b>
+            In this example, the JSON structure contains a single level of nesting under the{' '}
+            <b>address</b> key. When you choose to <b>Flatten JSON Structure</b>, this nesting is
+            removed, and new columns are created for each nested key. These new columns are named by
+            combining the parent key and the nested key, separated by an underscore. For example,
+            <b>address_city</b> and <b>address_zip</b> are new columns created in the CSV
+            representation.
           </p>
         </div>
-      </EnrichModalJsonRootPathModalBody>
+
+        <div>
+          <pre>
+            <code>{jsonFlattenThirdExample}</code>
+          </pre>
+        </div>
+        <div>
+          <img src={Example3NonFlattenedImage} alt={'example-3-non-flatten'} />
+          <img src={Example3FlattenedImage} alt={'example-3-flatten'} />
+          <p>
+            In this example, the JSON structure contains two levels of nesting under the{' '}
+            <b>address</b> and <b>coordinates</b> keys. When you opt for{' '}
+            <b>Flatten JSON Structure</b>, both levels of nesting are removed. New columns are
+            created for each nested key, and these columns are named by combining all parent keys
+            and the nested key, separated by underscores. For instance,{' '}
+            <b>address_coordinates_lat</b> and <b>address_coordinates_lon</b> are new columns
+            created in the CSV representation.
+          </p>
+        </div>
+      </EnrichModalJsonFlatten2Columns>
     </CustomGenericModal>
   );
 };
