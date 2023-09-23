@@ -46,7 +46,7 @@ export const EnrichStep1Modal: React.FC<Props> = ({
   };
 
   const handleEnrichActionWithValidation = (): void => {
-    if (isURL(enrichInputValue)) {
+    if (isURL(enrichInputValue, { require_tld: false })) {
       onAction(enrichInputValue, enrichJsonRootPath);
       handleEnrichOnCLose();
     } else {

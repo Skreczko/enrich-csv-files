@@ -20,8 +20,9 @@ class PetlTableJoinParams(TypedDict, total=False):
     rprefix: str | None
 
 
-class ProcessCsvEnrichmentResponse(TypedDict):
+class ProcessCsvEnrichmentResponse(TypedDict, total=False):
     enrich_detail_uuid: str
+    error: str
 
 
 class FetchTaskResultDictPending(TypedDict):

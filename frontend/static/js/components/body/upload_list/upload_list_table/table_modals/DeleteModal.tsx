@@ -4,7 +4,7 @@ import { truncateString } from '../../../../notification/helpers';
 import { CsvFileElement } from '../../../../../api/types';
 
 type Props = {
-  onAction: () => void;
+  onAction: () => Promise<void>;
   onClose: () => void;
   open: boolean;
   selectedFileElement: CsvFileElement;

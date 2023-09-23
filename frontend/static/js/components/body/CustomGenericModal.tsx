@@ -10,6 +10,7 @@ type Props = {
   onAction?: () => void;
   onClose: () => void;
   open: boolean;
+  size?: 'mini' | 'tiny' | 'small' | 'large' | 'fullscreen';
   subHeader?: string;
 };
 
@@ -21,9 +22,10 @@ export const CustomGenericModal: React.FC<Props> = ({
   onAction,
   onClose,
   open,
+  size,
   subHeader,
 }) => (
-  <Modal onClose={onClose} open={open} closeOnDimmerClick={false}>
+  <Modal onClose={onClose} open={open} closeOnDimmerClick={false} size={size}>
     <Modal.Header>{header}</Modal.Header>
     <Modal.Content>
       {!!subHeader && (

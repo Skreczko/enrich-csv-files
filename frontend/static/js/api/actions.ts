@@ -4,6 +4,7 @@ import { store } from '../redux/store';
 import { updateFileDetail } from '../redux/UploadSectionSlice';
 import {
   CsvFileElement,
+  EnrichFileRequest,
   FetchUploadListRequest,
   FetchUploadListResponse,
   TaskResult,
@@ -20,6 +21,17 @@ const config = {
 };
 
 const api = axios.create(config);
+
+export async function fetchTaskResults(taskIds: string[]): Promise<Record<string, TaskResult>> {
+  try {
+    const { data } = await api.post('/api/_internal/fetch_task_results', {
+      task_ids: JSON.stringify(taskIds),
+    });
+    return data;
+  } catch (error) {
+    return Promise.resolve({});
+  }
+}
 
 export async function uploadFile(fileElement: FileType): Promise<{ original_file_name: string }> {
   const formData = new FormData();
@@ -91,11 +103,24 @@ export async function deleteUploadFile(uuid: string): Promise<{ csvfile_uuid: st
   return data;
 }
 
-export async function enrichFile(
+export async function fetchExternalUrlJson(
   uuid: string,
   enrichUrl: string,
   jsonRootPath: string,
 ): Promise<{ task_id: string; csv_file_uuid: string }> {
+  const { data } = await api.post(`/api/_internal/csv_list/${uuid}/enrich_detail_create`, {
+    external_url: enrichUrl,
+    json_root_path: jsonRootPath,
+  });
+  return data;
+}
+export async function enrichFile({
+  enrichDetailUuid,
+  flattenJson,
+  selectedCsvHeader,
+  selectedJoinType,
+  selectedJsonKey,
+}: EnrichFileRequest): Promise<{ task_id: string; csv_file_uuid: string }> {
   /**
    * Endpoint to initiate the enrichment of a CSV file using data from an external URL.
    *
@@ -103,20 +128,12 @@ export async function enrichFile(
    *
    */
 
-  const { data } = await api.post(`/api/_internal/csv_list/${uuid}/enrich_detail_create`, {
-    external_url: enrichUrl,
-    json_root_path: jsonRootPath,
+  const { data } = await api.post(`/api/_internal/enrich_file_create`, {
+    enrich_detail_uuid: enrichDetailUuid,
+    selected_merge_key: selectedJsonKey,
+    selected_merge_header: selectedCsvHeader,
+    join_type: selectedJoinType,
+    is_flat: flattenJson,
   });
   return data;
-}
-
-export async function fetchTaskResults(taskIds: string[]): Promise<Record<string, TaskResult>> {
-  try {
-    const { data } = await api.post('/api/_internal/fetch_task_results', {
-      task_ids: JSON.stringify(taskIds),
-    });
-    return data;
-  } catch (error) {
-    return Promise.resolve({});
-  }
 }

@@ -63,9 +63,9 @@ in this case, using django and put react to django template we can
 * As we can enrich files - we can add additional csv list view as "tree", where user can select that and see "root" file, and expand to see which files were created using that root file, ie https://primereact.org/treetable/ 
 
 
-### Optimization
+## Optimization
 
-## Backend
+### Backend
 * Added `TemporaryFileUploadHandler` with `FILE_UPLOAD_MAX_MEMORY_SIZE = 0` for making chunks during uploading files.
 * Added `ijson` for count api response objects and set up header
 * Added `yajl2` parser for increase parsing (https://lpetr.org/2016/05/30/faster-json-parsing-python-ijson/)
@@ -84,6 +84,19 @@ in this case, using django and put react to django template we can
 * Using generators in many places
 * Added DDT https://pypi.org/project/django-debug-toolbar/ to track query. Ajax query can be viewed in "history" tab.
 * Added `Sentry` (https://adverity-transformer-197cd18c7.sentry.io/issues/ - credentials in `.env.example`
+
+### Frontend
+### Added `useTaskDispatcher`:
+- **Task Management**: Efficiently dispatches tasks based on their status and updates the application state.
+- **Dynamic Timeout**: Adjusts backend call frequency based on call count to prevent server overload.
+  - Up to 5 calls: 2-second timeout
+  - 6 to 9 calls: 5-second timeout
+  - 10+ calls: 10-second timeout
+- **Notifications**: Provides real-time user feedback on task statuses, including success and errors.
+- **State Management**: Uses Redux for consistent state updates.
+- **Error Handling**: Ensures issues during task dispatch are caught and managed.
+- **Clean Up**: Implements mechanisms like `clearTimeoutRef` for efficient memory management.
+- 
 
 # TODO
 * `Sentry` has default setup. May be required to add additional sentry envs for local/test/prod

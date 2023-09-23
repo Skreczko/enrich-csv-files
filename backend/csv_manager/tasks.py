@@ -2,12 +2,13 @@ from typing import Any, cast
 
 from celery import shared_task
 from django.db.models import F
+from petl import FieldSelectionError
 from sentry_sdk import capture_exception  # type: ignore  #todo fix stubs
 
 from csv_manager.enrich_table_joins import create_enrich_table_by_join_type
 from csv_manager.enums import EnrichmentJoinType, EnrichmentStatus
+from csv_manager.helpers import get_and_serialize_csv_detail
 from csv_manager.models import CSVFile, EnrichDetail
-from csv_manager.types import ProcessCsvEnrichmentResponse
 
 
 @shared_task()
@@ -33,7 +34,7 @@ def process_csv_metadata(uuid: str, *args: Any, **kwargs: Any) -> None:
 @shared_task()
 def process_fetch_external_url(
     enrich_detail_uuid: str, csv_file_uuid: str, *args: Any, **kwargs: Any
-) -> Any:
+) -> dict[str, Any] | str | None:
     """
     Asynchronously fetch and process external JSON data to enrich a specific CSV detail.
 
@@ -46,7 +47,10 @@ def process_fetch_external_url(
 
     :param enrich_detail_uuid: UUID of the EnrichDetail instance to process.
     :param csv_file_uuid: UUID of the CSVFile instance associated with the enrichment detail.
-    :return: None
+    :return:
+        - dict[str, Any]: In case of successful task completion. The key will be the Celery task number, and Any will be the data for updating.
+        - str: Error message for Celery task status 'error'.
+        - None: Celery task is pending.
 
     Notes:
     - If the external URL fails to return valid JSON or if the JSON is empty, the EnrichDetail instance's status will be updated.
@@ -57,7 +61,6 @@ def process_fetch_external_url(
       this trade-off is deemed acceptable to mitigate potential memory issues.
     """
 
-    from csv_manager.helpers import get_and_serialize_csv_detail
     import ijson.backends.yajl2 as ijson  # https://lpetr.org/2016/05/30/faster-json-parsing-python-ijson/
     import requests
     from django.core.files import File
@@ -186,23 +189,34 @@ def process_csv_enrichment(
     enrich_detail_uuid: str,
     *args: Any,
     **kwargs: Any,
-) -> ProcessCsvEnrichmentResponse:
-    enrich_detail_instance = (
-        EnrichDetail.objects.select_related(
-            "csv_file",
-            "csv_file__source_instance",
-        )
-        .only(
-            "status",
-            "join_type",
-            "csv_file__file",
-            "csv_file__original_file_name",
-            "csv_file__uuid",
-            "csv_file__source_instance__file",
-            "csv_file__source_instance__original_file_name",
-        )
-        .get(uuid=enrich_detail_uuid)
-    )
+) -> dict[str, Any] | str | None:
+    """
+    Asynchronously process the enrichment of a specific CSV detail.
+
+    Steps:
+    1. Retrieve the EnrichDetail and associated CSVFile instances based on the provided UUID.
+    2. Update the status of the EnrichDetail instance to ENRICHING.
+    3. Perform the enrichment process based on the specified join type.
+    4. Update the CSVFile instance with the enriched data.
+    5. Update the status of the EnrichDetail instance to COMPLETED.
+
+    :param enrich_detail_uuid: UUID of the EnrichDetail instance to process.
+    :return:
+        - dict[str, Any]: In case of successful task completion. The key will be the Celery task number, and Any will be the data for updating.
+        - str: Error message for Celery task status 'error'.
+        - None: Celery task is pending.
+
+    Notes:
+    - Exceptions will be raised for invalid enrich detail UUIDs or enrichment errors.
+    - The function uses the `create_enrich_table_by_join_type` to perform the actual enrichment.
+    - The status of the EnrichDetail instance will be updated at various stages to reflect the progress.
+    - If an error occurs during the enrichment process, the EnrichDetail instance's status will be set to FAILED_ENRICHING.
+    """
+
+    enrich_detail_instance = EnrichDetail.objects.select_related(
+        "csv_file",
+        "csv_file__source_instance",
+    ).get(uuid=enrich_detail_uuid)
 
     enrich_detail_instance.status = EnrichmentStatus.ENRICHING
     enrich_detail_instance.save(update_fields=("status",))
@@ -210,14 +224,19 @@ def process_csv_enrichment(
     csvfile_instance = enrich_detail_instance.csv_file
     source_csvfile_instance = csvfile_instance.source_instance
 
-    output_path = create_enrich_table_by_join_type(
-        join_type=cast(
-            EnrichmentJoinType, enrich_detail_instance.join_type
-        ),  # mypy has problem, as in database its null=True, blank=True, but that value will be assigned when it reach this place (CSVEnrichFileRequestForm)
-        enriched_csv_file_name=str(csvfile_instance.uuid),
-        source_instance_file_path=source_csvfile_instance.file.path,  # type: ignore #same as above
-        enrich_detail_instance=enrich_detail_instance,
-    )
+    try:
+        output_path = create_enrich_table_by_join_type(
+            join_type=cast(
+                EnrichmentJoinType, enrich_detail_instance.join_type
+            ),  # mypy has problem, as in database its null=True, blank=True, but that value will be assigned when it reach this place (CSVEnrichFileRequestForm)
+            enriched_csv_file_name=str(csvfile_instance.uuid),
+            source_instance_file_path=source_csvfile_instance.file.path,  # type: ignore #same as above
+            enrich_detail_instance=enrich_detail_instance,
+        )
+    except (ValueError, FieldSelectionError):
+        enrich_detail_instance.status = EnrichmentStatus.FAILED_ENRICHING
+        enrich_detail_instance.save(update_fields=("status",))
+        raise
 
     # take into account potential SuspiciousFileOperation for future development when storing file in different path than project
     csvfile_instance.file.name = output_path
@@ -229,7 +248,8 @@ def process_csv_enrichment(
 
     csvfile_instance.update_csv_metadata()
 
-    return {
-        "enrich_detail_uuid": str(enrich_detail_instance.uuid)
-        # todo serialize new csvfile + select_related on enrich detail?
-    }
+    serialized_csv_detail = get_and_serialize_csv_detail(
+        uuid=str(csvfile_instance.uuid)
+    )
+
+    return serialized_csv_detail.get("csv_detail", serialized_csv_detail.get("error"))

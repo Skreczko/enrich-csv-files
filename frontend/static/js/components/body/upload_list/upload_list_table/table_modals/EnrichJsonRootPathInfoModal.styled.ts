@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 export const EnrichModalJsonRootPathModalBody = styled.div`
   display: grid;
-  grid-template-columns: 50% 50%;
+  grid-template-columns: repeat(2, 1fr);
   gap: 10px;
   justify-content: left;
   align-items: center;

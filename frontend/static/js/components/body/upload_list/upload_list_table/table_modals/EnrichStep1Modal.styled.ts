@@ -35,8 +35,8 @@ export const EnrichModalError = styled.div`
   align-items: center;
   color: red;
   img {
-    height: 12px;
-    width: 12px;
+    height: 12px !important;
+    width: 12px !important;
     margin-right: 5px;
   }
 `;

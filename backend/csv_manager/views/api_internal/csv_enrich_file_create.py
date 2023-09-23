@@ -2,6 +2,7 @@ from http import HTTPStatus
 from typing import Any, cast
 
 from celery import Task
+from django.db.models import F
 from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_POST
 
@@ -70,6 +71,7 @@ def csv_enrich_file_create(
     enrich_detail_queryset = (
         EnrichDetail.objects.defer("external_response")
         .select_related("csv_file__source_instance")
+        .annotate(csv_file_uuid=F("csv_file__uuid"))
         .filter(
             uuid=enrich_detail_uuid,
             status=EnrichmentStatus.AWAITING_COLUMN_SELECTION,
@@ -116,5 +118,8 @@ def csv_enrich_file_create(
         },
         serializer="json",  # didn't use pickle (which could reduce database requests) due to security concerns.
     )
-
-    return JsonResponse({"task_id": task.id}, status=HTTPStatus.OK)
+    # process_csv_enrichment(**{"enrich_detail_uuid": str(enrich_detail_uuid)})
+    return JsonResponse(
+        {"task_id": task.id, "csv_file_uuid": enrich_detail_instance.csv_file_uuid},
+        status=HTTPStatus.OK,
+    )

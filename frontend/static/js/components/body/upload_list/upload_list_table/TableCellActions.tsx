@@ -11,14 +11,16 @@ import { EnrichDetailStatus } from '../../../../api/enums';
 
 type Props = {
   onOpenDeleteModal: () => void;
-  onOpenEnrichModal: () => void;
+  onOpenEnrichStep1Modal: () => void;
+  onOpenEnrichStep2Modal: () => void;
   status: EnrichDetailStatus;
 };
 
 export const TableCellActions: React.FC<Props> = ({
   status,
   onOpenDeleteModal,
-  onOpenEnrichModal,
+  onOpenEnrichStep1Modal,
+  onOpenEnrichStep2Modal,
 }) => (
   <TableCellActionsWrapper>
     {status === EnrichDetailStatus.AWAITING_COLUMN_SELECTION && (
@@ -29,7 +31,7 @@ export const TableCellActions: React.FC<Props> = ({
         position={'top center'}
         size='mini'
         trigger={
-          <EnrichPendingButton>
+          <EnrichPendingButton onClick={onOpenEnrichStep2Modal}>
             <h5>action required</h5>
           </EnrichPendingButton>
         }
@@ -44,7 +46,7 @@ export const TableCellActions: React.FC<Props> = ({
           position={'top center'}
           size='mini'
           trigger={
-            <EnrichButton onClick={onOpenEnrichModal}>
+            <EnrichButton onClick={onOpenEnrichStep1Modal}>
               <h5>enrich</h5>
             </EnrichButton>
           }
