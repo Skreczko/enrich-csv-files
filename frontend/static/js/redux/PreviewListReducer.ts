@@ -3,6 +3,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 export type PreviewDetail = {
   lastChunkNumber: number; // starts from 0
   chunkSize: number;
+  totalRows: number;
   headers: string[];
   rows: any[][];
 };
@@ -17,11 +18,11 @@ const previewListSlice = createSlice({
       return { ...state, ...preview };
     },
 
-    // removeTasks: (state, { payload: removeTaskList }: PayloadAction<string[]>) => {
-    //   removeTaskList.forEach(taskId => {
-    //     delete state[taskId];
-    //   });
-    // },
+        laodMoreChunkData: (state, { payload: preview }: PayloadAction<PreviewType>) => {
+      return { ...state, ...preview };
+    },
+
+
   },
 });
 

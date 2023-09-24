@@ -1,68 +1,85 @@
-import React, { useEffect, useState } from 'react';
+/* eslint-disable react/no-array-index-key */
+import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { FileListState, updateFileElement } from '../../../redux/FileListSlice';
 import { RootState } from '../../../redux/store';
 import { NotFoundComponent } from '../NotFoundComponent';
-import { fetchChunkData, fetchUploadDetails } from '../../../api/actions';
-import { UploadStateEnum } from '../upload_csv/types';
-import { PreviewDetail, PreviewType, setChunkData } from '../../../redux/PreviewListReducer';
+import { fetchChunkData } from '../../../api/actions';
+import { PreviewType, setChunkData } from '../../../redux/PreviewListReducer';
 import { Table } from 'semantic-ui-react';
-import { UploadElementState } from '../../../redux/UploadSectionSlice';
 import { Spinner } from '../Spinner';
+import { useFetchPreviewChunk } from '../../hooks/useFetchPreviewChunk';
 
 export const Preview: React.FC = () => {
   const { uuid } = useParams();
   const dispatch = useDispatch();
   const previewList: PreviewType = useSelector((state: RootState) => state.previewList);
 
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
+  // const [notFound, setNotFound] = useState(false);
 
-  const foundPreviewDetail = previewList[uuid];
+  const { loading, notFound, foundPreviewDetail, handleScroll } = useFetchPreviewChunk(uuid);
 
-  useEffect(() => {
-    // setting uploading state
-    setLoading(true);
+  const containerRef = useRef(null);
 
-    (async (): Promise<void> => {
-      try {
-        const { chunk_number, chunk_size, headers, rows } = await fetchChunkData(uuid);
-        dispatch(
-          setChunkData({
-            [uuid]: { lastChunkNumber: chunk_number, chunkSize: chunk_size, headers, rows },
-          }),
-        );
-      } catch (error) {
-        console.log(error);
-      }
-    })();
-    setLoading(false);
-  }, []);
+  // const foundPreviewDetail = previewList[uuid];
 
-  if (loading) <Spinner />;
+  // useEffect(() => {
+  //   // setting uploading state
+  //   setLoading(true);
+  //
+  //   (async (): Promise<void> => {
+  //     try {
+  //       const { chunk_number, chunk_size, headers, rows, file_row_count } = await fetchChunkData(
+  //         uuid,
+  //       );
+  //       dispatch(
+  //         setChunkData({
+  //           [uuid]: {
+  //             chunkSize: chunk_size,
+  //             headers,
+  //             lastChunkNumber: chunk_number,
+  //             rows,
+  //             totalRows: file_row_count,
+  //           },
+  //         }),
+  //       );
+  //     } catch (error) {
+  //       setNotFound(true);
+  //     }
+  //   })();
+  //   setLoading(false);
+  // }, []);
 
-  if (!foundPreviewDetail && !loading) {
+  if (notFound) {
     return <NotFoundComponent />;
   }
 
+  if (loading || !foundPreviewDetail) {
+    return <Spinner />;
+  }
+
+
+
   return (
-    <div>
+    <div ref={containerRef} onScroll={(): void => handleScroll(containerRef.current)}>
       <Table celled singleLine>
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell>#</Table.HeaderCell>
             {foundPreviewDetail.headers.map(header => (
-              <Table.HeaderCell>{header}</Table.HeaderCell>
+              <Table.HeaderCell key={header}>{header}</Table.HeaderCell>
             ))}
           </Table.Row>
         </Table.Header>
 
         <Table.Body>
-          {foundPreviewDetail.rows.map((row, i) => (
-            <Table.Row>
-              <Table.Cell>{i + 1}</Table.Cell>
-              {row.map(cell => (
-                <Table.Cell>{cell}</Table.Cell>
+          {foundPreviewDetail.rows.map((row, rowIndex) => (
+            <Table.Row key={`row-${rowIndex}`}>
+              <Table.Cell>{rowIndex + 1}</Table.Cell>
+              {row.map((cell, cellIndex) => (
+                <Table.Cell key={`cell-${cellIndex}`}>{cell}</Table.Cell>
               ))}
             </Table.Row>
           ))}

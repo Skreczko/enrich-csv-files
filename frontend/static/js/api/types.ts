@@ -80,6 +80,7 @@ export type FetchChunkDataResponse = {
   // Matches the structure of backend's  csv_preview_chunks_get.csv_preview_chunks_get response
   chunk_number: number; //starts from 0
   chunk_size: number;
+  total_rows: number;
   headers: string[];
   rows: any[][];
   uuid: string;
