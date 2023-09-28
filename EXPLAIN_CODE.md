@@ -86,7 +86,13 @@ in this case, using django and put react to django template we can
 * Added `Sentry` (https://adverity-transformer-197cd18c7.sentry.io/issues/ - credentials in `.env.example`
 
 ### Frontend
-### Added `useTaskDispatcher`:
+
+#### React-Window
+- **Efficient Rendering**: Displays only visible elements from large lists, improving performance.
+- **Smooth Scrolling**: Ensures seamless scrolling with large datasets.
+- **Chunk Loading**: Requests additional data chunks from the backend when scrolling reaches 75% of the current content.
+
+#### Added `useTaskDispatcher`:
 - **Task Management**: Efficiently dispatches tasks based on their status and updates the application state.
 - **Dynamic Timeout**: Adjusts backend call frequency based on call count to prevent server overload.
   - Up to 5 calls: 2-second timeout

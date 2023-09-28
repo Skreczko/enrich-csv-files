@@ -8,24 +8,35 @@ export type PreviewDetail = {
   rows: any[][];
 };
 
+export type LoadMorePreview = Pick<PreviewDetail, 'lastChunkNumber' | 'rows'>;
+
 export type PreviewType = { [key: string]: PreviewDetail };
 
 const previewListSlice = createSlice({
   name: 'previewList',
-  initialState: {} as PreviewDetail,
+  initialState: {} as PreviewType,
   reducers: {
     setChunkData: (state, { payload: preview }: PayloadAction<PreviewType>) => {
       return { ...state, ...preview };
     },
 
-        laodMoreChunkData: (state, { payload: preview }: PayloadAction<PreviewType>) => {
-      return { ...state, ...preview };
+    laodMoreChunkData: (
+      state,
+      action: PayloadAction<{
+        uuid: string;
+        loadMorePreview: LoadMorePreview;
+      }>,
+    ) => {
+      const { uuid, loadMorePreview } = action.payload;
+      state[uuid] = {
+        ...state[uuid],
+        lastChunkNumber: loadMorePreview.lastChunkNumber,
+        rows: [...state[uuid].rows, ...loadMorePreview.rows],
+      };
     },
-
-
   },
 });
 
-export const { setChunkData } = previewListSlice.actions;
+export const { setChunkData, laodMoreChunkData } = previewListSlice.actions;
 
 export default previewListSlice.reducer;

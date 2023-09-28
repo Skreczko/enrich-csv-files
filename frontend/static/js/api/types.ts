@@ -76,6 +76,11 @@ export type FetchUploadListResponse = {
   paginator: PaginatorType;
 };
 
+export type FetchChunkDataParamRequest = {
+  // Matches the structure of backend's CSVLPreviewChunkRequestForm
+  chunk_number?: number;
+};
+
 export type FetchChunkDataResponse = {
   // Matches the structure of backend's  csv_preview_chunks_get.csv_preview_chunks_get response
   chunk_number: number; //starts from 0

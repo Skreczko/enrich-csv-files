@@ -1,90 +1,101 @@
-/* eslint-disable react/no-array-index-key */
-import React, { useEffect, useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { CSSProperties, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { FileListState, updateFileElement } from '../../../redux/FileListSlice';
-import { RootState } from '../../../redux/store';
-import { NotFoundComponent } from '../NotFoundComponent';
-import { fetchChunkData } from '../../../api/actions';
-import { PreviewType, setChunkData } from '../../../redux/PreviewListReducer';
-import { Table } from 'semantic-ui-react';
 import { Spinner } from '../Spinner';
 import { useFetchPreviewChunk } from '../../hooks/useFetchPreviewChunk';
+import NotFoundComponent from '../NotFoundComponent';
+import { VariableSizeGrid as Grid } from 'react-window';
 
-export const Preview: React.FC = () => {
+const Preview: React.FC = () => {
   const { uuid } = useParams();
-  const dispatch = useDispatch();
-  const previewList: PreviewType = useSelector((state: RootState) => state.previewList);
 
-  // const [loading, setLoading] = useState(false);
-  // const [notFound, setNotFound] = useState(false);
+  const [gridSize, setGridSize] = useState({
+    width: window.innerWidth - 200,
+    height: window.innerHeight - 65,
+  });
 
-  const { loading, notFound, foundPreviewDetail, handleScroll } = useFetchPreviewChunk(uuid);
+  useEffect(() => {
+    const handleResize = (): void => {
+      setGridSize({ width: window.innerWidth, height: window.innerHeight });
+    };
+    window.addEventListener('resize', handleResize);
+    return (): void => window.removeEventListener('resize', handleResize);
+  }, []);
 
-  const containerRef = useRef(null);
-
-  // const foundPreviewDetail = previewList[uuid];
-
-  // useEffect(() => {
-  //   // setting uploading state
-  //   setLoading(true);
-  //
-  //   (async (): Promise<void> => {
-  //     try {
-  //       const { chunk_number, chunk_size, headers, rows, file_row_count } = await fetchChunkData(
-  //         uuid,
-  //       );
-  //       dispatch(
-  //         setChunkData({
-  //           [uuid]: {
-  //             chunkSize: chunk_size,
-  //             headers,
-  //             lastChunkNumber: chunk_number,
-  //             rows,
-  //             totalRows: file_row_count,
-  //           },
-  //         }),
-  //       );
-  //     } catch (error) {
-  //       setNotFound(true);
-  //     }
-  //   })();
-  //   setLoading(false);
-  // }, []);
+  const {
+    initialLoading,
+    chunkLoading,
+    notFound,
+    foundPreviewDetail,
+    handleScrollDebounced,
+  } = useFetchPreviewChunk(uuid);
 
   if (notFound) {
     return <NotFoundComponent />;
   }
 
-  if (loading || !foundPreviewDetail) {
+  if (initialLoading || !foundPreviewDetail) {
     return <Spinner />;
   }
 
+  const CellContentStyle: CSSProperties = {
+    whiteSpace: 'normal',
+    padding: '5px 10px',
+    overflow: 'auto',
+    outline: '1px solid #222',
+  };
+
+  const HeaderCellStyle: CSSProperties = {
+    padding: '5px 10px',
+    overflow: 'auto',
+    outline: '1px solid #222',
+    backgroundColor: 'lightgray',
+    fontWeight: 'bold',
+  };
+
+  const Cell: React.FC<{
+    columnIndex: number;
+    rowIndex: number;
+    style: CSSProperties;
+  }> = React.memo(({ columnIndex, rowIndex, style }) => {
+    Cell.displayName = 'Cell';
+
+    if (rowIndex === 0) {
+      return (
+        <div style={{ ...style, ...HeaderCellStyle }}>
+          {columnIndex === 0 ? '#' : foundPreviewDetail.headers[columnIndex - 1]}
+        </div>
+      );
+    }
+
+    const row = foundPreviewDetail.rows[rowIndex - 1];
+    const content = columnIndex === 0 ? rowIndex : row[columnIndex - 1];
+
+    return (
+      <div style={{ ...style, ...CellContentStyle }} className='tableCellScrollbar'>
+        {content}
+      </div>
+    );
+  });
 
 
   return (
-    <div ref={containerRef} onScroll={(): void => handleScroll(containerRef.current)}>
-      <Table celled singleLine>
-        <Table.Header>
-          <Table.Row>
-            <Table.HeaderCell>#</Table.HeaderCell>
-            {foundPreviewDetail.headers.map(header => (
-              <Table.HeaderCell key={header}>{header}</Table.HeaderCell>
-            ))}
-          </Table.Row>
-        </Table.Header>
-
-        <Table.Body>
-          {foundPreviewDetail.rows.map((row, rowIndex) => (
-            <Table.Row key={`row-${rowIndex}`}>
-              <Table.Cell>{rowIndex + 1}</Table.Cell>
-              {row.map((cell, cellIndex) => (
-                <Table.Cell key={`cell-${cellIndex}`}>{cell}</Table.Cell>
-              ))}
-            </Table.Row>
-          ))}
-        </Table.Body>
-      </Table>
+    <div>
+      <Grid
+        onItemsRendered={({ visibleRowStartIndex, visibleRowStopIndex }): any =>
+          handleScrollDebounced({ visibleRowStartIndex, visibleRowStopIndex })
+        }
+        columnCount={foundPreviewDetail.headers.length + 1}
+        columnWidth={(): number => 200}
+        height={gridSize.height}
+        rowCount={foundPreviewDetail.rows.length + 1}
+        rowHeight={(): number => 50}
+        width={gridSize.width}
+      >
+        {Cell}
+      </Grid>
+      {chunkLoading && <Spinner />}
     </div>
   );
 };
+
+export default Preview;
