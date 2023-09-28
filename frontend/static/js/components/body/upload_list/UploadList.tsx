@@ -47,4 +47,4 @@ const UploadList: React.FC = () => {
   );
 };
 
-export default UploadList
+export default UploadList;
