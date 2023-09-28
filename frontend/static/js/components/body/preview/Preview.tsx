@@ -1,25 +1,14 @@
-import React, { CSSProperties, useEffect, useState } from 'react';
+import React, { CSSProperties, ReactNode } from 'react';
 import { useParams } from 'react-router-dom';
 import { Spinner } from '../Spinner';
 import { useFetchPreviewChunk } from '../../hooks/useFetchPreviewChunk';
 import NotFoundComponent from '../NotFoundComponent';
 import { VariableSizeGrid as Grid } from 'react-window';
+import AutoSizer, { Size } from 'react-virtualized-auto-sizer';
+import { CellContentStyle, HeaderCellStyle, PreviewWrapper } from './Preview.styled';
 
 const Preview: React.FC = () => {
   const { uuid } = useParams();
-
-  const [gridSize, setGridSize] = useState({
-    width: window.innerWidth - 200,
-    height: window.innerHeight - 65,
-  });
-
-  useEffect(() => {
-    const handleResize = (): void => {
-      setGridSize({ width: window.innerWidth, height: window.innerHeight });
-    };
-    window.addEventListener('resize', handleResize);
-    return (): void => window.removeEventListener('resize', handleResize);
-  }, []);
 
   const {
     initialLoading,
@@ -36,21 +25,6 @@ const Preview: React.FC = () => {
   if (initialLoading || !foundPreviewDetail) {
     return <Spinner />;
   }
-
-  const CellContentStyle: CSSProperties = {
-    whiteSpace: 'normal',
-    padding: '5px 10px',
-    overflow: 'auto',
-    outline: '1px solid #222',
-  };
-
-  const HeaderCellStyle: CSSProperties = {
-    padding: '5px 10px',
-    overflow: 'auto',
-    outline: '1px solid #222',
-    backgroundColor: 'lightgray',
-    fontWeight: 'bold',
-  };
 
   const Cell: React.FC<{
     columnIndex: number;
@@ -77,24 +51,27 @@ const Preview: React.FC = () => {
     );
   });
 
-
   return (
-    <div>
-      <Grid
-        onItemsRendered={({ visibleRowStartIndex, visibleRowStopIndex }): any =>
-          handleScrollDebounced({ visibleRowStartIndex, visibleRowStopIndex })
-        }
-        columnCount={foundPreviewDetail.headers.length + 1}
-        columnWidth={(): number => 200}
-        height={gridSize.height}
-        rowCount={foundPreviewDetail.rows.length + 1}
-        rowHeight={(): number => 50}
-        width={gridSize.width}
-      >
-        {Cell}
-      </Grid>
+    <PreviewWrapper>
+      <AutoSizer>
+        {({ height, width }: Size): ReactNode => (
+          <Grid
+            onItemsRendered={({ visibleRowStartIndex, visibleRowStopIndex }): any =>
+              handleScrollDebounced({ visibleRowStartIndex, visibleRowStopIndex })
+            }
+            columnCount={foundPreviewDetail.headers.length + 1}
+            columnWidth={(): number => 200}
+            rowCount={foundPreviewDetail.rows.length + 1}
+            rowHeight={(): number => 50}
+            height={height}
+            width={width}
+          >
+            {Cell}
+          </Grid>
+        )}
+      </AutoSizer>
       {chunkLoading && <Spinner />}
-    </div>
+    </PreviewWrapper>
   );
 };
 
