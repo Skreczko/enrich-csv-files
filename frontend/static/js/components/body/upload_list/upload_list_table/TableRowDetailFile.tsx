@@ -52,8 +52,7 @@ export const TableRowDetailFile: React.FC<Props> = ({
     </DetailRow>
     <DetailRow>
       <p>file name</p>
-      <p className={'text-transform-none'}>{fileName ?? 'In progress...'} -- PREVIEW ON THAT</p>
-      {/*TODO preview on that*/}
+      <p className={'text-transform-none'}>{fileName ?? 'In progress...'}</p>
     </DetailRow>
     <DetailRow>
       <p>size</p>

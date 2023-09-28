@@ -56,7 +56,7 @@ def cache_view_response(
 
             try:
                 cached_data = cache.get(cache_key)
-                if cached_data:
+                if cached_data and not cached_data.get("error"):
                     return JsonResponse(cached_data, status=HTTPStatus.OK)
 
                 response = view_func(request, *args, **kwargs)

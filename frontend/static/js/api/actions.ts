@@ -4,10 +4,12 @@ import { store } from '../redux/store';
 import { updateFileDetail } from '../redux/UploadSectionSlice';
 import {
   CsvFileElement,
+  FetchChunkDataResponse,
   EnrichFileRequest,
   FetchUploadListRequest,
   FetchUploadListResponse,
   TaskResult,
+  FetchChunkDataParamRequest,
 } from './types';
 import { FileType } from '../components/body/upload_csv/types';
 
@@ -135,5 +137,17 @@ export async function enrichFile({
     join_type: selectedJoinType,
     is_flat: flattenJson,
   });
+  return data;
+}
+
+export async function fetchChunkData(
+  uuid: string,
+  params: FetchChunkDataParamRequest,
+): Promise<FetchChunkDataResponse> {
+  const queryParams = new URLSearchParams(convertKeysToSnakeCase(params)).toString();
+
+  const { data } = await api.get(
+    `/api/_internal/csv_list/${uuid}/read_preview_chunk?${queryParams}`,
+  );
   return data;
 }

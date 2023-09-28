@@ -10,7 +10,7 @@ import { TaskType } from '../../../redux/TaskListReducer';
 import { TableNavigation } from './table_management/TableNavigation';
 import { useTaskDispatcher } from '../../hooks/useTaskDispatcher';
 
-export const UploadList: React.FC = () => {
+const UploadList: React.FC = () => {
   const fetchListData = useFetchUploadList();
   const { timeoutTaskDispatcher, clearTimeoutRef, callCounter } = useTaskDispatcher();
 
@@ -46,3 +46,5 @@ export const UploadList: React.FC = () => {
     </UploadListWrapper>
   );
 };
+
+export default UploadList;

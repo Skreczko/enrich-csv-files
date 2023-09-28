@@ -42,7 +42,7 @@ def csv_preview_chunks_get(
 
     instance = (
         CSVFile.objects.select_related("enrich_detail")
-        .only("uuid", "file", "enrich_detail__status")
+        .only("uuid", "file", "file_row_count", "enrich_detail__status")
         .annotate(
             status=Case(
                 When(enrich_detail__isnull=False, then=F("enrich_detail__status")),
@@ -82,6 +82,7 @@ def csv_preview_chunks_get(
             "chunk_size": chunk_size,
             "headers": instance.file_headers,
             "rows": list(etl.data(etl.rowslice(table, start_row, end_row))),
+            "total_rows": instance.file_row_count,
             "uuid": str(uuid),
         },
         status=HTTPStatus.OK,

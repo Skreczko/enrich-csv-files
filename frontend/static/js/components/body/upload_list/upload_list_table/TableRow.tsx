@@ -94,6 +94,7 @@ export const TableRow: React.FC<Props> = ({
           onOpenEnrichStep1Modal={onOpenEnrichStep1Modal}
           onOpenEnrichStep2Modal={onOpenEnrichStep2Modal}
           status={status}
+          uuid={fileElement.uuid}
         />
       </CsvElementRow>
       {openDetails && <TableRowDetailSection fileElement={fileElement} />}

@@ -15,7 +15,7 @@ import { ErrorType, generateHTMLErrorMessages, truncateString } from '../../noti
 import { uploadFile } from '../../../api/actions';
 import { FileStatusEnum, FileType, IncorrectFileDetailsType, UploadStateEnum } from './types';
 
-export const UploadFile: React.FC = () => {
+const UploadFile: React.FC = () => {
   const dispatch = useDispatch();
   const [fileElements, setFileElements] = useState<FileType[]>([]);
   const [uploadState, setUploadState] = useState<UploadStateEnum>(UploadStateEnum.IN_ADDING);
@@ -183,3 +183,5 @@ export const UploadFile: React.FC = () => {
     </UploadFileWrapper>
   );
 };
+
+export default UploadFile;
