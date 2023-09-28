@@ -17,7 +17,7 @@ const UploadList: React.FC = () => {
   const taskObject: TaskType = useSelector((state: RootState) => state.taskList);
 
   useEffect(() => {
-    // taskObject contain all tasks in pushed to redux
+    // taskObject contain all tasks in pushed to redux + tasks saved in localStorage
     // each time we got status success / failure from celery - related records will be removed
     // taskObject contains only tasks just initiated or tasks with celery response "pending"
     const taskList = Object.keys(taskObject);

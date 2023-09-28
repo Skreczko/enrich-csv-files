@@ -1,6 +1,6 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { removeTasks, TaskType } from '../../redux/TaskListReducer';
+import { removeTasks, setTask, TaskType } from '../../redux/TaskListReducer';
 import { RootState } from '../../redux/store';
 import { fetchTaskResults } from '../../api/actions';
 import { CeleryTaskStatus, EnrichDetailStatus } from '../../api/enums';
@@ -21,6 +21,23 @@ export const useTaskDispatcher = (): {
   const callCounter = useRef(0);
   // ref to keep informaction about timeout to be able to clear that
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    // This useEffect is responsible for initializing the task list from localStorage when the component mounts.
+    // By doing this, we ensure that any tasks that were in progress or pending before a page refresh
+    // are still available and can be tracked after the refresh.
+    const parsedTaskList = JSON.parse(localStorage.getItem('taskList'));
+    if (parsedTaskList && Object.keys(parsedTaskList).length) {
+      dispatch(setTask(parsedTaskList));
+    }
+  }, []);
+
+  useEffect(() => {
+    // This useEffect observes changes in the taskObject and updates the localStorage accordingly.
+    // By persisting the taskObject to localStorage, we can maintain the state of tasks across page refreshes.
+    // This ensures that even if the user refreshes the page, the state of ongoing or pending tasks is not lost.
+    localStorage.setItem('taskList', JSON.stringify(taskObject));
+  }, [taskObject]);
 
   const clearTimeoutRef = (): void => {
     clearTimeout(timeoutRef.current);
