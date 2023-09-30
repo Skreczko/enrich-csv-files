@@ -32,6 +32,11 @@ jobs:
         DEBUG: False
       run: ./check.sh
 
+    - name: Run coverage check script
+      working-directory: ./backend/scripts
+
+      run: ./check_coverage.py
+
     # Frontend dependencies caching
     - name: Cache frontend dependencies
       uses: actions/cache@v2
