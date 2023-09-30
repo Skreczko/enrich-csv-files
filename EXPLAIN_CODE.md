@@ -58,52 +58,11 @@ in this case, using django and put react to django template we can
     for axios to provide that token in every request in header
 
 * user check on selected endpoint with custom with decorator / adding that in middleware
-* creating websocket to push notifications to redux / creating endpoint which gives information which celery task is still in queue - obtain task_id and push that to redux. request every 10second to endpoint with these task_id and check if its already completed. return info to redux about status and displaying correct notification (success/failed)
 * modifying endpoint to create possibility to obtain chunks, and then merging them with petl. it may solve problems with internet disconnection,optimalization
 * As we can enrich files - we can add additional csv list view as "tree", where user can select that and see "root" file, and expand to see which files were created using that root file, ie https://primereact.org/treetable/ 
 
 
-## Optimization
 
-### Backend
-* Added `TemporaryFileUploadHandler` with `FILE_UPLOAD_MAX_MEMORY_SIZE = 0` for making chunks during uploading files.
-* Added `ijson` for count api response objects and set up header
-* Added `yajl2` parser for increase parsing (https://lpetr.org/2016/05/30/faster-json-parsing-python-ijson/)
-  and https://stackoverflow.com/a/17326199 where 
-```
-(...)Comparing execution time with other solutions, ijson is rather slow (57 s versus stdlib json), but it is excellent if you need to keep memory consumption low (13 MB versus stdlib json 439 MB). Using with yajl2 backend, it was not faster, but memory consumption dropped down to 5 MB. Tested on 3 files each being about 30 MB large and having 300 thousands records."
-```
-* Used `GZipMiddleware` for compressing responses https://docs.djangoproject.com/en/3.2/_modules/django/middleware/gzip/#GZipMiddleware
-* Added info about csv / api response count and headers / key to database - as this data will not change and we can avoid opening files
-* Used petl for merge process
-* As DRF is restricted (as Jakub said) created custom serializers `serializer.py`
-* For csv preview - used `etl.rowslice` for pagination
-* For csv preview  - custom cache view - `cache_view_response` for JSON response (as DRF is restricted, redirected all request which does not fit to urls.py to react to handle it there)
-* For status updates, used `queryset.update()` instead `.save()` to make that change directly in database
-* Added `flatdict` to flat json file on user request during enchrichment process
-* Using generators in many places
-* Added DDT https://pypi.org/project/django-debug-toolbar/ to track query. Ajax query can be viewed in "history" tab.
-* Added `Sentry` (https://adverity-transformer-197cd18c7.sentry.io/issues/ - credentials in `.env.example`
-
-### Frontend
-
-#### React-Window
-- **Efficient Rendering**: Displays only visible elements from large lists, improving performance.
-- **Smooth Scrolling**: Ensures seamless scrolling with large datasets.
-- **Chunk Loading**: Requests additional data chunks from the backend when scrolling reaches 75% of the current content.
-
-#### Added `useTaskDispatcher`:
-- **Task Management**: Efficiently dispatches tasks based on their status and updates the application state.
-- **Dynamic Timeout**: Adjusts backend call frequency based on call count to prevent server overload.
-  - Up to 5 calls: 2-second timeout
-  - 6 to 9 calls: 5-second timeout
-  - 10+ calls: 10-second timeout
-- **Notifications**: Provides real-time user feedback on task statuses, including success and errors.
-- **State Management**: Uses Redux for consistent state updates.
-- **Error Handling**: Ensures issues during task dispatch are caught and managed.
-- **Clean Up**: Implements mechanisms like `clearTimeoutRef` for efficient memory management.
-- 
 
 # TODO
 * `Sentry` has default setup. May be required to add additional sentry envs for local/test/prod
-* Handle the deletion of files. Currently, we only delete records from the database, but the files remain. Depending on business requirements, we may want to retain them for a certain period or delete them immediately. If we choose the latter, it should be managed with a Celery task for cleanup and optimization purposes.

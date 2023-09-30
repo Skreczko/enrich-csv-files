@@ -27,8 +27,7 @@ def csv_detail_delete(
     :return: JsonResponse object containing the UUID of the file record marked for deletion.
 
     Note:
-    - Only the database record is deleted. Physical file deletion is pending for future development and should be
-      handled asynchronously using Celery for system optimization.
+    - Only the database record is deleted. Physical file deletion is handled by celery schedule task - remove_orphaned_csv_files
     """
     instance_uuid = request_form.cleaned_data["uuid"]
     CSVFile.objects.filter(uuid=instance_uuid).delete()

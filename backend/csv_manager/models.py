@@ -45,9 +45,7 @@ class CSVFile(models.Model):
         related_name="enriched_instances",
     )
     created = models.DateTimeField(auto_now_add=True)
-    # Files and folders will not be deleted after instance deletion.
-    # Depending on business needs, additional logic may be required
-    # Ie signals, functions, bulk_delete, overriding def delete, scheduled task...
+    # File will be deleted in celery scheduled task - remove_orphaned_csv_files
     file = models.FileField(
         upload_to=upload_path,
         null=True,
@@ -124,6 +122,7 @@ class EnrichDetail(models.Model):
         help_text="The origin URL which was used to enrich",
     )
     # json external response stored in file - to keep source of enrichment as API can change
+    # File will be deleted in celery scheduled task - remove_orphaned_csv_files
     external_response = models.FileField(
         upload_to=upload_path,
         null=True,
