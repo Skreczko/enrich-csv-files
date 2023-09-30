@@ -10,6 +10,7 @@ from csv_manager.forms import CSVUploadRequestForm
 from csv_manager.models import CSVFile
 from decorators.form_validator import validate_request_form
 from transformer.serializers import serialize_instance
+from csv_manager.tasks import process_csv_metadata
 
 
 @require_POST
@@ -35,8 +36,6 @@ def csv_upload(
     - CSRF protection is currently missing as there is no user instance. This should be addressed in future development.
     - OPTIMIZATION: Consider refactoring to process chunks of the file, merge them, and then create the CSVFile object.
     """
-
-    from csv_manager.tasks import process_csv_metadata
 
     try:
         file = request_form.cleaned_data["file"]

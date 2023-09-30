@@ -11,6 +11,11 @@ from csv_manager.enums import EnrichmentJoinType, EnrichmentStatus
 from csv_manager.helpers import get_and_serialize_csv_detail
 from csv_manager.models import CSVFile, EnrichDetail
 
+import ijson.backends.yajl2 as ijson  # https://lpetr.org/2016/05/30/faster-json-parsing-python-ijson/
+import requests
+from django.core.files import File
+from tempfile import NamedTemporaryFile
+
 
 @shared_task()
 def process_csv_metadata(uuid: str, *args: Any, **kwargs: Any) -> None:
@@ -61,11 +66,6 @@ def process_fetch_external_url(
       it ensures minimal RAM usage. As this task runs asynchronously in Celery without blocking the main thread,
       this trade-off is deemed acceptable to mitigate potential memory issues.
     """
-
-    import ijson.backends.yajl2 as ijson  # https://lpetr.org/2016/05/30/faster-json-parsing-python-ijson/
-    import requests
-    from django.core.files import File
-    from tempfile import NamedTemporaryFile
 
     enrich_detail = EnrichDetail.objects.filter(uuid=enrich_detail_uuid).first()
     if not enrich_detail:

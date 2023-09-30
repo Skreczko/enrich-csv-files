@@ -1,6 +1,7 @@
 from collections.abc import Iterable
 from typing import Any
 
+import flatdict
 from petl import FieldSelectionError
 
 from csv_manager.enums import EnrichmentJoinType
@@ -136,7 +137,6 @@ def create_enrich_table_by_join_type(
 
     # create table from external api response json file
     if enrich_detail_instance.is_flat:
-        import flatdict
 
         def flattened_data_generator() -> Iterable:
             """
