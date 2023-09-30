@@ -4,6 +4,7 @@ import {
   laodMoreChunkData,
   PreviewDetail,
   PreviewType,
+  removeChunk,
   setChunkData,
 } from '../../redux/PreviewListReducer';
 import { useCallback, useEffect, useState } from 'react';
@@ -36,6 +37,17 @@ export const useFetchPreviewChunk = (
   const [notFound, setNotFound] = useState(false);
 
   const foundPreviewDetail = previewList[uuid];
+
+  useEffect(() => {
+    // Clean up chunks to avoid storing large data in Redux since responses are cached by the backend.
+    return (): void => {
+      dispatch(removeChunk(uuid));
+    };
+  }, []);
+
+  useEffect(() => {
+    loadPreviewChunk().then(() => setInitialLoading(false));
+  }, [uuid]);
 
   const loadPreviewChunk = async (): Promise<void> => {
     try {
@@ -74,10 +86,6 @@ export const useFetchPreviewChunk = (
       );
     }
   };
-
-  useEffect(() => {
-    loadPreviewChunk().then(() => setInitialLoading(false));
-  }, [uuid]);
 
   const debouncedHandleScroll = debounce(async ({ visibleRowStopIndex }: ScrollInfo) => {
     const totalRows = foundPreviewDetail?.totalRows || 0;
