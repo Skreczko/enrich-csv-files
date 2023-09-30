@@ -13,8 +13,8 @@ import { useFetchUploadList } from '../../../../hooks/useFetchUploadList';
 import { useDispatch } from 'react-redux';
 import { EnrichJsonJoinTypeInfoModal } from './EnrichJsonJoinTypeInfoModal';
 import { EnrichJsonFlattenStructureInfoModal } from './EnrichJsonFlattenStructureInfoModal';
-import {updateFileElement} from "../../../../../redux/FileListSlice";
-import {EnrichDetailStatus} from "../../../../../api/enums";
+import { updateFileElement } from '../../../../../redux/FileListSlice';
+import { EnrichDetailStatus } from '../../../../../api/enums';
 
 type Props = {
   selectedFileElement: CsvFileElement;
