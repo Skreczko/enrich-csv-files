@@ -19,7 +19,6 @@ const previewListSlice = createSlice({
     setChunkData: (state, { payload: preview }: PayloadAction<PreviewType>) => {
       return { ...state, ...preview };
     },
-
     laodMoreChunkData: (
       state,
       action: PayloadAction<{
@@ -34,9 +33,12 @@ const previewListSlice = createSlice({
         rows: [...state[uuid].rows, ...loadMorePreview.rows],
       };
     },
+    removeChunk: (state, { payload: uuid }: PayloadAction<string>) => {
+      delete state[uuid];
+    },
   },
 });
 
-export const { setChunkData, laodMoreChunkData } = previewListSlice.actions;
+export const { setChunkData, laodMoreChunkData, removeChunk } = previewListSlice.actions;
 
 export default previewListSlice.reducer;
