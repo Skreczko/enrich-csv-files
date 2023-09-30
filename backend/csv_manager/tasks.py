@@ -154,36 +154,48 @@ def process_fetch_external_url(
 @shared_task()
 def remove_orphaned_csv_files() -> None:
     """
-    Asynchronously identify and remove orphaned CSV files from user directories.
+    Asynchronously identify and remove orphaned CSV and JSON files from user directories.
 
-    This task scans each user's upload directory for CSV files that are not associated with any CSVFile instance.
-    Such orphaned files can accumulate due to various reasons, such as failed uploads or manual deletions of CSVFile instances without corresponding file removal.
+    This task is designed to maintain storage hygiene by scanning each user's upload directory for files
+    that are not associated with any database instances. Orphaned files can accumulate due to various reasons,
+    such as failed uploads or manual deletions of database instances without corresponding file removal.
 
     Steps:
-    1. Retrieve all file paths associated with CSVFile instances.
+    1. Retrieve all file paths associated with CSVFile and EnrichDetail instances.
     2. For each user directory, identify files that are not in the list of associated files.
     3. Delete each identified orphaned file.
 
     :return: None
 
     Notes:
-    - This task is designed to be run periodically to ensure storage hygiene.
+    - The task not only checks for orphaned CSV files but also for orphaned JSON files.
     - It's recommended to schedule this task during off-peak hours to minimize potential I/O contention.
     - Always ensure backups are in place before running cleanup tasks to prevent accidental data loss.
     """
 
-    associated_files = set(CSVFile.objects.values_list('file', flat=True))
     users_upload_directory = os.path.join(settings.MEDIA_ROOT, 'files')
+
+    associated_csv_files = set(name.rsplit("/",1)[-1] for name in CSVFile.objects.values_list("file", flat=True))
+    associated_json_files = set(name.rsplit("/", 1)[-1] for name in EnrichDetail.objects.values_list("external_response", flat=True))
 
     for user_directory in os.listdir(users_upload_directory):
         user_files_directory = os.path.join(os.path.join(settings.MEDIA_ROOT, 'files'), user_directory)
 
-        user_files = set(os.listdir(user_files_directory))
-        orphaned_files = user_files - associated_files
+        # Remove CSV files
+        user_csv_files = set(file_name for file_name in os.listdir(user_files_directory) if file_name.rsplit(".", 1)[-1]=="csv")
+        orphaned_csv_files = user_csv_files - associated_csv_files
 
-        for file_name in orphaned_files:
-            file_path = os.path.join(user_files_directory, file_name)
-            # os.remove(file_path)
+        for csv_file_name in orphaned_csv_files:
+            csv_file_path = os.path.join(user_files_directory, csv_file_name)
+            os.remove(csv_file_path)
+
+        # Remove JSON files
+        user_json_files = set(file_name for file_name in os.listdir(user_files_directory) if file_name.rsplit(".", 1)[-1]=="json")
+        orphaned_json_files = user_json_files - associated_json_files
+
+        for json_file_name in orphaned_json_files:
+            json_file_path = os.path.join(user_files_directory, json_file_name)
+            os.remove(json_file_path)
 
 
 @shared_task()

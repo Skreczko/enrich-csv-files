@@ -158,9 +158,6 @@ def csv_list(
             fields=[
                 "created",
                 "enrich_detail",
-                # "file",
-                # "file_headers",
-                # "file_row_count",
                 "original_file_name",
                 "source_original_file_name",
                 "source_uuid",
