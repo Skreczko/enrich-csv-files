@@ -1,7 +1,8 @@
+import os
 from typing import Any, cast
 
 from celery import shared_task
-from django.db.models import F
+from django.conf import settings
 from petl import FieldSelectionError
 from sentry_sdk import capture_exception  # type: ignore  #todo fix stubs
 
@@ -151,37 +152,68 @@ def process_fetch_external_url(
 
 
 @shared_task()
-def clear_empty_csvfile() -> None:
+def remove_orphaned_csv_files() -> None:
     """
-    Asynchronously delete CSVFile instances based on specific criteria.
+    Asynchronously identify and remove orphaned CSV and JSON files from user directories.
 
-    This task is designed to periodically clean up CSVFile records that:
-    1. Lack associated files (i.e., the file field is empty or null).
-    2. Have an associated enrichment detail with a status of "INITIATED" and were created more than 3 days ago. (same as for schedule)
+    This task is designed to maintain storage hygiene by scanning each user's upload directory for files
+    that are not associated with any database instances. Orphaned files can accumulate due to various reasons,
+    such as failed uploads or manual deletions of database instances without corresponding file removal.
 
-    Such empty CSVFile instances can be created under various circumstances, including when a user initiates an enrichment process but does not complete it.
+    Steps:
+    1. Retrieve all file paths associated with CSVFile and EnrichDetail instances.
+    2. For each user directory, identify files that are not in the list of associated files.
+    3. Delete each identified orphaned file.
 
     :return: None
 
     Notes:
-    - It's recommended to schedule this task during off-peak hours to minimize potential database contention.
+    - The task not only checks for orphaned CSV files but also for orphaned JSON files.
+    - It's recommended to schedule this task during off-peak hours to minimize potential I/O contention.
+    - Always ensure backups are in place before running cleanup tasks to prevent accidental data loss.
     """
 
-    from django.db.models import Q
-    from datetime import timedelta
+    users_upload_directory = os.path.join(settings.MEDIA_ROOT, "files")
 
-    check_date = F("enrich_detail__created") - timedelta(days=3)
+    associated_csv_files = set(
+        name.rsplit("/", 1)[-1]
+        for name in CSVFile.objects.values_list("file", flat=True)
+        if isinstance(name, str)
+    )
+    associated_json_files = set(
+        name.rsplit("/", 1)[-1]
+        for name in EnrichDetail.objects.values_list("external_response", flat=True)
+        if isinstance(name, str)
+    )
 
-    CSVFile.objects.filter(
-        # check if file exists
-        (Q(file="") | Q(file__isnull=True))
-        # check status and date
-        # TODO filter by correct status - to rethink
-        & Q(
-            enrich_detail__status=EnrichmentStatus.FETCHING_RESPONSE,
-            created__lte=check_date,
+    for user_directory in os.listdir(users_upload_directory):
+        user_files_directory = os.path.join(
+            os.path.join(settings.MEDIA_ROOT, "files"), user_directory
         )
-    ).delete()
+
+        # Remove CSV files
+        user_csv_files = set(
+            file_name
+            for file_name in os.listdir(user_files_directory)
+            if file_name.rsplit(".", 1)[-1] == "csv"
+        )
+        orphaned_csv_files = user_csv_files - associated_csv_files
+
+        for csv_file_name in orphaned_csv_files:
+            csv_file_path = os.path.join(user_files_directory, csv_file_name)
+            os.remove(csv_file_path)
+
+        # Remove JSON files
+        user_json_files = set(
+            file_name
+            for file_name in os.listdir(user_files_directory)
+            if file_name.rsplit(".", 1)[-1] == "json"
+        )
+        orphaned_json_files = user_json_files - associated_json_files
+
+        for json_file_name in orphaned_json_files:
+            json_file_path = os.path.join(user_files_directory, json_file_name)
+            os.remove(json_file_path)
 
 
 @shared_task()
@@ -195,10 +227,9 @@ def process_csv_enrichment(
 
     Steps:
     1. Retrieve the EnrichDetail and associated CSVFile instances based on the provided UUID.
-    2. Update the status of the EnrichDetail instance to ENRICHING.
-    3. Perform the enrichment process based on the specified join type.
-    4. Update the CSVFile instance with the enriched data.
-    5. Update the status of the EnrichDetail instance to COMPLETED.
+    2. Perform the enrichment process based on the specified join type.
+    3. Update the CSVFile instance with the enriched data.
+    4. Update the status of the EnrichDetail instance to COMPLETED.
 
     :param enrich_detail_uuid: UUID of the EnrichDetail instance to process.
     :return:
@@ -217,9 +248,6 @@ def process_csv_enrichment(
         "csv_file",
         "csv_file__source_instance",
     ).get(uuid=enrich_detail_uuid)
-
-    enrich_detail_instance.status = EnrichmentStatus.ENRICHING
-    enrich_detail_instance.save(update_fields=("status",))
 
     csvfile_instance = enrich_detail_instance.csv_file
     source_csvfile_instance = csvfile_instance.source_instance

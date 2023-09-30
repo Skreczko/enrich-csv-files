@@ -9,6 +9,7 @@ from django.views.decorators.http import require_POST
 from csv_manager.enums import EnrichmentStatus
 from csv_manager.forms import CSVEnrichFileRequestForm
 from csv_manager.models import EnrichDetail
+from csv_manager.tasks import process_csv_enrichment
 from decorators.form_validator import validate_request_form
 
 
@@ -65,8 +66,6 @@ def csv_enrich_file_create(
     - The function uses the `process_csv_enrichment` Celery task to perform the merge operation in the background.
     """
 
-    from csv_manager.tasks import process_csv_enrichment
-
     enrich_detail_uuid = request_form.cleaned_data["enrich_detail_uuid"]
     enrich_detail_queryset = (
         EnrichDetail.objects.defer("external_response")
@@ -111,6 +110,8 @@ def csv_enrich_file_create(
     if validation_response:
         return validation_response
 
+    enrich_detail_queryset.update(status=EnrichmentStatus.ENRICHING)
+
     task = cast(Task, process_csv_enrichment).apply_async(
         args=(),
         kwargs={
@@ -118,7 +119,7 @@ def csv_enrich_file_create(
         },
         serializer="json",  # didn't use pickle (which could reduce database requests) due to security concerns.
     )
-    # process_csv_enrichment(**{"enrich_detail_uuid": str(enrich_detail_uuid)})
+
     return JsonResponse(
         {"task_id": task.id, "csv_file_uuid": enrich_detail_instance.csv_file_uuid},
         status=HTTPStatus.OK,

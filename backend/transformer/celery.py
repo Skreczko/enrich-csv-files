@@ -20,8 +20,8 @@ def debug_task(self: Task) -> None:
 
 
 app.conf.beat_schedule = {
-    "clear-csvfile": {
-        "task": "csv_manager.tasks.clear_empty_csvfile",
+    "remove-orphans": {
+        "task": "csv_manager.tasks.remove_orphaned_csv_files",
         "schedule": crontab(minute="0", hour="3", day_of_month="*/3"),
     },
 }

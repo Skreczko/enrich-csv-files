@@ -13,6 +13,8 @@ import { useFetchUploadList } from '../../../../hooks/useFetchUploadList';
 import { useDispatch } from 'react-redux';
 import { EnrichJsonJoinTypeInfoModal } from './EnrichJsonJoinTypeInfoModal';
 import { EnrichJsonFlattenStructureInfoModal } from './EnrichJsonFlattenStructureInfoModal';
+import { updateFileElement } from '../../../../../redux/FileListSlice';
+import { EnrichDetailStatus } from '../../../../../api/enums';
 
 type Props = {
   selectedFileElement: CsvFileElement;
@@ -118,6 +120,12 @@ export const TableModals: React.FC<Props> = ({
             selectedFileElement.original_file_name,
             100,
           )} (ID: ${selectedFileElement.uuid})`,
+        }),
+      );
+      dispatch(
+        updateFileElement({
+          uuid: selectedFileElement.uuid,
+          csv_detail: { ...selectedFileElement, status: EnrichDetailStatus.ENRICHING },
         }),
       );
       dispatch(setTask({ [task_id]: { instance: 'CsvFile', uuid: csv_file_uuid } }));
