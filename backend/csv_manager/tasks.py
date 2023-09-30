@@ -173,16 +173,30 @@ def remove_orphaned_csv_files() -> None:
     - Always ensure backups are in place before running cleanup tasks to prevent accidental data loss.
     """
 
-    users_upload_directory = os.path.join(settings.MEDIA_ROOT, 'files')
+    users_upload_directory = os.path.join(settings.MEDIA_ROOT, "files")
 
-    associated_csv_files = set(name.rsplit("/",1)[-1] for name in CSVFile.objects.values_list("file", flat=True))
-    associated_json_files = set(name.rsplit("/", 1)[-1] for name in EnrichDetail.objects.values_list("external_response", flat=True))
+    associated_csv_files = set(
+        name.rsplit("/", 1)[-1]
+        for name in CSVFile.objects.values_list("file", flat=True)
+        if isinstance(name, str)
+    )
+    associated_json_files = set(
+        name.rsplit("/", 1)[-1]
+        for name in EnrichDetail.objects.values_list("external_response", flat=True)
+        if isinstance(name, str)
+    )
 
     for user_directory in os.listdir(users_upload_directory):
-        user_files_directory = os.path.join(os.path.join(settings.MEDIA_ROOT, 'files'), user_directory)
+        user_files_directory = os.path.join(
+            os.path.join(settings.MEDIA_ROOT, "files"), user_directory
+        )
 
         # Remove CSV files
-        user_csv_files = set(file_name for file_name in os.listdir(user_files_directory) if file_name.rsplit(".", 1)[-1]=="csv")
+        user_csv_files = set(
+            file_name
+            for file_name in os.listdir(user_files_directory)
+            if file_name.rsplit(".", 1)[-1] == "csv"
+        )
         orphaned_csv_files = user_csv_files - associated_csv_files
 
         for csv_file_name in orphaned_csv_files:
@@ -190,7 +204,11 @@ def remove_orphaned_csv_files() -> None:
             os.remove(csv_file_path)
 
         # Remove JSON files
-        user_json_files = set(file_name for file_name in os.listdir(user_files_directory) if file_name.rsplit(".", 1)[-1]=="json")
+        user_json_files = set(
+            file_name
+            for file_name in os.listdir(user_files_directory)
+            if file_name.rsplit(".", 1)[-1] == "json"
+        )
         orphaned_json_files = user_json_files - associated_json_files
 
         for json_file_name in orphaned_json_files:

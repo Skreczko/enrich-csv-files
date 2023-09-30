@@ -66,7 +66,6 @@ def csv_enrich_file_create(
     - The function uses the `process_csv_enrichment` Celery task to perform the merge operation in the background.
     """
 
-
     enrich_detail_uuid = request_form.cleaned_data["enrich_detail_uuid"]
     enrich_detail_queryset = (
         EnrichDetail.objects.defer("external_response")
