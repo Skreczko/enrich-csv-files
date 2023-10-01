@@ -59,6 +59,8 @@ jobs:
       working-directory: ./backend/scripts
       run: ./run_tests.sh
 
+    - name: Display the content of previous-coverage.xml
+      run: cat backend/previous-coverage.xml
 
     - name: List files in directory
       working-directory: ./backend
