@@ -121,7 +121,9 @@ def get_coverage(file_name):
             lines.append(int(line.attrib["number"]))
 
         coverage[package.attrib["filename"]] = CoverageData(
-            line_rate=line_rate, lines=lines, uncovered=uncovered,
+            line_rate=line_rate,
+            lines=lines,
+            uncovered=uncovered,
         )
     return coverage
 
