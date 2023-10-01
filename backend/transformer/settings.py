@@ -28,6 +28,8 @@ FILE_UPLOAD_HANDLERS = [
     "django.core.files.uploadhandler.TemporaryFileUploadHandler",
 ]
 
+TEST = False
+TEST_RUNNER = "conftest.PytestTestRunner"
 MYPY = "mypy" in sys.argv[0]
 
 # Quick-start development settings - unsuitable for production

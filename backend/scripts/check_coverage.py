@@ -3,22 +3,12 @@ import subprocess
 import sys
 import xml.etree.ElementTree
 from collections import namedtuple
-import os
-import argparse
 
-os.chdir(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../..'))
-
-parser = argparse.ArgumentParser(description='Check coverage.')
-parser.add_argument('--git-dir', default='.', help='Path to the git directory')
-parser.add_argument('coverage_file', help='Path to the current coverage XML file')
-parser.add_argument('previous_coverage_file', help='Path to the previous coverage XML file')
-args = parser.parse_args()
 # In percentage, how many lines of newly added code should be covered
-
 COVERAGE_THRESHOLD = 0.8
 
 
-
+# format_lines copied from coverage.py to avoid a dependency
 # Copyright 2001 Gareth Rees.  All rights reserved.
 # Copyright 2004-2021 Ned Batchelder.  All rights reserved.
 #
@@ -107,18 +97,28 @@ def format_lines(statements, lines, arcs=None):
 
 def get_modified_files():
     target_branch = "main"
-    output = subprocess.check_output(
-        ["git", '--git-dir', '/home/user/.git', "diff", "--name-only", "--relative=app", "origin/" + target_branch],
-    ).decode("utf-8").strip()  # Dodajemy .strip() aby usunąć białe znaki na początku i końcu
-    return [file for file in output.split("\n") if file]  # Filtrujemy puste ciągi znaków
+    return (
+        subprocess.check_output(
+            [
+                "git",
+                "--git-dir",
+                "/home/user/.git",
+                "diff",
+                "--name-only",
+                "--relative=app",
+                "origin/" + target_branch,
+            ],
+        )
+        .decode("utf-8")
+        .split("\n")
+    )
 
 
 class CoverageData(namedtuple("CoverageData", "line_rate lines uncovered")):
     pass
 
 
-def get_coverage(relative_file_name):
-    file_name = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', relative_file_name)
+def get_coverage(file_name):
     coverage = {}
     for package in xml.etree.ElementTree.parse(file_name).findall(".//class"):
         line_rate = float(package.attrib["line-rate"]) * 100
@@ -138,24 +138,22 @@ def get_coverage(relative_file_name):
 
 
 def main():
+    if len(sys.argv) != 3:
+        print("Need two filenames")
+        return 0
     modified_files = get_modified_files()
-    new_coverage = get_coverage(args.coverage_file)
-    old_coverage = get_coverage(args.previous_coverage_file)
+    new_coverage = get_coverage(sys.argv[1])
+    old_coverage = get_coverage(sys.argv[2])
     failed_lines = False
-
-    if not new_coverage:
-        print("No tests found. Coverage is 0% for all files.")
-        return 1
-
-    for filename in modified_files:
-        new_data = new_coverage.get(filename, CoverageData(line_rate=0.0, lines=[], uncovered=[]))
+    for filename, new_data in new_coverage.items():
+        if filename not in modified_files:
+            continue
         old_data = old_coverage.get(filename)
 
         if not old_data:
             minimum_rate = COVERAGE_THRESHOLD * 100
         else:
             minimum_rate = old_data.line_rate * COVERAGE_THRESHOLD
-
         if new_data.line_rate < minimum_rate:
             print(
                 "{filename}: expected {old_lines:.2f}% coverage, got {new_lines:.2f}%, missing: {missing}.".format(
@@ -177,9 +175,6 @@ def main():
 
     print("Coverage is good!")
     return 0
-
-
-
 
 
 if __name__ == "__main__":

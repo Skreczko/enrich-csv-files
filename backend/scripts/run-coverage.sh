@@ -16,7 +16,6 @@ tmpfile=$(mktemp /tmp/XXXXXX-coverage.txt)
 
 cd $DIR/.. && \
   coverage run ./manage.py test -- "$*" && \
-  coverage xml -o coverage.xml && \
   coverage report -m > "$tmpfile"
 $DIR/check_coverage.py "$tmpfile"
 rm "$tmpfile"

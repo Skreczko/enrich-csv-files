@@ -1,2 +1,2 @@
 def test_detail_get():
-    assert 1==1
+    assert 1 == 1

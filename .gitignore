@@ -8,3 +8,5 @@ frontend/static/bundles/
 frontend/webpack-stats.json
 media
 /backend/.coverage
+/backend/coverage.xml
+/backend/previous-coverage.xml
