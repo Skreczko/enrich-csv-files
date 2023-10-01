@@ -155,6 +155,11 @@ In our CI/CD process, we emphasize the importance of maintaining a high code cov
 
 Maintaining or improving test coverage ensures that the codebase remains robust and resilient against potential bugs. It's a testament to the quality and reliability of the software.
 
+Coverage files are removed in the last step. If you want to keep them, remove line
+```plaintext
+rm -f coverage.xml previous-coverage.xml .coverage
+```
+
 ## Please check EXPLAIN_CODE.md
 
 __________________________________________________________________

@@ -4,6 +4,6 @@ set -eu
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $DIR/..
 
-coverage run manage.py test
+pytest --cov=. --cov-report=term-missing:skip-covered
 
 coverage xml -o coverage.xml
