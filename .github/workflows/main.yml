@@ -57,6 +57,10 @@ jobs:
     # Run tests with coverage using the script
     - name: Run tests with coverage using script
       working-directory: ./backend/scripts
+      env:
+        SECRET_KEY: random_secret_key
+        BROKER_URL: random_broker_url
+        DEBUG: False
       run: ./run_tests.sh
 
     - name: Display the content of previous-coverage.xml
