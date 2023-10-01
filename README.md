@@ -2,11 +2,11 @@
 * Before you do so, please rename file `backend/.env.example` to `backend/.env`. It is intentional behavior to provide `.env` file. 
 * Dont forget to set `DEBUG=True` in `.env` if you want to start developing server!
 * To manage containers, you can use 
-```
+```shell
 docker-compose run --rm django bash
 ```
 or
-```
+```shell
 docker exec -it atc-django bash
 ```
 
@@ -15,7 +15,7 @@ Below, second option will be used.
 ## Run project
 ### Production mode
 In terminal, type 
-```
+```shell
 docker-compose up
 ```
 Remember that changes in frontend will not be tracked.
@@ -24,7 +24,7 @@ the name of `docker-compose.yml` should be `docker-compose.prod.yml` - to rename
 
 ### Development mode
 In terminal, type 
-```
+```shell
 docker-compose -f docker-compose.dev.yml up
 ```
 Watch to frontend changes will be set. Use `ctrl` + `s`
@@ -61,7 +61,7 @@ atc-django  | [28/Aug/2023 07:56:44] "GET /frontend/static/main.c8dbe57ae25aa563
 
 * To confirm, run `Django server` and use command below,
 Type 
-```
+```shell
 docker exec -it atc-django bash
 ```
 you should see something like `root@868056ecf804:/opt/project/backend# `
@@ -79,16 +79,16 @@ In the Docker configuration, the `node_modules` directory is set as an anonymous
 * there is an isssue with celery for running server using pycharm's django server. You need to run celery/celery-beat manually in container after you run this project with django server
 - run your project with green arrow
 - Type
-```
+```shell
 docker exec -it atc-django bash
 ```
 then type
-```
+```plaintext
 watchmedo auto-restart --pattern '*.py' --signal SIGINT --recursive -- celery -A transformer worker -l debug
 ```
 
 do same for celery-beat in other terminal:
-```
+```plaintext
 watchmedo auto-restart --pattern '*.py' --signal SIGINT --recursive -- celery -A transformer beat -l debug
 ```
 
@@ -110,24 +110,31 @@ Pipelines will not pass until you fix code formatting and type check errors both
 ### Backend code
 Script to format backend code using `Ruff`, `black`, `mypy` is prepared in `backend/check.sh`.
 Run `atc-django` container
-```
+```shell
 docker exec -it atc-django bash
 ``` 
 and inside shell run script 
-```
+```plaintext
 ./check.sh
 ```
 
 ### Frontend code
 Script to format backend code using `npm run check` is prepared in `frontend/check.sh` and in `scripts` in `package.json`.
 Run `atc-webpack` container
-```
+```shell
 docker exec -it atc-webpack bash
 ``` 
 and inside shell run script 
-```
+```plaintext
 ./check.sh
 ```
+
+## Tests
+TODO 
+```shell
+docker-compose -f docker-compose.dev.yml exec django coverage run manage.py test
+```
+
 
 
 ## Please check EXPLAIN_CODE.md
