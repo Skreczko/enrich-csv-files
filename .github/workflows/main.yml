@@ -32,10 +32,30 @@ jobs:
         DEBUG: False
       run: ./check.sh
 
-    - name: Run coverage check script
-      working-directory: ./backend/scripts
+    # Download previous coverage report
+    - name: Download previous coverage report
+      uses: actions/download-artifact@v2
+      with:
+        name: coverage-report
+        path: backend/previous-coverage.xml
+      continue-on-error: true
 
-      run: ./check_coverage.py
+    # Run tests with coverage using the script
+    - name: Run tests with coverage using script
+      working-directory: ./backend/scripts
+      run: ./run-coverage.sh
+
+    # Compare coverage reports
+    - name: Compare coverage reports
+      working-directory: ./backend/scripts
+      run: ./check_coverage.py ../coverage.xml ../previous-coverage.xml
+
+    # Upload the new coverage report as an artifact
+    - name: Upload coverage as artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: coverage-report
+        path: backend/coverage.xml
 
     # Frontend dependencies caching
     - name: Cache frontend dependencies
