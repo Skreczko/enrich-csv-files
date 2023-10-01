@@ -48,6 +48,7 @@ jobs:
         path: backend/previous-coverage.xml
       continue-on-error: true
 
+    # Create coverage report if not exist
     - name: Ensure previous coverage report exists
       run: |
         if [ ! -f backend/previous-coverage.xml ] || [ ! -s backend/previous-coverage.xml ]; then
@@ -61,34 +62,24 @@ jobs:
         SECRET_KEY: random_secret_key
         BROKER_URL: random_broker_url
         DEBUG: False
-      run: ./run_tests.sh
-
-    - name: Display the content of previous-coverage.xml
-      run: cat backend/previous-coverage.xml
-
-    - name: List files in directory
-      working-directory: ./backend
-      run: ls -la
-
-
-
+      run: ./run-tests.sh
 
       # Compare coverage reports
     - name: Compare coverage reports
       working-directory: ./backend/scripts
       env:
         GITHUB_ACTIONS: true
-      run: ./check_coverage.py ../current_coverage.xml ../previous-coverage.xml
+      run: ./check_coverage.py ../coverage.xml ../previous-coverage.xml
 
     # Upload the new coverage report as an artifact
     - name: Upload coverage as artifact
       uses: actions/upload-artifact@v2
       with:
         name: coverage-report
-        path: backend/current_coverage.xml
+        path: backend/coverage.xml
 
     - name: Clean up coverage files
-      run: rm backend/current_coverage.xml
+      run: rm backend/coverage.xml
 
     # Frontend dependencies caching
     - name: Cache frontend dependencies
