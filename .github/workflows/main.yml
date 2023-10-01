@@ -33,11 +33,8 @@ jobs:
       run: ./check.sh
 
     # Fix repository ownership
-    - name: Fix repository ownership
-      run: sudo chown -R $(whoami) $(git rev-parse --show-toplevel)
-
     - name: Add safe directory exception
-      run: git config --global safe.directory $(git rev-parse --show-toplevel)
+      run: git config --global safe.directory /__w/Fullstack-Challenge-DawidS/Fullstack-Challenge-DawidS
 
     # Fetch main branch
     - name: Fetch main branch
