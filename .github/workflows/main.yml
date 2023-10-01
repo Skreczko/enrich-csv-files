@@ -50,8 +50,8 @@ jobs:
 
     - name: Ensure previous coverage report exists
       run: |
-        if [ ! -f backend/previous-coverage.xml ]; then
-          touch backend/previous-coverage.xml
+        if [ ! -f backend/previous-coverage.xml ] || [ ! -s backend/previous-coverage.xml ]; then
+          echo '<coverage></coverage>' > backend/previous-coverage.xml
         fi
 
     # Run tests with coverage using the script
