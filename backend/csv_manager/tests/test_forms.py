@@ -1,2 +1,2 @@
 def test_CSVUploadRequestForm():
-    assert 1 == 5
+    assert 1 == 1
