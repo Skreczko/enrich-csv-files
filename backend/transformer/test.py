@@ -32,7 +32,6 @@ from .settings import *  # noqa
 
 CACHES = {
     "default": {"BACKEND": "transformer.test.EmptyCache"},
-
 }
 MIGRATION_MODULES = IgnoreAllMigrations()
 TEMPLATE_DEBUG = False
@@ -41,6 +40,6 @@ TEST = True
 DEBUG_DYNAMIC_CODE = False
 PRIVATE_BUCKET_NAME = None
 WEBPACK_LOADER["DEFAULT"]["STATS_FILE"] = os.environ.get(
-    "WEBPACK_LOADER_STATS_FILE", os.path.join(BASE_DIR, "backend/csv_manager/tests/test-webpack-stats.json"),
+    "WEBPACK_LOADER_STATS_FILE",
+    os.path.join(BASE_DIR, "backend/csv_manager/tests/test-webpack-stats.json"),
 )
-

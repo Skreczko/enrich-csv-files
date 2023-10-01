@@ -98,7 +98,7 @@ def format_lines(statements, lines, arcs=None):
 
 def get_modified_files():
     target_branch = "main"
-    if os.environ.get('GITHUB_ACTIONS'):
+    if os.environ.get("GITHUB_ACTIONS"):
         git_command = [
             "git",
             "diff",
@@ -117,11 +117,7 @@ def get_modified_files():
             "origin/" + target_branch,
         ]
 
-    return (
-        subprocess.check_output(git_command)
-        .decode("utf-8")
-        .split("\n")
-    )
+    return subprocess.check_output(git_command).decode("utf-8").split("\n")
 
 
 class CoverageData(namedtuple("CoverageData", "line_rate lines uncovered")):
