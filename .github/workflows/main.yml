@@ -60,7 +60,6 @@ jobs:
       run: ./run_tests.sh
 
 
-
     - name: List files in directory
       working-directory: ./backend
       run: ls -la
@@ -73,14 +72,17 @@ jobs:
       working-directory: ./backend/scripts
       env:
         GITHUB_ACTIONS: true
-      run: ./check_coverage.py ../coverage.xml ../previous-coverage.xml
+      run: ./check_coverage.py ../current_coverage.xml ../previous-coverage.xml
 
     # Upload the new coverage report as an artifact
     - name: Upload coverage as artifact
       uses: actions/upload-artifact@v2
       with:
         name: coverage-report
-        path: backend/coverage.xml
+        path: backend/current_coverage.xml
+
+    - name: Clean up coverage files
+      run: rm backend/current_coverage.xml
 
     # Frontend dependencies caching
     - name: Cache frontend dependencies
