@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 import subprocess
 import sys
 import xml.etree.ElementTree
@@ -97,18 +98,27 @@ def format_lines(statements, lines, arcs=None):
 
 def get_modified_files():
     target_branch = "main"
+    if os.environ.get('GITHUB_ACTIONS'):
+        git_command = [
+            "git",
+            "diff",
+            "--name-only",
+            "--relative=app",
+            "origin/" + target_branch,
+        ]
+    else:
+        git_command = [
+            "git",
+            "--git-dir",
+            "/home/user/.git",
+            "diff",
+            "--name-only",
+            "--relative=app",
+            "origin/" + target_branch,
+        ]
+
     return (
-        subprocess.check_output(
-            [
-                "git",
-                "--git-dir",
-                "/home/user/.git",
-                "diff",
-                "--name-only",
-                "--relative=app",
-                "origin/" + target_branch,
-            ],
-        )
+        subprocess.check_output(git_command)
         .decode("utf-8")
         .split("\n")
     )

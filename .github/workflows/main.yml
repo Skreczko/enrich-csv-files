@@ -32,6 +32,9 @@ jobs:
         DEBUG: False
       run: ./check.sh
 
+    - name: Fetch main branch
+      run: git fetch origin main
+
     # Download previous coverage report
     - name: Download previous coverage report
       uses: actions/download-artifact@v2
@@ -39,6 +42,12 @@ jobs:
         name: coverage-report
         path: backend/previous-coverage.xml
       continue-on-error: true
+
+    - name: Ensure previous coverage report exists
+      run: |
+        if [ ! -f backend/previous-coverage.xml ]; then
+          touch backend/previous-coverage.xml
+        fi
 
     # Run tests with coverage using the script
     - name: Run tests with coverage using script
@@ -48,6 +57,8 @@ jobs:
     # Compare coverage reports
     - name: Compare coverage reports
       working-directory: ./backend/scripts
+      env:
+        GITHUB_ACTIONS: true
       run: ./check_coverage.py ../coverage.xml ../previous-coverage.xml
 
     # Upload the new coverage report as an artifact
