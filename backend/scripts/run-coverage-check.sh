@@ -44,5 +44,5 @@ fi
 scripts/check_coverage.py coverage.xml previous-coverage.xml
 
 # Remove coverages as there is no need to keep them
-rm -f coverage.xml previous-coverage.xml
+rm -f coverage.xml previous-coverage.xml .coverage
 
