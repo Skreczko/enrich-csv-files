@@ -32,8 +32,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $DIR/..
 
 # Run tests and generate a coverage report
-coverage run manage.py test
-coverage xml -o coverage.xml
+pytest --cov=. --cov-report=term-missing:skip-covered --cov-report=xml:coverage.xml
 
 # Ensure a previous coverage report exists, if not create an empty one
 if [ ! -f previous-coverage.xml ] || [ ! -s previous-coverage.xml ]; then
@@ -45,4 +44,3 @@ scripts/check_coverage.py coverage.xml previous-coverage.xml
 
 # Remove coverages as there is no need to keep them
 rm -f coverage.xml previous-coverage.xml .coverage
-
