@@ -1,4 +1,4 @@
-from typing import Any, NamedTuple
+from typing import Any, Iterable
 
 # cannot find stubs for petl. easier to create my own than searching
 
@@ -12,6 +12,7 @@ def rowslice(
     table: dict[str, list[Any]], start: int, end: int
 ) -> dict[str, list[Any]]: ...
 def tocsv(table: Any, source: str, *args: Any, **kwargs: Any) -> None: ...
+def values(table: Any, *field: str, **kwargs: Any) -> Iterable[Any]: ...
 def leftjoin(
     left: Any,
     right: Any,
@@ -20,6 +21,7 @@ def leftjoin(
     lprefix: str | None,
     rprefix: str | None,
 ) -> Any: ...
+def convert(table: Any, *args: Any, **kwargs: Any) -> Any: ...
 def join(
     left: Any,
     right: Any,

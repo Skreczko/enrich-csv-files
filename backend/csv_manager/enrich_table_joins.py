@@ -177,6 +177,40 @@ def create_enrich_table_by_join_type(
     if not handler:
         raise ValueError("Invalid join type")
 
+    # Check if the columns have different data types
+    try:
+        csv_file_file_column_type = type(
+            next(
+                iter(etl.values(csv_file_table, enrich_detail_instance.selected_header))
+            )
+        )
+    except StopIteration:
+        raise ValueError("The CSV file column is empty")
+
+    try:
+        external_response_table_column_type = type(
+            next(
+                iter(
+                    etl.values(
+                        external_response_table, enrich_detail_instance.selected_key
+                    )
+                )
+            )
+        )
+    except StopIteration:
+        raise ValueError("The external response table column is empty")
+
+    # If the column types differ, convert both columns to string
+    if csv_file_file_column_type != external_response_table_column_type:
+        if csv_file_file_column_type != str:
+            csv_file_table = etl.convert(
+                csv_file_table, enrich_detail_instance.selected_header, str
+            )
+        if external_response_table_column_type != str:
+            external_response_table = etl.convert(
+                external_response_table, enrich_detail_instance.selected_key, str
+            )
+
     return handler(
         output_path,
         table_create_params=PetlTableJoinParams(
