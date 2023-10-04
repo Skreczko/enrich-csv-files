@@ -13,6 +13,5 @@ DEBUG_TOOLBAR_PANELS = [
     "debug_toolbar.panels.request.RequestPanel",
     "debug_toolbar.panels.sql.SQLPanel",
     "debug_toolbar.panels.templates.TemplatesPanel",
-    "debug_toolbar.panels.logging.LoggingPanel",
     "debug_toolbar.panels.history.HistoryPanel",  # ajax request can be only seen with history tab in DDT
 ]

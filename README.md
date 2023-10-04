@@ -129,6 +129,12 @@ and inside shell run script
 ./check.sh
 ```
 
+## Tests
+To run test, use command
+```shell
+docker-compose -f docker-compose.dev.yml exec django pytest
+```
+
 ## Code Coverage Check in CI/CD
 To run tests, open  
 ```shell

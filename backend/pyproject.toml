@@ -55,4 +55,3 @@ target-version = "py311"
 "*/migrations/*.py" = ["F401"]
 "transformer/*.py" = ["F403", "F405"]
 "transformer/settings.py" = ["F401"]
-
