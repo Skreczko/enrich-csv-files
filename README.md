@@ -110,11 +110,22 @@ Run `atc-django` container
 docker exec -it atc-django bash -c "./check.sh"
 ```
 
+To format `*.py` files, use this command
+
+```shell
+docker exec -it atc-django bash -c "black ."
+```
+
 ### Frontend code
 Script to format backend code using `npm run check` is prepared in `frontend/check.sh` and in `scripts` in `package.json`.
 Run `atc-webpack` container
 ```shell
 docker exec -it atc-webpack bash -c "./check.sh"
+```
+
+to format frontend files, use this command
+```shell
+docker exec -it atc-webpack bash -c "npm run prettier"
 ```
 
 ## Tests
