@@ -60,7 +60,7 @@ def _create_csv_file(csv_data: list[list[Any]], filename: str = "temp.csv", **cr
                 file=File(f),
                 original_file_name=filename,
                 file_row_count=len(csv_data),
-                file_headers=",".join(csv_data[0]),
+                file_headers=csv_data[0],
                 **create_kwargs
             )
     return csv_file_instance

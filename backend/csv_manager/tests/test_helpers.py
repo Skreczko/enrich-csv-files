@@ -31,15 +31,15 @@ def test_get_and_serialize_csv_detail(
     mock_serialize_queryset: Mock,
     raise_error: bool,
     existing_uuid: bool,
-    csv_file: CSVFile,
+    base_csv_file: CSVFile,
 ) -> None:
     uuid = (
-        str(csv_file.uuid) if existing_uuid else "cb628d4c-53d0-484c-a87a-f04f7d93b6e6"
+        str(base_csv_file.uuid) if existing_uuid else "cb628d4c-53d0-484c-a87a-f04f7d93b6e6"
     )
 
     def side_effect_func(*args: Any, **kwargs: Any) -> list[dict[str, Any]]:
         if raise_error:
-            raise SerializationError(csv_file, "random_field")
+            raise SerializationError(base_csv_file, "random_field")
         return original_serialize_queryset(*args, **kwargs)
 
     mock_serialize_queryset.side_effect = side_effect_func
@@ -47,7 +47,7 @@ def test_get_and_serialize_csv_detail(
     if existing_uuid:
         if raise_error:
             response = {
-                "error": f"Could not serialize field random_field of instance {csv_file}",
+                "error": f"Could not serialize field random_field of instance {base_csv_file}",
                 "status": HTTPStatus.INTERNAL_SERVER_ERROR,
             }
         else:
@@ -57,10 +57,10 @@ def test_get_and_serialize_csv_detail(
                     "enrich_detail": None,
                     "file": {
                         "url": f"/media/files/no_user/{uuid}.csv",
-                        "size": 0,
+                        "size": ANY,
                     },
-                    "file_headers": None,
-                    "file_row_count": None,
+                    "file_headers": ['csv_header1', 'csv_header2'],
+                    "file_row_count": 4,
                     "original_file_name": "temp.csv",
                     "source_original_file_name": None,
                     "source_uuid": None,
