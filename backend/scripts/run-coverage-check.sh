@@ -25,6 +25,9 @@ fi
 # Download and extract the artifact
 curl -L -o "artifact.zip" -H "Authorization: token $TOKEN" "$ARTIFACT_URL"
 echo A | unzip artifact.zip -d ./
+echo "=== START OF DOWNLOADED COVERAGE REPORT ==="
+cat ./coverage.xml
+echo "=== END OF DOWNLOADED COVERAGE REPORT ==="
 rm artifact.zip
 
 # Navigate to the appropriate directory
