@@ -17,13 +17,13 @@ from transformer.serializers import serialize_queryset as original_serialize_que
     "existing_uuid",
     [
         pytest.param(True, id="correct_uuid"),
-        pytest.param(True, id="random_uuid"),
+        pytest.param(False, id="random_uuid"),
     ],
 )
 @pytest.mark.parametrize(
     "raise_error",
     [
-        pytest.param(False, id="error raised"),
+        pytest.param(True, id="error raised"),
         pytest.param(False, id=""),
     ],
 )
