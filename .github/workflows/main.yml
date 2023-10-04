@@ -34,7 +34,7 @@ jobs:
       run: docker-compose -f docker-compose.dev.yml up -d
 
     - name: Run backend check script
-      run: docker exec -it atc-django bash -c "./check.sh"
+      run: docker exec atc-django bash -c "./check.sh"
 
     # Fix repository ownership
     - name: Add safe directory exception
@@ -61,11 +61,11 @@ jobs:
 
     # Run tests with coverage using the script
     - name: Run tests with coverage using script
-      run: docker exec -it atc-django bash -c "./scripts/run-tests.sh"
+      run: docker exec atc-django bash -c "./scripts/run-tests.sh"
 
     # Compare coverage reports
     - name: Compare coverage reports
-      run: docker exec -it atc-django bash -c "./scripts/check_coverage.py ./coverage.xml ./previous-coverage.xml"
+      run: docker exec atc-django bash -c "./scripts/check_coverage.py ./coverage.xml ./previous-coverage.xml"
 
     # Upload the new coverage report as an artifact
     - name: Upload coverage as artifact
@@ -78,7 +78,7 @@ jobs:
       run: rm backend/coverage.xml
 
     - name: Run frontend check script
-      run: docker exec -it atc-webpack bash -c "./check.sh"
+      run: docker exec atc-webpack bash -c "./check.sh"
 
     # Saving artifacts if any
     - name: Save artifacts (if necessary)

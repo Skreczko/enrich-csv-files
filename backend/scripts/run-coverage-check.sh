@@ -24,7 +24,7 @@ fi
 
 # Download and extract the artifact
 curl -L -o "artifact.zip" -H "Authorization: token $TOKEN" "$ARTIFACT_URL"
-unzip artifact.zip -d ./
+echo A | unzip artifact.zip -d ./
 rm artifact.zip
 
 # Navigate to the appropriate directory
