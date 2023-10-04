@@ -49,7 +49,11 @@ def enable_db_access(db) -> None:
     pass
 
 
-def _create_csv_file(csv_data: list[list[Any]], filename: str = "temp.csv", **create_kwargs: dict[str, Any]) -> CSVFile:
+def _create_csv_file(
+    csv_data: list[list[Any]],
+    filename: str = "temp.csv",
+    **create_kwargs: dict[str, Any],
+) -> CSVFile:
     with NamedTemporaryFile(mode="w", delete=False, suffix=".csv") as temp_file:
         writer = csv.writer(temp_file)
         writer.writerows(csv_data)
@@ -61,7 +65,7 @@ def _create_csv_file(csv_data: list[list[Any]], filename: str = "temp.csv", **cr
                 original_file_name=filename,
                 file_row_count=len(csv_data),
                 file_headers=csv_data[0],
-                **create_kwargs
+                **create_kwargs,
             )
     return csv_file_instance
 
@@ -80,7 +84,6 @@ def base_csv_file() -> CSVFile:
     yield csv_instance
     os.remove(csv_instance.file.path)
     csv_instance.delete()
-
 
 
 @pytest.fixture
@@ -103,55 +106,60 @@ def enriched_csv_file() -> CSVFile:
     csv_instance.delete()
 
 
-def _create_enrich_detail(json_data: list[dict[str, Any]] | dict[str, Any], **create_kwargs: dict[str, Any]) -> EnrichDetail:
+def _create_enrich_detail(
+    json_data: list[dict[str, Any]] | dict[str, Any], **create_kwargs: dict[str, Any]
+) -> EnrichDetail:
     with NamedTemporaryFile(mode="w", delete=False, suffix=".json") as temp_file:
         json.dump(json_data, temp_file)
         temp_file_name = temp_file.name
 
         with open(temp_file_name, "rb") as f:
             enrich_detail_instance, _ = EnrichDetail.objects.get_or_create(
-                external_response=File(f),
-                **create_kwargs
+                external_response=File(f), **create_kwargs
             )
     return enrich_detail_instance
 
 
 @pytest.fixture
 def enrich_detail(enriched_csv_file: CSVFile) -> EnrichDetail:
-    enrich_detail_instance = _create_enrich_detail(json_data=[
-        {
-        "json_header1": "row1_col1",
-        "json_header2": "json_row1_col2",
-        "json_header3": "json_row1_col3",
-    },
-        {
-            "json_header1": "row2_col1",
-            "json_header2": "json_row2_col2",
-            "json_header3": "json_row2_col3",
+    enrich_detail_instance = _create_enrich_detail(
+        json_data=[
+            {
+                "json_header1": "row1_col1",
+                "json_header2": "json_row1_col2",
+                "json_header3": "json_row1_col3",
+            },
+            {
+                "json_header1": "row2_col1",
+                "json_header2": "json_row2_col2",
+                "json_header3": "json_row2_col3",
+            },
+            {
+                "json_header1": "row3_col1",
+                "json_header2": "json_row3_col2",
+                "json_header3": "json_row3_col3",
+            },
+            {
+                "json_header1": "no_match",
+                "json_header2": "no_match",
+                "json_header3": "no_match",
+            },
+        ],
+        **{
+            "csv_file": enriched_csv_file,
+            "status": EnrichmentStatus.COMPLETED,
+            "external_url": "http://random.com",
+            "join_type": EnrichmentJoinType.LEFT.value,
+            "is_flat": False,
+            "json_root_path": "",
+            "external_elements_key_list": [
+                "json_header1",
+                "json_header2",
+                "json_header3",
+            ],
+            "selected_key": "json_header1",
+            "selected_header": "csv_header1",
         },
-        {
-            "json_header1": "row3_col1",
-            "json_header2": "json_row3_col2",
-            "json_header3": "json_row3_col3",
-        },
-        {
-            "json_header1": "no_match",
-            "json_header2": "no_match",
-            "json_header3": "no_match",
-        },
-    ],
-    **{
-        "csv_file":enriched_csv_file,
-        "status":EnrichmentStatus.COMPLETED,
-        "external_url": "http://random.com",
-        "join_type": EnrichmentJoinType.LEFT.value,
-        "is_flat": False,
-        "json_root_path": "",
-        "external_elements_key_list":["json_header1", "json_header2", "json_header3"],
-        "selected_key": "json_header1",
-        "selected_header": "csv_header1",
-
-    }
     )
     yield enrich_detail_instance
     os.remove(enrich_detail_instance.external_response.path)

@@ -34,7 +34,9 @@ def test_get_and_serialize_csv_detail(
     base_csv_file: CSVFile,
 ) -> None:
     uuid = (
-        str(base_csv_file.uuid) if existing_uuid else "cb628d4c-53d0-484c-a87a-f04f7d93b6e6"
+        str(base_csv_file.uuid)
+        if existing_uuid
+        else "cb628d4c-53d0-484c-a87a-f04f7d93b6e6"
     )
 
     def side_effect_func(*args: Any, **kwargs: Any) -> list[dict[str, Any]]:
@@ -59,7 +61,7 @@ def test_get_and_serialize_csv_detail(
                         "url": f"/media/files/no_user/{uuid}.csv",
                         "size": ANY,
                     },
-                    "file_headers": ['csv_header1', 'csv_header2'],
+                    "file_headers": ["csv_header1", "csv_header2"],
                     "file_row_count": 4,
                     "original_file_name": "temp.csv",
                     "source_original_file_name": None,
