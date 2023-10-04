@@ -44,28 +44,9 @@ jobs:
     - name: Fetch main branch
       run: git fetch origin main
 
-    # Download previous coverage report
-    - name: Download previous coverage report
-      uses: actions/download-artifact@v2
-      with:
-        name: coverage-report
-        path: backend/previous-coverage.xml
-      continue-on-error: true
-
-    # Create coverage report if not exist
-    - name: Ensure previous coverage report exists
-      run: |
-        if [ ! -f backend/previous-coverage.xml ] || [ ! -s backend/previous-coverage.xml ]; then
-          echo '<coverage></coverage>' > backend/previous-coverage.xml
-        fi
-
     # Run tests with coverage using the script
     - name: Run tests with coverage using script
-      run: docker exec atc-django bash -c "./scripts/run-tests.sh"
-
-    # Compare coverage reports
-    - name: Compare coverage reports
-      run: docker exec atc-django bash -c "./scripts/check_coverage.py ./coverage.xml ./previous-coverage.xml"
+      run: docker exec atc-django bash -c "./scripts/run-coverage-check.sh"
 
     # Upload the new coverage report as an artifact
     - name: Upload coverage as artifact
