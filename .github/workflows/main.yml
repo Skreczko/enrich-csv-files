@@ -5,32 +5,36 @@ on: [push]
 jobs:
   check:
     runs-on: ubuntu-latest
-    container:
-      image: python:3.11.4
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    # Backend dependencies caching
-    - name: Cache pip packages
-      uses: actions/cache@v2
-      with:
-        path: .cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('backend/requirements/requirements-development.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
+    - name: Install Docker Compose
+      run: |
+        sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        sudo chmod +x /usr/local/bin/docker-compose
+        docker-compose --version
 
-    - name: Install backend dependencies
-      run: pip install -r backend/requirements/requirements-development.txt
+    - name: Create .env file
+      run: |
+        echo "SECRET_KEY=random_secret_key" > backend/.env
+        echo "BROKER_URL=random_broker_url" >> backend/.env
+        echo "DEBUG=False" >> backend/.env
+        echo "POSTGRES_HOST=postgres" >> backend/.env
+        echo "POSTGRES_NAME=transformer" >> backend/.env
+        echo "POSTGRES_USER=postgres" >> backend/.env
+        echo "POSTGRES_PORT=5432" >> backend/.env
+        echo "CACHE_BACKEND=django_redis.cache.RedisCache" >> backend/.env
+        echo "CACHE_LOCATION=redis://redis:6379/1" >> backend/.env
+        echo "EMAIL=test@google.com" >> backend/.env
+        echo "PASSWORD=password" >> backend/.env
+
+    - name: Start services with Docker Compose
+      run: docker-compose -f docker-compose.dev.yml up -d
 
     - name: Run backend check script
-      working-directory: ./backend
-      env:
-        SECRET_KEY: random_secret_key
-        BROKER_URL: random_broker_url
-        DEBUG: False
-      run: ./check.sh
+      run: docker exec atc-django bash -c "./check.sh"
 
     # Fix repository ownership
     - name: Add safe directory exception
@@ -57,19 +61,11 @@ jobs:
 
     # Run tests with coverage using the script
     - name: Run tests with coverage using script
-      working-directory: ./backend/scripts
-      env:
-        SECRET_KEY: random_secret_key
-        BROKER_URL: random_broker_url
-        DEBUG: False
-      run: ./run-tests.sh
+      run: docker exec atc-django bash -c "./scripts/run-tests.sh"
 
-      # Compare coverage reports
+    # Compare coverage reports
     - name: Compare coverage reports
-      working-directory: ./backend/scripts
-      env:
-        GITHUB_ACTIONS: true
-      run: ./check_coverage.py ../coverage.xml ../previous-coverage.xml
+      run: docker exec atc-django bash -c "./scripts/check_coverage.py ./coverage.xml ./previous-coverage.xml"
 
     # Upload the new coverage report as an artifact
     - name: Upload coverage as artifact
@@ -81,28 +77,8 @@ jobs:
     - name: Clean up coverage files
       run: rm backend/coverage.xml
 
-    # Frontend dependencies caching
-    - name: Cache frontend dependencies
-      uses: actions/cache@v2
-      with:
-        path: frontend/node_modules
-        key: ${{ runner.os }}-node-${{ hashFiles('frontend/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-
-
-    - name: Install Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '18.16'
-
-    - name: Install frontend dependencies
-      run: |
-        cd frontend
-        npm install
-
     - name: Run frontend check script
-      working-directory: ./frontend
-      run: ./check.sh
+      run: docker exec atc-webpack bash -c "./check.sh"
 
     # Saving artifacts if any
     - name: Save artifacts (if necessary)

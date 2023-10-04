@@ -1,3 +1,5 @@
+from .settings import *
+
 from typing import Any
 from collections.abc import Iterator
 
@@ -28,10 +30,9 @@ CELERY_TASK_REMOTE_TRACEBACKS = True
 CELERY_TASK_EAGER_PROPAGATES = True
 DEBUG = False
 
-from .settings import *  # noqa
 
 CACHES = {
-    "default": {"BACKEND": "transformer.test.EmptyCache"},
+    "default": {"BACKEND": "transformer.test_settings.EmptyCache"},
 }
 MIGRATION_MODULES = IgnoreAllMigrations()
 TEMPLATE_DEBUG = False

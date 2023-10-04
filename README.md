@@ -80,16 +80,12 @@ In the Docker configuration, the `node_modules` directory is set as an anonymous
 - run your project with green arrow
 - Type
 ```shell
-docker exec -it atc-django bash
-```
-then type
-```plaintext
-watchmedo auto-restart --pattern '*.py' --signal SIGINT --recursive -- celery -A transformer worker -l debug
+docker exec -it atc-django bash -c "watchmedo auto-restart --pattern '*.py' --signal SIGINT --recursive -- celery -A transformer worker -l debug"
 ```
 
 do same for celery-beat in other terminal:
-```plaintext
-watchmedo auto-restart --pattern '*.py' --signal SIGINT --recursive -- celery -A transformer beat -l debug
+```shell
+docker exec -it atc-django bash -c "watchmedo auto-restart --pattern '*.py' --signal SIGINT --recursive -- celery -A transformer beat -l debug"
 ```
 
 <u>that issue will be fixed in future development</u>
@@ -111,33 +107,39 @@ Pipelines will not pass until you fix code formatting and type check errors both
 Script to format backend code using `Ruff`, `black`, `mypy` is prepared in `backend/check.sh`.
 Run `atc-django` container
 ```shell
-docker exec -it atc-django bash
-``` 
-and inside shell run script 
-```plaintext
-./check.sh
+docker exec -it atc-django bash -c "./check.sh"
+```
+
+To format `*.py` files, use this command
+
+```shell
+docker exec -it atc-django bash -c "black ."
 ```
 
 ### Frontend code
 Script to format backend code using `npm run check` is prepared in `frontend/check.sh` and in `scripts` in `package.json`.
 Run `atc-webpack` container
 ```shell
-docker exec -it atc-webpack bash
-``` 
-and inside shell run script 
-```plaintext
-./check.sh
+docker exec -it atc-webpack bash -c "./check.sh"
+```
+
+to format frontend files, use this command
+```shell
+docker exec -it atc-webpack bash -c "npm run prettier"
+```
+
+## Tests
+To run test, use command
+```shell
+docker-compose -f docker-compose.dev.yml exec django pytest
 ```
 
 ## Code Coverage Check in CI/CD
 To run tests, open  
 ```shell
-docker exec -it atc-django bash
+docker exec -it atc-django bash -c "./scripts/run-coverage-check.sh"
 ```
-and inside shell run script 
-```plaintext
-./scripts/run-coverage-check.sh 
-```
+
 This script fetches the latest coverage report from GitHub and compares it with your local coverage. Ensure your code maintains or improves the coverage to pass the check.
 
 In our CI/CD process, we emphasize the importance of maintaining a high code coverage through tests. To ensure that new code changes don't introduce regressions in terms of test coverage, we've set up a mechanism to compare the test coverage of local changes against the latest successful test coverage from the `main` branch.
