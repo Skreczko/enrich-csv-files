@@ -147,35 +147,51 @@ def main():
     if len(sys.argv) != 3:
         print("Need two filenames")
         return 0
-    modified_files = get_modified_files()
+
     new_coverage = get_coverage(sys.argv[1])
     old_coverage = get_coverage(sys.argv[2])
     failed_lines = False
+
     for filename, new_data in new_coverage.items():
-        if filename not in modified_files:
-            continue
         old_data = old_coverage.get(filename)
 
         if not old_data:
-            minimum_rate = COVERAGE_THRESHOLD * 100
-        else:
-            minimum_rate = old_data.line_rate * COVERAGE_THRESHOLD
-        if new_data.line_rate < minimum_rate:
+            if new_data.line_rate < COVERAGE_THRESHOLD * 100:
+                print(
+                    "{filename}: expected at least {threshold:.2f}% coverage, got {new_lines:.2f}%.".format(
+                        filename=filename,
+                        threshold=COVERAGE_THRESHOLD * 100,
+                        new_lines=new_data.line_rate,
+                    )
+                )
+                failed_lines = True
+            continue
+
+        if new_data.line_rate < old_data.line_rate:
             print(
-                "{filename}: expected {old_lines:.2f}% coverage, got {new_lines:.2f}%, missing: {missing}.".format(
+                "{filename}: coverage decreased from {old_lines:.2f}% to {new_lines:.2f}%.".format(
                     filename=filename,
-                    old_lines=minimum_rate,
+                    old_lines=old_data.line_rate,
                     new_lines=new_data.line_rate,
-                    missing=format_lines(new_data.lines, new_data.uncovered),
                 )
             )
             failed_lines = True
-        else:
-            print("{filename} coverage passed".format(filename=filename))
+        elif (
+            new_data.line_rate > old_data.line_rate
+            and new_data.line_rate < COVERAGE_THRESHOLD * 100
+        ):
+            print(
+                "{filename}: coverage increased but did not reach the threshold. Expected at least {threshold:.2f}% coverage, got {new_lines:.2f}%.".format(
+                    filename=filename,
+                    threshold=COVERAGE_THRESHOLD * 100,
+                    new_lines=new_data.line_rate,
+                )
+            )
+            failed_lines = True
 
     if failed_lines:
         print(
-            "\nERROR: Missing coverage, please add more tests for the failures reported above."
+            "\nERROR: Coverage issues detected, please review the failures reported above."
         )
         return 1
 

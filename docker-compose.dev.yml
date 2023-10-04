@@ -60,7 +60,6 @@ services:
       - ${PWD}/backend/:/home/user/backend/:delegated
       - ./media/:/home/user/media/:delegated
       - ./frontend/:/home/user/frontend/
-      - ./.git:/home/user/.git
     restart: on-failure
 
   # Async tasks worker

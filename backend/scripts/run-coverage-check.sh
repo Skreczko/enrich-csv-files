@@ -25,22 +25,20 @@ fi
 # Download and extract the artifact
 curl -L -o "artifact.zip" -H "Authorization: token $TOKEN" "$ARTIFACT_URL"
 echo A | unzip artifact.zip -d ./
-echo "=== START OF DOWNLOADED COVERAGE REPORT ==="
-cat ./coverage.xml
-echo "=== END OF DOWNLOADED COVERAGE REPORT ==="
+mv ./coverage.xml ./previous-coverage.xml
 rm artifact.zip
-
-# Navigate to the appropriate directory
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-cd $DIR/..
-
-# Run tests and generate a coverage report
-pytest --cov=. --cov-report=term-missing:skip-covered --cov-report=xml:coverage.xml
 
 # Ensure a previous coverage report exists, if not create an empty one
 if [ ! -f previous-coverage.xml ] || [ ! -s previous-coverage.xml ]; then
     echo '<coverage></coverage>' > previous-coverage.xml
 fi
+
+# Navigate to the appropriate directory
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd $DIR/..
+
+# Run tests and generate a current report
+pytest --cov=. --cov-report=term-missing:skip-covered --cov-report=xml:coverage.xml
 
 # Compare the current coverage report with the previous one
 scripts/check_coverage.py coverage.xml previous-coverage.xml

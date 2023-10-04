@@ -1,6 +1,5 @@
 .git
 *.pyc
-media
 node_modules
 **/node_modules
 webpack-stats.json
