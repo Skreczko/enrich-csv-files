@@ -60,10 +60,3 @@ jobs:
 
     - name: Run frontend check script
       run: docker exec atc-webpack bash -c "./check.sh"
-
-    # Saving artifacts if any
-    - name: Save artifacts (if necessary)
-      uses: actions/upload-artifact@v2
-      with:
-        name: artifacts
-        path: path-to-your-artifacts-if-any
