@@ -36,14 +36,6 @@ jobs:
     - name: Run backend check script
       run: docker exec atc-django bash -c "./check.sh"
 
-    # Fix repository ownership
-    - name: Add safe directory exception
-      run: git config --global safe.directory /__w/Fullstack-Challenge-DawidS/Fullstack-Challenge-DawidS
-
-    # Fetch main branch
-    - name: Fetch main branch
-      run: git fetch origin main
-
     # Run tests with coverage using the script
     - name: Run tests with coverage using script
       run: docker exec atc-django bash -c "./scripts/run-coverage-check.sh"
