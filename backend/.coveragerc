@@ -20,4 +20,3 @@ omit =
 exclude_lines =
     if TYPE_CHECKING:
 show_missing = True
-skip_covered = True

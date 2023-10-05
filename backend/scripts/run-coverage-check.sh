@@ -38,7 +38,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $DIR/..
 
 # Run tests and generate a current report
-pytest --cov=. --cov-report=term-missing:skip-covered --cov-report=xml:coverage.xml
+pytest --cov=. --cov-report=term-missing --cov-report=xml:coverage.xml
 
 # Compare the current coverage report with the previous one
 scripts/check_coverage.py coverage.xml previous-coverage.xml
