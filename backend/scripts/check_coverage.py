@@ -173,12 +173,13 @@ def main():
         if not old_data:
             if new_data.line_rate < COVERAGE_THRESHOLD * 100:
                 print(
-                    "{filename}: expected at least {threshold:.2f}% coverage, got {red_start}{new_lines:.2f}%{color_end}.".format(
+                    "{filename}: expected at least {green_start}{threshold:.2f}%{color_end} coverage, got {red_start}{new_lines:.2f}%{color_end}.".format(
                         filename=filename,
                         threshold=COVERAGE_THRESHOLD * 100,
                         new_lines=new_data.line_rate,
+                        green_start=GREEN_START,
                         red_start=RED_START,
-                        color_end=COLOR_END,
+                        color_end=COLOR_END
                     )
                 )
                 failed_lines = True
