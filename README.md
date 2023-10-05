@@ -129,38 +129,33 @@ docker exec -it atc-webpack bash -c "npm run prettier"
 ```
 
 ## Tests
-To run test, use command
+To run tests, use the following command:
 ```shell
 docker-compose -f docker-compose.dev.yml exec django pytest
 ```
 
 ## Code Coverage Check in CI/CD
-To run tests, open  
+To execute the coverage check locally, run:
+
 ```shell
 docker exec -it atc-django bash -c "./scripts/run-coverage-check.sh"
 ```
 
-This script fetches the latest coverage report from GitHub and compares it with your local coverage. Ensure your code maintains or improves the coverage to pass the check.
+This script fetches the latest coverage report from the `main` branch on GitHub (stored as artifacts) and compares it with your local coverage. It's crucial to ensure that your code either maintains or improves upon the existing coverage. If there's a regression compared to the `main` branch or if the coverage doesn't meet a minimum of 80%, the workflow will fail.
 
-In our CI/CD process, we emphasize the importance of maintaining a high code coverage through tests. To ensure that new code changes don't introduce regressions in terms of test coverage, we've set up a mechanism to compare the test coverage of local changes against the latest successful test coverage from the `main` branch.
+Files that are ignored during the coverage check are specified in the `.coveragerc` file.
 
-### How the Coverage Check Works:
+Coverage files are removed in the last step. If you want to keep them, remove the line:
 
-- **Fetching the Reference Coverage Report**: 
-  - When you run the `run-coverage-check.sh` script, it begins by downloading the latest successful test coverage report from the `main` branch on GitHub. This serves as our benchmark for comparison.
-
-- **Running Local Tests**: 
-  - The script then executes tests for the local changes and generates a coverage report.
-
-- **Coverage Comparison**: 
-  - The local coverage report is then compared against the benchmark. If the local test coverage is found to be lower than the benchmark, the script will flag an error, indicating a potential decrease in code quality.
-
-Maintaining or improving test coverage ensures that the codebase remains robust and resilient against potential bugs. It's a testament to the quality and reliability of the software.
-
-Coverage files are removed in the last step. If you want to keep them, remove line
 ```plaintext
 rm -f coverage.xml previous-coverage.xml .coverage
 ```
+
+### GitHub Workflow
+
+The same coverage check is also integrated into the GitHub workflow. When you push your changes, the workflow will automatically fetch the latest coverage from the `main` branch, compare it with the coverage of your changes, and fail the job if the criteria mentioned above are not met.
+
+
 
 ## Please check EXPLAIN_CODE.md
 

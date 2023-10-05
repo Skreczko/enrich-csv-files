@@ -5,6 +5,12 @@ import sys
 import xml.etree.ElementTree
 from collections import namedtuple
 
+
+RED_START = "\033[91m"
+GREEN_START = "\033[92m"
+YELLOW_START = "\033[93m"
+COLOR_END = "\033[0m"
+
 # In percentage, how many lines of newly added code should be covered
 COVERAGE_THRESHOLD = 0.8
 
@@ -155,13 +161,24 @@ def main():
     for filename, new_data in new_coverage.items():
         old_data = old_coverage.get(filename)
 
+        if old_data and new_data.line_rate == 0:
+            print(
+                "{filename}: has {red_start}0%{color_end} coverage.".format(
+                    filename=filename, red_start=RED_START, color_end=COLOR_END
+                )
+            )
+            failed_lines = True
+            continue
+
         if not old_data:
             if new_data.line_rate < COVERAGE_THRESHOLD * 100:
                 print(
-                    "{filename}: expected at least {threshold:.2f}% coverage, got {new_lines:.2f}%.".format(
+                    "{filename}: expected at least {threshold:.2f}% coverage, got {red_start}{new_lines:.2f}%{color_end}.".format(
                         filename=filename,
                         threshold=COVERAGE_THRESHOLD * 100,
                         new_lines=new_data.line_rate,
+                        red_start=RED_START,
+                        color_end=COLOR_END,
                     )
                 )
                 failed_lines = True
@@ -169,10 +186,13 @@ def main():
 
         if new_data.line_rate < old_data.line_rate:
             print(
-                "{filename}: coverage decreased from {old_lines:.2f}% to {new_lines:.2f}%.".format(
+                "{filename}: coverage decreased from {yellow_start}{old_lines:.2f}%{color_end} to {red_start}{new_lines:.2f}%{color_end}.".format(
                     filename=filename,
                     old_lines=old_data.line_rate,
                     new_lines=new_data.line_rate,
+                    yellow_start=YELLOW_START,
+                    red_start=RED_START,
+                    color_end=COLOR_END,
                 )
             )
             failed_lines = True
@@ -181,21 +201,24 @@ def main():
             and new_data.line_rate < COVERAGE_THRESHOLD * 100
         ):
             print(
-                "{filename}: coverage increased but did not reach the threshold. Expected at least {threshold:.2f}% coverage, got {new_lines:.2f}%.".format(
+                "{filename}: coverage increased but did not reach the threshold. Expected at least {green_start}{threshold:.2f}%{color_end} coverage, got {red_start}{new_lines:.2f}%{color_end}.".format(
                     filename=filename,
                     threshold=COVERAGE_THRESHOLD * 100,
                     new_lines=new_data.line_rate,
+                    green_start=GREEN_START,
+                    red_start=RED_START,
+                    color_end=COLOR_END,
                 )
             )
             failed_lines = True
 
     if failed_lines:
         print(
-            "\nERROR: Coverage issues detected, please review the failures reported above."
+            f"{RED_START}\nERROR: Coverage issues detected, please review the failures reported above.{COLOR_END}"
         )
         return 1
 
-    print("Coverage is good!")
+    print(f"{GREEN_START}Coverage is good!{COLOR_END}")
     return 0
 
 
