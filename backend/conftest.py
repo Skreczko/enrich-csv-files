@@ -67,11 +67,11 @@ def module_transactional_db(django_db_setup, django_db_blocker):
 def client() -> Client:
     return Client()
 
-@freeze_time("2023-06-01")
+
 def _create_csvfile_instance(
     csv_data: list[list[Any]],
     create_kwargs: dict[str, Any] = None,
-    original_file_name: str = "temp.csv"
+    original_file_name: str = "temp.csv",
 ) -> CSVFile:
     if not create_kwargs:
         create_kwargs = {}
@@ -90,7 +90,7 @@ def _create_csvfile_instance(
             )
     return csv_file_instance
 
-@freeze_time("2023-06-01")
+
 def _create_enrich_detail_instace(
     json_data: list[dict[str, Any]] | dict[str, Any], create_kwargs: dict[str, Any]
 ) -> EnrichDetail:
@@ -104,7 +104,7 @@ def _create_enrich_detail_instace(
             )
     return enrich_detail_instance
 
-@freeze_time("2023-06-01")
+
 def _create_enrich_detail(enriched_csv_file: CSVFile) -> EnrichDetail:
     enrich_detail_instance = _create_enrich_detail_instace(
         json_data={
@@ -148,6 +148,7 @@ def _create_enrich_detail(enriched_csv_file: CSVFile) -> EnrichDetail:
     return enrich_detail_instance
 
 
+@freeze_time("2023-06-01")
 @pytest.fixture
 def base_csv_file() -> CSVFile:
     """CSV file instance without enriching"""
@@ -163,11 +164,12 @@ def base_csv_file() -> CSVFile:
     os.remove(csv_instance.file.path)
     csv_instance.delete()
 
+
 @pytest.fixture(scope="module")
 def multiple_base_csv_files(module_transactional_db) -> list[CSVFile]:
     csv_files = []
     for index in range(20):
-        with freeze_time(datetime(2023, 6, 1 + index)):
+        with freeze_time(datetime(2023, 6, 1)):
             csv_instance = _create_csvfile_instance(
                 csv_data=[
                     ["csv_header1", "csv_header2"],
@@ -175,7 +177,7 @@ def multiple_base_csv_files(module_transactional_db) -> list[CSVFile]:
                     ["row2_col1", "csv_row2_col2"],
                     ["row3_col1", "csv_row3_col2"],
                 ],
-                original_file_name=f"temp_file_{index}.csv"
+                original_file_name=f"temp_file_{index}.csv",
             )
             csv_files.append(csv_instance)
     yield csv_files
@@ -184,8 +186,8 @@ def multiple_base_csv_files(module_transactional_db) -> list[CSVFile]:
         csv_instance.delete()
 
 
-@pytest.fixture
 @freeze_time("2023-06-01")
+@pytest.fixture
 def enriched_csv_file(base_csv_file: CSVFile) -> CSVFile:
     """
     CSV file instance without enriching
@@ -214,7 +216,7 @@ def multiple_enriched_csv_files(multiple_base_csv_files: list[CSVFile]) -> None:
     enriched_csv_files: list[CSVFile] = []
     enrich_detail_instance_list: list[EnrichDetail] = []
     for index, base_csv_file in enumerate(multiple_base_csv_files):
-        with freeze_time(datetime(2023, 6, 1 + index)):
+        with freeze_time(datetime(year=2023, month=6, day=1 + index)):
             csv_instance = _create_csvfile_instance(
                 csv_data=[
                     ["csv_header1", "csv_header2", "json_header2", "json_header3"],
@@ -225,7 +227,7 @@ def multiple_enriched_csv_files(multiple_base_csv_files: list[CSVFile]) -> None:
                 create_kwargs={
                     "source_instance": base_csv_file,
                 },
-                original_file_name=f"temp_file_{index}.enriched.csv"
+                original_file_name=f"temp_file_{index}.enriched.csv",
             )
             enrich_detail_instance_list.append(_create_enrich_detail(csv_instance))
             enriched_csv_files.append(csv_instance)
@@ -236,4 +238,3 @@ def multiple_enriched_csv_files(multiple_base_csv_files: list[CSVFile]) -> None:
     for csv_instance in enriched_csv_files:
         os.remove(csv_instance.file.path)
         csv_instance.delete()
-

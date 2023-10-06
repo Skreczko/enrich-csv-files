@@ -179,7 +179,7 @@ def main():
                         new_lines=new_data.line_rate,
                         green_start=GREEN_START,
                         red_start=RED_START,
-                        color_end=COLOR_END
+                        color_end=COLOR_END,
                     )
                 )
                 failed_lines = True
