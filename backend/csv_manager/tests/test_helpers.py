@@ -6,6 +6,7 @@ from uuid import UUID
 
 import pytest
 
+from csv_manager.enums import CsvListStatusFilter
 from csv_manager.helpers import get_and_serialize_csv_detail
 from csv_manager.models import CSVFile
 from transformer.exceptions import SerializationError
@@ -66,7 +67,7 @@ def test_get_and_serialize_csv_detail(
                     "original_file_name": "temp.csv",
                     "source_original_file_name": None,
                     "source_uuid": None,
-                    "status": "completed",
+                    "status": CsvListStatusFilter.COMPLETED.value,
                     "uuid": UUID(uuid),
                     "source_instance": None,
                 },

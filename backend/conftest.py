@@ -148,18 +148,18 @@ def _create_enrich_detail(enriched_csv_file: CSVFile) -> EnrichDetail:
     return enrich_detail_instance
 
 
-@freeze_time("2023-06-01")
 @pytest.fixture
 def base_csv_file() -> CSVFile:
     """CSV file instance without enriching"""
-    csv_instance = _create_csvfile_instance(
-        csv_data=[
-            ["csv_header1", "csv_header2"],
-            ["row1_col1", "csv_row1_col2"],
-            ["row2_col1", "csv_row2_col2"],
-            ["row3_col1", "csv_row3_col2"],
-        ],
-    )
+    with freeze_time(datetime(2023, 6, 1)):
+        csv_instance = _create_csvfile_instance(
+            csv_data=[
+                ["csv_header1", "csv_header2"],
+                ["row1_col1", "csv_row1_col2"],
+                ["row2_col1", "csv_row2_col2"],
+                ["row3_col1", "csv_row3_col2"],
+            ],
+        )
     yield csv_instance
     os.remove(csv_instance.file.path)
     csv_instance.delete()
@@ -193,18 +193,19 @@ def enriched_csv_file(base_csv_file: CSVFile) -> CSVFile:
     CSV file instance without enriching
     column csv_header1 has no preffix csv_/json_ as it was used to merge tables
     """
-    csv_instance = _create_csvfile_instance(
-        csv_data=[
-            ["csv_header1", "csv_header2", "json_header2", "json_header3"],
-            ["row1_col1", "csv_row1_col2", "json_row1_col2", "json_row1_col3"],
-            ["row2_col1", "csv_row2_col2", "json_row2_col2", "json_row2_col3"],
-            ["row3_col1", "csv_row3_col2", "", ""],
-        ],
-        create_kwargs={
-            "source_instance": base_csv_file,
-        },
-    )
-    enrich_detail_instance = _create_enrich_detail(csv_instance)
+    with freeze_time(datetime(year=2023, month=6, day=1)):
+        csv_instance = _create_csvfile_instance(
+            csv_data=[
+                ["csv_header1", "csv_header2", "json_header2", "json_header3"],
+                ["row1_col1", "csv_row1_col2", "json_row1_col2", "json_row1_col3"],
+                ["row2_col1", "csv_row2_col2", "json_row2_col2", "json_row2_col3"],
+                ["row3_col1", "csv_row3_col2", "", ""],
+            ],
+            create_kwargs={
+                "source_instance": base_csv_file,
+            },
+        )
+        enrich_detail_instance = _create_enrich_detail(csv_instance)
     yield csv_instance
     os.remove(enrich_detail_instance.external_response.path)
     os.remove(csv_instance.file.path)
