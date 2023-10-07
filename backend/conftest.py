@@ -18,6 +18,28 @@ from freezegun import freeze_time
 from csv_manager.enums import EnrichmentJoinType, EnrichmentStatus
 from csv_manager.models import CSVFile, EnrichDetail
 
+JSON_RESPONSE_DATA = {
+    "results": [
+        {
+            "json_header1": "row1_col1",
+            "json_header2": "json_row1_col2",
+            "json_header3": "json_row1_col3",
+        },
+        {
+            "json_header1": "row2_col1",
+            "json_header2": "json_row2_col2",
+            "json_header3": "json_row2_col3",
+        },
+        {
+            "json_header1": "no_match",
+            "json_header2": "no_match",
+            "json_header3": "no_match",
+        },
+    ],
+    "other_random_key": "random_value",
+    "other_random_key2": 1,
+}
+
 
 class PytestTestRunner:
     """Runs pytest to discover and run tests."""
@@ -107,30 +129,10 @@ def _create_enrich_detail_instace(
 
 def _create_enrich_detail(enriched_csv_file: CSVFile) -> EnrichDetail:
     enrich_detail_instance = _create_enrich_detail_instace(
-        json_data={
-            "results": [
-                {
-                    "json_header1": "row1_col1",
-                    "json_header2": "json_row1_col2",
-                    "json_header3": "json_row1_col3",
-                },
-                {
-                    "json_header1": "row2_col1",
-                    "json_header2": "json_row2_col2",
-                    "json_header3": "json_row2_col3",
-                },
-                {
-                    "json_header1": "no_match",
-                    "json_header2": "no_match",
-                    "json_header3": "no_match",
-                },
-            ],
-            "other_random_key": "random_value",
-            "other_random_key2": 1,
-        },
+        json_data=JSON_RESPONSE_DATA,
         create_kwargs={
             "csv_file": enriched_csv_file,
-            "external_elements_count": 3,
+            "external_elements_count": len(JSON_RESPONSE_DATA),
             "status": EnrichmentStatus.COMPLETED,
             "external_url": "https://random.com",
             "join_type": EnrichmentJoinType.LEFT.value,
@@ -194,7 +196,7 @@ def enriched_csv_file(base_csv_file: CSVFile) -> CSVFile:
     column csv_header1 has no preffix csv_/json_ as it was used to merge tables
     """
     with freeze_time(datetime(year=2023, month=6, day=1)):
-        csv_instance = _create_csvfile_instance(
+        csvfile_instance = _create_csvfile_instance(
             csv_data=[
                 ["csv_header1", "csv_header2", "json_header2", "json_header3"],
                 ["row1_col1", "csv_row1_col2", "json_row1_col2", "json_row1_col3"],
@@ -205,11 +207,11 @@ def enriched_csv_file(base_csv_file: CSVFile) -> CSVFile:
                 "source_instance": base_csv_file,
             },
         )
-        enrich_detail_instance = _create_enrich_detail(csv_instance)
-    yield csv_instance
+        enrich_detail_instance = _create_enrich_detail(csvfile_instance)
+    yield csvfile_instance
     os.remove(enrich_detail_instance.external_response.path)
-    os.remove(csv_instance.file.path)
-    csv_instance.delete()
+    os.remove(csvfile_instance.file.path)
+    csvfile_instance.delete()
 
 
 @pytest.fixture(scope="module")
