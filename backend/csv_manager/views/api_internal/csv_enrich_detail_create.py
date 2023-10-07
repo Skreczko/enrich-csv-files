@@ -20,9 +20,10 @@ def csv_enrich_detail_create(
     Endpoint to initiate the enrichment of a CSV file using data from an external URL.
 
     This endpoint performs the following actions:
-    1. Creates a new enrichment detail for a given CSV file (identified by its UUID).
-    2. Schedules an asynchronous task to fetch data from the provided external URL.
-    3. Once the data is fetched, it will be used to enrich the CSV file.
+    1. Checks if the given CSV file (identified by its UUID) exists in the database.
+    2. If the CSV file exists, creates a new enrichment detail for it.
+    3. Schedules an asynchronous task to fetch data from the provided external URL.
+    4. Once the data is fetched, it will be used to enrich the CSV file.
 
     :param request: HttpRequest object containing the request data.
     :param request_form: CSVEnrichDetailCreateRequestForm object containing the validated form data, including the external URL.
@@ -30,11 +31,15 @@ def csv_enrich_detail_create(
     :return: JsonResponse object containing the ID of the scheduled task and the UUID of the CSV file.
 
     Note:
+    - If the given CSV file does not exist, a CSVFile.DoesNotExist exception is raised.
     - The endpoint immediately returns after scheduling the asynchronous task and does not wait for the task to complete.
     - If the provided external URL does not return a valid JSON, the asynchronous task will handle the error and update the enrichment detail's status accordingly.
     - The function uses the Celery task system to manage the asynchronous fetching of data.
     - For security reasons, the JSON serializer is used for the Celery task instead of pickle.
     """
+
+    if not CSVFile.objects.filter(uuid=uuid).exists():
+        raise CSVFile.DoesNotExist
 
     csv_file_instance = CSVFile.objects.create(source_instance_id=uuid)
 

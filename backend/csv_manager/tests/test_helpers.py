@@ -36,7 +36,7 @@ def test_get_and_serialize_csv_detail(
     uuid = (
         str(base_csv_file.uuid)
         if existing_uuid
-        else "cb628d4c-53d0-484c-a87a-f04f7d93b6e6"
+        else "11111111-aaaa-2222-cccc-333333333333"
     )
 
     def side_effect_func(*args: Any, **kwargs: Any) -> list[dict[str, Any]]:
