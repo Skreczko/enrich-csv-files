@@ -18,8 +18,7 @@ def test_csv_detail_delete(
         data={"uuid": uuid},
     ).json()
 
-    assert response == {'csvfile_uuid': uuid}
+    assert response == {"csvfile_uuid": uuid}
 
     assert not CSVFile.objects.filter(uuid=uuid).exists()
     assert CSVFile.objects.count() == 19
-
