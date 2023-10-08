@@ -8,6 +8,7 @@ from datetime import datetime
 from tempfile import NamedTemporaryFile
 from typing import Any
 from unittest import mock
+from unittest.mock import MagicMock
 
 import pytest
 from django.core.files import File
@@ -73,9 +74,10 @@ class PytestTestRunner:
 
 
 @pytest.fixture(autouse=True)
-def mock_sentry_capture_exception():
+def mock_sentry_capture_exception() -> MagicMock:
     with mock.patch("sentry_sdk.capture_exception") as mock_capture:
         yield mock_capture
+
 
 @pytest.fixture(autouse=True)
 def enable_db_access(db) -> None:
@@ -108,6 +110,8 @@ def _create_csvfile_instance(
         writer.writerows(csv_data)
         temp_file_name = temp_file.name
 
+        temp_file.flush()
+
         with open(temp_file_name, "rb") as f:
             csv_file_instance, _ = CSVFile.objects.get_or_create(
                 file=File(f),
@@ -125,6 +129,8 @@ def _create_enrich_detail_instace(
     with NamedTemporaryFile(mode="w", delete=False, suffix=".json") as temp_file:
         json.dump(json_data, temp_file)
         temp_file_name = temp_file.name
+
+        temp_file.flush()
 
         with open(temp_file_name, "rb") as f:
             enrich_detail_instance, _ = EnrichDetail.objects.get_or_create(

@@ -365,9 +365,7 @@ def test_csv_list_filter_status(
 
 @mock.patch("csv_manager.views.api_internal.csv_list.serialize_queryset")
 def test_csv_list_serialization_error(
-    mock_serialize_queryset: mock.Mock,
-    client: Client,
-    enriched_csv_file: CSVFile
+    mock_serialize_queryset: mock.Mock, client: Client, enriched_csv_file: CSVFile
 ):
     mock_serialize_queryset.side_effect = SerializationError(
         enriched_csv_file, "random_field"

@@ -30,7 +30,7 @@ def test_csv_detail_get(
                 "json_header3",
             ],
             "external_response": {
-                "size": 0,
+                "size": csv_instance.enrich_detail.external_response.size,
                 "url": f"/media/files/no_user/{csv_instance.enrich_detail.uuid}.json",
             },
             "external_url": "https://random.com",
@@ -42,7 +42,7 @@ def test_csv_detail_get(
             "uuid": str(csv_instance.enrich_detail.uuid),
         },
         "file": {
-            "size": 0,
+            "size": csv_instance.file.size,
             "url": f"/media/files/no_user/{csv_instance.uuid}.csv",
         },
         "file_headers": ["csv_header1", "csv_header2", "json_header2", "json_header3"],
@@ -51,7 +51,7 @@ def test_csv_detail_get(
         "source_instance": {
             "created": "2023-06-01T00:00:00Z",
             "file": {
-                "size": 0,
+                "size": csv_instance.source_instance.file.size,
                 "url": f"/media/files/no_user/{csv_instance.source_instance.uuid}.csv",
             },
             "file_headers": ["csv_header1", "csv_header2"],
