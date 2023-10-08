@@ -278,7 +278,6 @@ def test_csv_list_sort(
 def test_csv_list_search(
     search: str | None,
     client: Client,
-    multiple_base_csv_files: list[CSVFile],
     multiple_enriched_csv_files: None,
 ):
     response = client.get(
@@ -322,7 +321,6 @@ def test_csv_list_search(
 def test_csv_list_filter_status(
     filter_status: CsvListStatusFilter,
     client: Client,
-    multiple_base_csv_files: list[CSVFile],
     multiple_enriched_csv_files: None,
 ):
     status_mappings = {
