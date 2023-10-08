@@ -1,4 +1,5 @@
 from http import HTTPStatus
+from unittest import mock
 from unittest.mock import ANY
 
 import math
@@ -13,6 +14,7 @@ from csv_manager.enums import (
     EnrichmentStatus,
 )
 from csv_manager.models import CSVFile, EnrichDetail
+from transformer.exceptions import SerializationError
 
 path = "/api/_internal/csv_list"
 
@@ -307,3 +309,82 @@ def test_csv_list_search(
         assert response_results == results
     else:
         assert response_results != results
+
+
+@pytest.mark.parametrize(
+    "filter_status",
+    [
+        pytest.param(CsvListStatusFilter.FAILED, id="filter_status=failed"),
+        pytest.param(CsvListStatusFilter.IN_PROGRESS, id="filter_status=in_progress"),
+        pytest.param(CsvListStatusFilter.COMPLETED, id="filter_status=completed"),
+    ],
+)
+def test_csv_list_filter_status(
+    filter_status: CsvListStatusFilter,
+    client: Client,
+    multiple_base_csv_files: list[CSVFile],
+    multiple_enriched_csv_files: None,
+):
+    status_mappings = {
+        CsvListStatusFilter.FAILED: EnrichmentStatus.FAILED_ENRICHING.value,
+        CsvListStatusFilter.IN_PROGRESS: EnrichmentStatus.AWAITING_COLUMN_SELECTION.value,
+        CsvListStatusFilter.COMPLETED: EnrichmentStatus.COMPLETED.value,
+    }
+
+    status = status_mappings[filter_status]
+
+    enrich_detail_instance = EnrichDetail.objects.select_related(
+        "csv_file", "csv_file__source_instance"
+    ).last()
+    EnrichDetail.objects.filter(uuid=enrich_detail_instance.uuid).update(status=status)
+
+    response = client.get(
+        path,
+        data={
+            "filter_status": filter_status,
+            "sort": CsvListSortColumn.CREATED_DESC,
+            "page": 1,
+            "page_size": 1,
+        },
+    )
+    response_results = response.json()["result"]
+    assert response.status_code == HTTPStatus.OK
+
+    results = [
+        {
+            "created": ANY,
+            "enrich_detail": {"external_url": "https://random.com"},
+            "original_file_name": enrich_detail_instance.csv_file.original_file_name,
+            "source_original_file_name": enrich_detail_instance.csv_file.source_instance.original_file_name,
+            "source_uuid": str(enrich_detail_instance.csv_file.source_instance.uuid),
+            "status": status,
+            "uuid": str(enrich_detail_instance.csv_file.uuid),
+        }
+    ]
+
+    assert response_results == results
+
+
+@mock.patch("csv_manager.views.api_internal.csv_list.serialize_queryset")
+def test_csv_list_serialization_error(
+    mock_serialize_queryset: mock.Mock,
+    client: Client,
+    multiple_base_csv_files: list[CSVFile],
+    multiple_enriched_csv_files: None,
+):
+    csvfile_instance = multiple_base_csv_files[0]
+    mock_serialize_queryset.side_effect = SerializationError(
+        csvfile_instance, "random_field"
+    )
+    response = client.get(
+        path,
+        data={
+            "sort": CsvListSortColumn.CREATED_DESC,
+            "page": 1,
+            "page_size": 1,
+        },
+    )
+    assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
+    assert response.json() == {
+        "error": f"Could not serialize field random_field of instance {csvfile_instance}",
+    }
