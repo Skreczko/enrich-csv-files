@@ -7,6 +7,7 @@ import os
 from datetime import datetime
 from tempfile import NamedTemporaryFile
 from typing import Any
+from unittest import mock
 
 import pytest
 from django.core.files import File
@@ -70,6 +71,11 @@ class PytestTestRunner:
             argv.extend(extra_tests)
         return pytest.main(argv)
 
+
+@pytest.fixture(autouse=True)
+def mock_sentry_capture_exception():
+    with mock.patch("sentry_sdk.capture_exception") as mock_capture:
+        yield mock_capture
 
 @pytest.fixture(autouse=True)
 def enable_db_access(db) -> None:
