@@ -98,13 +98,7 @@ def client() -> Client:
     return Client()
 
 
-def _create_csvfile_instance(
-    csv_data: list[list[Any]],
-    create_kwargs: dict[str, Any] = None,
-    original_file_name: str = "temp.csv",
-) -> CSVFile:
-    if not create_kwargs:
-        create_kwargs = {}
+def create_csvfile(csv_data: list[list[Any]]) -> str:
     with NamedTemporaryFile(mode="w", delete=False, suffix=".csv") as temp_file:
         writer = csv.writer(temp_file)
         writer.writerows(csv_data)
@@ -112,35 +106,53 @@ def _create_csvfile_instance(
 
         temp_file.flush()
 
-        with open(temp_file_name, "rb") as f:
-            csv_file_instance, _ = CSVFile.objects.get_or_create(
-                file=File(f),
-                original_file_name=original_file_name,
-                file_row_count=len(csv_data),
-                file_headers=csv_data[0],
-                **create_kwargs,
-            )
+        return temp_file_name
+
+
+def create_csvfile_instance(
+    csv_data: list[list[Any]],
+    create_kwargs: dict[str, Any] = None,
+    original_file_name: str = "temp.csv",
+) -> CSVFile:
+    if not create_kwargs:
+        create_kwargs = {}
+
+    temp_file_name = create_csvfile(csv_data)
+
+    with open(temp_file_name, "rb") as f:
+        csv_file_instance, _ = CSVFile.objects.get_or_create(
+            file=File(f),
+            original_file_name=original_file_name,
+            file_row_count=len(csv_data),
+            file_headers=csv_data[0],
+            **create_kwargs,
+        )
     return csv_file_instance
 
 
-def _create_enrich_detail_instace(
-    json_data: list[dict[str, Any]] | dict[str, Any], create_kwargs: dict[str, Any]
-) -> EnrichDetail:
+def create_json_file(json_data: list[dict[str, Any]] | dict[str, Any]) -> str:
     with NamedTemporaryFile(mode="w", delete=False, suffix=".json") as temp_file:
         json.dump(json_data, temp_file)
         temp_file_name = temp_file.name
 
         temp_file.flush()
+        return temp_file_name
 
-        with open(temp_file_name, "rb") as f:
-            enrich_detail_instance, _ = EnrichDetail.objects.get_or_create(
-                external_response=File(f), **create_kwargs
-            )
+
+def create_enrich_detail_instance(
+    json_data: list[dict[str, Any]] | dict[str, Any], create_kwargs: dict[str, Any]
+) -> EnrichDetail:
+    temp_file_name = create_json_file(json_data)
+
+    with open(temp_file_name, "rb") as f:
+        enrich_detail_instance, _ = EnrichDetail.objects.get_or_create(
+            external_response=File(f), **create_kwargs
+        )
     return enrich_detail_instance
 
 
 def _create_enrich_detail(enriched_csv_file: CSVFile) -> EnrichDetail:
-    enrich_detail_instance = _create_enrich_detail_instace(
+    enrich_detail_instance = create_enrich_detail_instance(
         json_data=JSON_RESPONSE_DATA,
         create_kwargs={
             "csv_file": enriched_csv_file,
@@ -166,7 +178,7 @@ def _create_enrich_detail(enriched_csv_file: CSVFile) -> EnrichDetail:
 def base_csv_file() -> CSVFile:
     """CSV file instance without enriching"""
     with freeze_time(datetime(2023, 6, 1)):
-        csv_instance = _create_csvfile_instance(
+        csv_instance = create_csvfile_instance(
             csv_data=[
                 ["csv_header1", "csv_header2"],
                 ["row1_col1", "csv_row1_col2"],
@@ -184,7 +196,7 @@ def multiple_base_csv_files(module_transactional_db) -> list[CSVFile]:
     csv_files = []
     for index in range(20):
         with freeze_time(datetime(2023, 6, 1)):
-            csv_instance = _create_csvfile_instance(
+            csv_instance = create_csvfile_instance(
                 csv_data=[
                     ["csv_header1", "csv_header2"],
                     ["row1_col1", "csv_row1_col2"],
@@ -208,7 +220,7 @@ def enriched_csv_file(base_csv_file: CSVFile) -> CSVFile:
     column csv_header1 has no preffix csv_/json_ as it was used to merge tables
     """
     with freeze_time(datetime(year=2023, month=6, day=1)):
-        csvfile_instance = _create_csvfile_instance(
+        csvfile_instance = create_csvfile_instance(
             csv_data=[
                 ["csv_header1", "csv_header2", "json_header2", "json_header3"],
                 ["row1_col1", "csv_row1_col2", "json_row1_col2", "json_row1_col3"],
@@ -232,7 +244,7 @@ def multiple_enriched_csv_files(multiple_base_csv_files: list[CSVFile]) -> None:
     enrich_detail_instance_list: list[EnrichDetail] = []
     for index, base_csv_file in enumerate(multiple_base_csv_files):
         with freeze_time(datetime(year=2023, month=6, day=1 + index)):
-            csv_instance = _create_csvfile_instance(
+            csv_instance = create_csvfile_instance(
                 csv_data=[
                     ["csv_header1", "csv_header2", "json_header2", "json_header3"],
                     ["row1_col1", "csv_row1_col2", "json_row1_col2", "json_row1_col3"],

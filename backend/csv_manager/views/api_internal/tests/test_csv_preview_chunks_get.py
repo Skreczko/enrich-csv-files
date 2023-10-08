@@ -10,7 +10,7 @@ from django.test import Client
 from freezegun import freeze_time
 
 from conftest import (
-    _create_csvfile_instance,
+    create_csvfile_instance,
 )
 from csv_manager.models import CSVFile
 
@@ -23,7 +23,7 @@ def get_path(uuid: str) -> str:
 def csv_file() -> CSVFile:
     """CSV file instance without enriching"""
     with freeze_time(datetime(2023, 6, 1)):
-        csv_instance = _create_csvfile_instance(
+        csv_instance = create_csvfile_instance(
             csv_data=[
                 ["csv_header1", "csv_header2"],
             ]

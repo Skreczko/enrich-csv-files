@@ -5,7 +5,7 @@ from unittest import mock
 import pytest
 from django.test import Client
 
-from conftest import JSON_RESPONSE_DATA, _create_enrich_detail_instace
+from conftest import JSON_RESPONSE_DATA, create_enrich_detail_instance
 from csv_manager.enums import EnrichmentJoinType, EnrichmentStatus
 from csv_manager.models import CSVFile
 
@@ -15,7 +15,7 @@ def test_instances(base_csv_file: CSVFile):
     csvfile_instance = CSVFile.objects.create(
         file=None, file_row_count=None, file_headers=None, source_instance=base_csv_file
     )
-    enrich_detail_instance = _create_enrich_detail_instace(
+    enrich_detail_instance = create_enrich_detail_instance(
         json_data=JSON_RESPONSE_DATA,
         create_kwargs={
             "csv_file": csvfile_instance,
