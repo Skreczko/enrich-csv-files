@@ -369,12 +369,10 @@ def test_csv_list_filter_status(
 def test_csv_list_serialization_error(
     mock_serialize_queryset: mock.Mock,
     client: Client,
-    multiple_base_csv_files: list[CSVFile],
-    multiple_enriched_csv_files: None,
+    enriched_csv_file: CSVFile
 ):
-    csvfile_instance = multiple_base_csv_files[0]
     mock_serialize_queryset.side_effect = SerializationError(
-        csvfile_instance, "random_field"
+        enriched_csv_file, "random_field"
     )
     response = client.get(
         path,
@@ -386,5 +384,5 @@ def test_csv_list_serialization_error(
     )
     assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
     assert response.json() == {
-        "error": f"Could not serialize field random_field of instance {csvfile_instance}",
+        "error": f"Could not serialize field random_field of instance {enriched_csv_file}",
     }
