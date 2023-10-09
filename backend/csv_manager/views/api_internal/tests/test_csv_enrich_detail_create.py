@@ -20,7 +20,7 @@ from csv_manager.models import CSVFile
 )
 def test_csv_enrich_detail_create(
     mock_apply_async: mock.Mock,
-    existing_uuid,
+    existing_uuid: bool,
     client: Client,
     base_csv_file: CSVFile,
 ):

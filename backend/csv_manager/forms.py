@@ -95,4 +95,6 @@ class CSVDetailDeleteRequestForm(forms.Form):
 
 
 class FetchTaskResultsRequestForm(forms.Form):
-    task_ids = CharListField()
+    task_ids = (
+        CharListField()
+    )  # ie task_ids='["d2db41bc-fc09-43ca-9917-e8ec88c74774","c5517601-425e-4de1-8d3c-fa5e273ec267","4bf14e04-7470-40bd-a519-4c65e1270d4c"]'
