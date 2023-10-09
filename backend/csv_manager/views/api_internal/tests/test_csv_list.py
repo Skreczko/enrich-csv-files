@@ -31,7 +31,7 @@ def test_csv_list_page(
     client: Client,
     multiple_enriched_csv_files: None,
 ):
-    data = {"page": page, "page_size": 20, "sort": CsvListSortColumn.CREATED_DESC}
+    data = {"page": page, "sort": CsvListSortColumn.CREATED_DESC}
 
     if page == 2:
         response = client.get(
@@ -89,7 +89,7 @@ def test_csv_list_page_size(
     assert response.status_code == HTTPStatus.OK
     assert response_data["paginator"] == {
         "total_pages": math.ceil(CSVFile.objects.count() / page_size),
-        "page": 1,
+        "page": 1,  # Required
         "page_size": page_size,
     }
 
@@ -121,8 +121,8 @@ def test_csv_list_filter_date(
     response = client.get(
         path,
         data={
-            "page": 1,
-            "page_size": 1000,
+            "page": 1,  # Required
+            "page_size": 1000,  # Setting page_size to 100 to ensure that we retrieve all instances
             "sort": CsvListSortColumn.CREATED_DESC,
             "filter_date_from": filter_date_from,
             "filter_date_to": filter_date_to,
@@ -178,8 +178,8 @@ def test_csv_list_filter_file_type(
         path,
         data={
             "filter_file_type": filter_file_type,
-            "page": 1,
-            "page_size": 1000,
+            "page": 1,  # Required
+            "page_size": 1000,  # Setting page_size to 100 to ensure that we retrieve all instances.
             "sort": CsvListSortColumn.CREATED_DESC,
         },
     )
@@ -218,8 +218,8 @@ def test_csv_list_sort(
         path,
         data={
             "sort": sort,
-            "page": 1,
-            "page_size": 1,
+            "page": 1,  # Required
+            "page_size": 1,  # Setting page_size to 1 to ensure that we retrieve exactly the expected instance
         },
     )
     response_results = response.json()["result"]
@@ -285,8 +285,8 @@ def test_csv_list_search(
         data={
             "search": search,
             "sort": CsvListSortColumn.CREATED_DESC,
-            "page": 1,
-            "page_size": 1,
+            "page": 1,  # Required
+            "page_size": 1,  # Setting page_size to 1 to ensure that we retrieve exactly the expected instance
         },
     )
     response_results = response.json()["result"]
@@ -341,8 +341,8 @@ def test_csv_list_filter_status(
         data={
             "filter_status": filter_status,
             "sort": CsvListSortColumn.CREATED_DESC,
-            "page": 1,
-            "page_size": 1,
+            "page": 1,  # required
+            "page_size": 1,  # Setting page_size to 1 to ensure that we retrieve exactly the expected instance
         },
     )
     response_results = response.json()["result"]
@@ -374,7 +374,7 @@ def test_csv_list_serialization_error(
         path,
         data={
             "sort": CsvListSortColumn.CREATED_DESC,
-            "page": 1,
+            "page": 1,  # required
             "page_size": 1,
         },
     )

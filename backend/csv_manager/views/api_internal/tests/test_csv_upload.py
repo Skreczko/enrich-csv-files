@@ -51,6 +51,7 @@ def test_upload_csv(
             data={"file": file},
         )
 
+    # Validate if file is CSV file (only .csv are accepted)
     if csv_file_type:
         assert response.status_code == HTTPStatus.OK
         assert response.json() == {

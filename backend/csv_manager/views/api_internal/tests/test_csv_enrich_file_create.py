@@ -94,6 +94,7 @@ def test_csv_enrich_file_create(
         }
         return
 
+    # Validate merge header(csv file) and key (external json response)
     if is_correct_selected_merge_header and is_correct_selected_merge_key:
         assert response.status_code == HTTPStatus.OK
         assert response.json() == {
