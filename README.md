@@ -75,13 +75,15 @@ In the Docker configuration, the `node_modules` directory is set as an anonymous
 * you got hint to install packages
 * if error occurred (permissions to add), please remove `node_modules` file which were created automatically (and which is empty) OR change permissions on that directory (`sudo chmod 777 node_modules/`)
 
-<u><b>Important2:</b></u>
+<u><b>Important: Celery</b></u>
 * there is an isssue with celery for running server using pycharm's django server. You need to run celery/celery-beat manually in container after you run this project with django server
 - run your project with green arrow
 - Type
 ```shell
 docker exec -it atc-django bash -c "watchmedo auto-restart --pattern '*.py' --signal SIGINT --recursive -- celery -A transformer worker -l debug"
 ```
+
+<u><b>Important: Celery beat</b></u>
 
 do same for celery-beat in other terminal:
 ```shell

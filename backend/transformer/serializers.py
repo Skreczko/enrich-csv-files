@@ -97,7 +97,6 @@ def serialize_queryset(
                     )
                 except ValueError:
                     # that means user selected file to enrich, made a request with external_url but didnt select columns to merge.
-                    # this instance will be deleted with user (frontend show that this instance is not valid or removed with celery schedule task - clear_empty_csvfile)
                     serialized_obj[field] = None
                 except FileNotFoundError:
                     # that mean someone has deleted related file
@@ -157,7 +156,6 @@ def serialize_instance(*, instance: T, fields: FieldsType = None) -> dict[str, A
                 serialized[field] = FileFieldType(url=value.url, size=value.size)
             except ValueError:
                 # that means user selected file to enrich, made a request with external_url but didnt select columns to merge.
-                # this instance will be deleted with user (frontend show that this instance is not valid or removed with celery schedule task - clear_empty_csvfile)
                 serialized[field] = None
             except FileNotFoundError:
                 # that mean someone has deleted related file

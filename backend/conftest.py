@@ -187,7 +187,8 @@ def base_csv_file() -> CSVFile:
             ],
         )
     yield csv_instance
-    os.remove(csv_instance.file.path)
+    if os.path.exists(csv_instance.file.path):
+        os.remove(csv_instance.file.path)
     csv_instance.delete()
 
 
@@ -208,7 +209,8 @@ def multiple_base_csv_files(module_transactional_db) -> list[CSVFile]:
             csv_files.append(csv_instance)
     yield csv_files
     for csv_instance in csv_files:
-        os.remove(csv_instance.file.path)
+        if os.path.exists(csv_instance.file.path):
+            os.remove(csv_instance.file.path)
         csv_instance.delete()
 
 
@@ -233,8 +235,10 @@ def enriched_csv_file(base_csv_file: CSVFile) -> CSVFile:
         )
         enrich_detail_instance = _create_enrich_detail(csvfile_instance)
     yield csvfile_instance
-    os.remove(enrich_detail_instance.external_response.path)
-    os.remove(csvfile_instance.file.path)
+    if os.path.exists(enrich_detail_instance.external_response.path):
+        os.remove(enrich_detail_instance.external_response.path)
+    if os.path.exists(csvfile_instance.file.path):
+        os.remove(csvfile_instance.file.path)
     csvfile_instance.delete()
 
 
@@ -260,8 +264,11 @@ def multiple_enriched_csv_files(multiple_base_csv_files: list[CSVFile]) -> None:
             enriched_csv_files.append(csv_instance)
     yield
     for enrich_detail_instance in enrich_detail_instance_list:
-        os.remove(enrich_detail_instance.external_response.path)
+        if os.path.exists(enrich_detail_instance.external_response.path):
+            os.remove(enrich_detail_instance.external_response.path)
         enrich_detail_instance.delete()
+
     for csv_instance in enriched_csv_files:
-        os.remove(csv_instance.file.path)
+        if os.path.exists(csv_instance.file.path):
+            os.remove(csv_instance.file.path)
         csv_instance.delete()
