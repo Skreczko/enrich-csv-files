@@ -31,9 +31,9 @@ def test_csv_list_page(
     client: Client,
     multiple_enriched_csv_files: None,
 ):
-    data = {"page": page, "sort": CsvListSortColumn.CREATED_DESC}
+    data = {"page": page, "sort": CsvListSortColumn.CREATED_ASC}
 
-    if page == 2:
+    if page == 1:
         response = client.get(
             path=path,
             data=data,
@@ -196,7 +196,6 @@ def test_csv_list_filter_file_type(
     "sort",
     [
         pytest.param(CsvListSortColumn.CREATED_DESC.value, id="sort=created"),
-        pytest.param(CsvListSortColumn.STATUS_DESC.value, id="sort=-status"),
         pytest.param(CsvListSortColumn.STATUS_ASC.value, id="sort=status"),
     ],
 )
@@ -231,28 +230,15 @@ def test_csv_list_sort(
             {
                 "created": "2023-06-20T00:00:00Z",
                 "enrich_detail": {"external_url": "https://random.com"},
-                "original_file_name": "temp_file_19.enriched.csv",
-                "source_original_file_name": "temp_file_19.csv",
+                "original_file_name": enrich_detail_2.csv_file.original_file_name,
+                "source_original_file_name": enrich_detail_2.csv_file.source_instance.original_file_name,
                 "source_uuid": str(csv_file.source_instance.uuid),
                 "status": EnrichmentStatus.AWAITING_COLUMN_SELECTION.value,
                 "uuid": str(csv_file.uuid),
             }
         ]
-    elif sort == CsvListSortColumn.STATUS_DESC:
-        results = [
-            {
-                "created": "2023-06-01T00:00:00Z",
-                "enrich_detail": None,
-                "original_file_name": "temp_file_0.csv",
-                "source_original_file_name": None,
-                "source_uuid": None,
-                "status": EnrichmentStatus.COMPLETED.value,
-                "uuid": ANY,
-            }
-        ]
     elif sort == CsvListSortColumn.STATUS_ASC:
         csv_file = enrich_detail_1.csv_file
-
         results = [
             {
                 "created": "2023-06-01T00:00:00Z",

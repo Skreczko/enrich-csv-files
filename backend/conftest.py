@@ -6,7 +6,7 @@ import json
 import os
 from datetime import datetime
 from tempfile import NamedTemporaryFile
-from typing import Any
+from typing import Any, TypedDict
 from unittest import mock
 from unittest.mock import MagicMock
 
@@ -276,26 +276,47 @@ def multiple_enriched_csv_files(multiple_base_csv_files: list[CSVFile]) -> None:
         csv_instance.delete()
 
 
-@pytest.fixture
-def csvfile_instance_in_enrich_process(base_csv_file: CSVFile) -> CSVFile:
-    """
-    csvfile_instance is in status "awaiting_column_selection" which mean enriched csv file is not yet created
-    """
-    csvfile_instance = CSVFile.objects.create(source_instance=base_csv_file)
-    enrich_detail_instance = create_enrich_detail_instance(
-        json_data=JSON_RESPONSE_DATA,
-        create_kwargs={
-            "csv_file": csvfile_instance,
-            "external_elements_count": len(JSON_RESPONSE_DATA),
-            "status": EnrichmentStatus.AWAITING_COLUMN_SELECTION,
-            "external_url": "https://random.com",
+class EnrichDetailInEnrichProcess(TypedDict):
+    json_data: Any
+    external_elements_count: int
+    external_elements_key_list: list[str]
+
+
+def _create_csvfile_in_enrich_process(
+    source_instance: CSVFile, create_details: EnrichDetailInEnrichProcess = None
+) -> CSVFile:
+    if not create_details:
+        create_details = {
+            "json_data": JSON_RESPONSE_DATA,
+            "external_elements_count": 3,
             "external_elements_key_list": [
                 "json_header1",
                 "json_header2",
                 "json_header3",
             ],
+        }
+
+    csvfile_instance = CSVFile.objects.create(source_instance=source_instance)
+    create_enrich_detail_instance(
+        json_data=create_details["json_data"],
+        create_kwargs={
+            "csv_file": csvfile_instance,
+            "external_elements_count": create_details["external_elements_count"],
+            "status": EnrichmentStatus.AWAITING_COLUMN_SELECTION.value,
+            "external_url": "https://random.com",
+            "external_elements_key_list": create_details["external_elements_key_list"],
         },
     )
+    return csvfile_instance
+
+
+@pytest.fixture
+def csvfile_instance_in_enrich_process(base_csv_file: CSVFile) -> CSVFile:
+    """
+    csvfile_instance is in status "awaiting_column_selection" which mean enriched csv file is not yet created
+    """
+    csvfile_instance = _create_csvfile_in_enrich_process(source_instance=base_csv_file)
     yield csvfile_instance
+    enrich_detail_instance = csvfile_instance.enrich_detail
     if os.path.exists(enrich_detail_instance.external_response.path):
         os.remove(enrich_detail_instance.external_response.path)
