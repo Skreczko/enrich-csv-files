@@ -1,5 +1,5 @@
 from collections.abc import Iterable
-from typing import Any
+from typing import Any, Literal
 
 import flatdict
 from petl import FieldSelectionError
@@ -87,6 +87,40 @@ def handle_table_inner_join(
     return create_csv_from_table(merged_table, output_path)
 
 
+def json_data_generator(path: str, json_root_path: str) -> Iterable:
+    """
+    Generator to yield data items from a JSON file based on the specified root path.
+
+    This function reads the JSON file iteratively using ijson[yajl2], extracting data
+    items located under the provided root path.
+
+    :param path: The file path to the JSON file.
+    :param json_root_path: The path specifying the location of items to be extracted from the JSON.
+    :yield: Each item (dictionary) located under the root path in the JSON file.
+    """
+
+    with open(path) as f:
+        yield from ijson.items(f, json_root_path)
+
+
+def flattened_data(item: dict) -> dict:
+    """
+    Flatten a given dictionary, converting nested structures into a single-level dictionary.
+
+    This function employs the flatdict library to transform nested dictionaries into
+    a flat structure, where nested keys are concatenated using an underscore delimiter.
+
+    :param item: The input dictionary which might contain nested structures.
+    :return: A single-level, flattened dictionary.
+    """
+
+    flattened_item = flatdict.FlatDict(item, delimiter="_")
+
+    # Type ignore is used here due to a typing issue with mypy.
+    # In future development, this may need a fix.
+    return dict(flattened_item)  # type: ignore
+
+
 def create_enrich_table_by_join_type(
     *,
     join_type: EnrichmentJoinType,
@@ -135,70 +169,56 @@ def create_enrich_table_by_join_type(
     # create table from csv file
     csv_file_table = etl.fromcsv(source_instance_file_path)
 
+    # Determine the root path in the JSON structure from which data should be extracted.
+    # If a specific root path is provided in the `enrich_detail`, it's used as the base path and appended with ".item".
+    # Otherwise, the default "item" is used as the root path.
+    json_root_path = (
+        f"{enrich_detail_instance.json_root_path}.item"
+        if enrich_detail_instance.json_root_path
+        else "item"
+    )
+
+    path_to_json_file = enrich_detail_instance.external_response.path
     # create table from external api response json file
     if enrich_detail_instance.is_flat:
-
-        def flattened_data_generator() -> Iterable:
-            """
-            Generator function to yield flattened dictionaries from a JSON file.
-
-            This function reads a JSON file iteratively using ijson[yajl2]. For each item in the JSON,
-            it flattens the nested structures using the flatdict library and yields the flattened dictionary.
-
-            :yield: A flattened dictionary for each item in the JSON file.
-            """
-
-            # Determine the root path in the JSON structure from which data should be extracted.
-            # If a specific root path is provided in the `enrich_detail`, it's used as the base path and appended with ".item".
-            # Otherwise, the default "item" is used as the root path.
-            json_root_path = (
-                f"{enrich_detail_instance.json_root_path}.item"
-                if enrich_detail_instance.json_root_path
-                else "item"
+        external_response_table = etl.fromdicts(
+            flattened_data(item)
+            for item in json_data_generator(
+                path=path_to_json_file, json_root_path=json_root_path
             )
-
-            with open(enrich_detail_instance.external_response.path) as f:
-                for item in ijson.items(f, json_root_path):
-                    flattened_item = flatdict.FlatDict(item, delimiter="_")
-                    yield dict(
-                        flattened_item
-                    )  # type: ignore # ignore mypy is asking to overload, but using
-                    # flattened_item.as_dict() or dict(flattened_item.items())  make it work for mypy,
-                    # but dict is not flatten. To fix in future development
-
-        external_response_table = etl.fromdicts(flattened_data_generator())
+        )
     else:
-        external_response_table = etl.fromjson(
-            enrich_detail_instance.external_response.path
+        external_response_table = etl.fromdicts(
+            json_data_generator(path=path_to_json_file, json_root_path=json_root_path)
         )
 
     handler = join_switch.get(join_type)
 
     if not handler:
+        # for mypy to avoid "error: "None" not callable"
         raise ValueError("Invalid join type")
 
-    # Check if the columns have different data types
-    try:
-        csv_file_file_column_type = type(
-            next(
-                iter(etl.values(csv_file_table, enrich_detail_instance.selected_header))
-            )
-        )
-    except StopIteration:
-        raise ValueError("The CSV file column is empty")
+    def get_iterable_type(
+        table: Any, field: str, file_type: Literal["csv", "json"]
+    ) -> type:
+        try:
+            return type(next(iter(etl.values(table, field))))
+        except StopIteration:
+            raise ValueError(f"The {file_type} file column is empty")
+        except FieldSelectionError:
+            raise
 
-    try:
-        external_response_table_column_type = type(
-            next(
-                iter(
-                    etl.values(
-                        external_response_table, enrich_detail_instance.selected_key
-                    )
-                )
-            )
-        )
-    except StopIteration:
-        raise ValueError("The external response table column is empty")
+    # Check if the columns have different data types
+    csv_file_file_column_type = get_iterable_type(
+        table=csv_file_table,
+        field=enrich_detail_instance.selected_header,
+        file_type="csv",
+    )
+    external_response_table_column_type = get_iterable_type(
+        table=external_response_table,
+        field=enrich_detail_instance.selected_key,
+        file_type="json",
+    )
 
     # If the column types differ, convert both columns to string
     if csv_file_file_column_type != external_response_table_column_type:

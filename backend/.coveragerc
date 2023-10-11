@@ -1,0 +1,22 @@
+[run]
+omit =
+    */__init__.py
+    conftest.py
+    csv_manager/apps.py
+    csv_manager/enums.py
+    csv_manager/fields.py
+    csv_manager/migrations/*
+    csv_manager/types.py
+    manage.py
+    transformer/celery.py
+    transformer/dev_settings.py
+    transformer/settings.py
+    transformer/test_settings.py
+    transformer/url_patterns.py
+    transformer/urls.py
+    transformer/wsgi.py
+
+[report]
+exclude_lines =
+    if TYPE_CHECKING:
+show_missing = True

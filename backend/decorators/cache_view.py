@@ -52,7 +52,7 @@ def cache_view_response(
     def decorator(view_func: GenericFuncCache) -> WrapperFuncCache:
         @wraps(view_func)  # to keep metadata
         def wrapper(request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
-            cache_key = f"{request.path}_{request.GET.urlencode()}"
+            cache_key = f"{request.path}?{request.GET.urlencode()}"
 
             try:
                 cached_data = cache.get(cache_key)

@@ -107,6 +107,7 @@ BROKER_URL = os.environ["BROKER_URL"]
 CELERY_BROKER_URL = f"{BROKER_URL}/0"
 CELERY_RESULT_BACKEND = f"{BROKER_URL}/1"
 CELERY_WORKER_CONCURRENCY = 1
+# CELERY_TASK_ALWAYS_EAGER = True
 
 
 # Cache https://docs.djangoproject.com/en/3.2/topics/cache/

@@ -3,6 +3,7 @@ from typing import Any, cast
 
 from celery import shared_task
 from django.conf import settings
+from django.db.models import F
 from petl import FieldSelectionError
 from sentry_sdk import capture_exception  # type: ignore  #todo fix stubs
 
@@ -39,7 +40,7 @@ def process_csv_metadata(uuid: str, *args: Any, **kwargs: Any) -> None:
 
 @shared_task()
 def process_fetch_external_url(
-    enrich_detail_uuid: str, csv_file_uuid: str, *args: Any, **kwargs: Any
+    enrich_detail_uuid: str, *args: Any, **kwargs: Any
 ) -> dict[str, Any] | str | None:
     """
     Asynchronously fetch and process external JSON data to enrich a specific CSV detail.
@@ -52,7 +53,6 @@ def process_fetch_external_url(
     5. Update the EnrichDetail model with the extracted keys, item count, and set the status to AWAITING_COLUMN_SELECTION.
 
     :param enrich_detail_uuid: UUID of the EnrichDetail instance to process.
-    :param csv_file_uuid: UUID of the CSVFile instance associated with the enrichment detail.
     :return:
         - dict[str, Any]: In case of successful task completion. The key will be the Celery task number, and Any will be the data for updating.
         - str: Error message for Celery task status 'error'.
@@ -67,7 +67,11 @@ def process_fetch_external_url(
       this trade-off is deemed acceptable to mitigate potential memory issues.
     """
 
-    enrich_detail = EnrichDetail.objects.filter(uuid=enrich_detail_uuid).first()
+    enrich_detail = (
+        EnrichDetail.objects.annotate(csv_file_uuid=F("csv_file__uuid"))
+        .filter(uuid=enrich_detail_uuid)
+        .first()
+    )
     if not enrich_detail:
         raise ValueError(f"Enrich detail ({enrich_detail_uuid=}) does not exist")
 
@@ -85,12 +89,13 @@ def process_fetch_external_url(
         EnrichDetail.objects.filter(uuid=enrich_detail_uuid).update(
             status=EnrichmentStatus.FAILED_FETCHING_RESPONSE_OTHER_REQUEST_EXCEPTION
         )
-        raise ValueError(f"Other request exeption occurs: {e}")
+        raise ValueError(f"Other request exception occurs: {e}")
     except Exception as e:
         capture_exception(e)
         EnrichDetail.objects.filter(uuid=enrich_detail_uuid).update(
             status=EnrichmentStatus.FAILED_FETCHING_RESPONSE
         )
+        raise e
 
     # Determine the root path in the JSON structure from which data should be extracted.
     # If a specific root path is provided in the `enrich_detail`, it's used as the base path and appended with ".item".
@@ -146,13 +151,15 @@ def process_fetch_external_url(
         enrich_detail.status = EnrichmentStatus.AWAITING_COLUMN_SELECTION
         enrich_detail.save()
 
-    serialized_csv_detail = get_and_serialize_csv_detail(uuid=csv_file_uuid)
+    serialized_csv_detail = get_and_serialize_csv_detail(
+        uuid=enrich_detail.csv_file_uuid
+    )
 
     return serialized_csv_detail.get("csv_detail", serialized_csv_detail.get("error"))
 
 
 @shared_task()
-def remove_orphaned_csv_files() -> None:
+def remove_orphaned_csv_files() -> dict[str, list[str]]:
     """
     Asynchronously identify and remove orphaned CSV and JSON files from user directories.
 
@@ -165,13 +172,18 @@ def remove_orphaned_csv_files() -> None:
     2. For each user directory, identify files that are not in the list of associated files.
     3. Delete each identified orphaned file.
 
-    :return: None
+    :return: A dictionary containing two sets:
+             - "orphaned_csv_files": List of orphaned CSV files that were identified and deleted.
+             - "orphaned_json_files": List of orphaned JSON files that were identified and deleted.
 
     Notes:
     - The task not only checks for orphaned CSV files but also for orphaned JSON files.
     - It's recommended to schedule this task during off-peak hours to minimize potential I/O contention.
     - Always ensure backups are in place before running cleanup tasks to prevent accidental data loss.
     """
+
+    orphaned_csv_files = set()
+    orphaned_json_files = set()
 
     users_upload_directory = os.path.join(settings.MEDIA_ROOT, "files")
 
@@ -215,6 +227,11 @@ def remove_orphaned_csv_files() -> None:
             json_file_path = os.path.join(user_files_directory, json_file_name)
             os.remove(json_file_path)
 
+    return {
+        "orphaned_csv_files": list(orphaned_csv_files),
+        "orphaned_json_files": list(orphaned_json_files),
+    }
+
 
 @shared_task()
 def process_csv_enrichment(
@@ -243,11 +260,17 @@ def process_csv_enrichment(
     - The status of the EnrichDetail instance will be updated at various stages to reflect the progress.
     - If an error occurs during the enrichment process, the EnrichDetail instance's status will be set to FAILED_ENRICHING.
     """
+    enrich_detail_instance = (
+        EnrichDetail.objects.select_related(
+            "csv_file",
+            "csv_file__source_instance",
+        )
+        .filter(uuid=enrich_detail_uuid)
+        .first()
+    )
 
-    enrich_detail_instance = EnrichDetail.objects.select_related(
-        "csv_file",
-        "csv_file__source_instance",
-    ).get(uuid=enrich_detail_uuid)
+    if not enrich_detail_instance:
+        raise EnrichDetail.DoesNotExist
 
     csvfile_instance = enrich_detail_instance.csv_file
     source_csvfile_instance = csvfile_instance.source_instance
