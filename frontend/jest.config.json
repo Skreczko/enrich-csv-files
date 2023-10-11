@@ -21,6 +21,7 @@
   "setupFiles": ["<rootDir>/static/js/utils/setupJest.ts"],
   "setupFilesAfterEnv": ["@testing-library/jest-dom", "<rootDir>/static/js/utils/setupJestAfterEnv.ts"],
   "testEnvironment": "jsdom",
+  "testPathIgnorePatterns": ["/node_modules/", ".d.ts$"],
   "transform": {
     "^.+\\.jsx?$": "babel-jest",
     "^.+\\.tsx?$": "babel-jest"
