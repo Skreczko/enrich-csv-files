@@ -36,18 +36,18 @@ jobs:
     - name: Run backend check script
       run: docker exec atc-django bash -c "./check.sh"
 
-    # Run tests with coverage using the script
-    - name: Run tests with coverage using script
+    # Run backend tests with coverage using the script
+    - name: Run backend tests with coverage using script
       run: docker exec atc-django bash -c "./scripts/run-coverage-check.sh"
 
-    # Upload the new coverage report as an artifact
-    - name: Upload coverage as artifact
+    # Upload the new backend coverage report as an artifact
+    - name: Upload backend coverage as artifact
       uses: actions/upload-artifact@v2
       with:
         name: coverage-report
         path: backend/coverage.xml
 
-    - name: Clean up coverage files
+    - name: Clean up backend coverage files
       run: rm backend/coverage.xml
 
     - name: Run frontend check script
