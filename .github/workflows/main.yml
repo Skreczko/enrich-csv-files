@@ -52,3 +52,17 @@ jobs:
 
     - name: Run frontend check script
       run: docker exec atc-webpack bash -c "./check.sh"
+
+    - name: Run frontend tests with coverage using script
+      run: docker exec atc-webpack bash -c "./scripts/run-coverage-check.sh"
+
+      # Upload the new frontend coverage report as an artifact
+    - name: Upload frontend coverage as artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: frontend-coverage-report
+        path: frontend/coverage/lcov-report
+
+      # Clean up frontend coverage files
+    - name: Clean up frontend coverage files
+      run: rm -rf frontend/coverage/lcov-report
