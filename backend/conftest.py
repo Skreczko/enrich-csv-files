@@ -98,8 +98,10 @@ def client() -> Client:
     return Client()
 
 
-def create_csvfile(csv_data: list[list[Any]]) -> str:
-    with NamedTemporaryFile(mode="w", delete=False, suffix=".csv") as temp_file:
+def create_csvfile(csv_data: list[list[Any]], save_dir: str | None = None) -> str:
+    with NamedTemporaryFile(
+        mode="w", delete=False, suffix=".csv", dir=save_dir
+    ) as temp_file:
         writer = csv.writer(temp_file)
         writer.writerows(csv_data)
         temp_file_name = temp_file.name
@@ -272,3 +274,28 @@ def multiple_enriched_csv_files(multiple_base_csv_files: list[CSVFile]) -> None:
         if os.path.exists(csv_instance.file.path):
             os.remove(csv_instance.file.path)
         csv_instance.delete()
+
+
+@pytest.fixture
+def csvfile_instance_in_enrich_process(base_csv_file: CSVFile) -> CSVFile:
+    """
+    csvfile_instance is in status "awaiting_column_selection" which mean enriched csv file is not yet created
+    """
+    csvfile_instance = CSVFile.objects.create(source_instance=base_csv_file)
+    enrich_detail_instance = create_enrich_detail_instance(
+        json_data=JSON_RESPONSE_DATA,
+        create_kwargs={
+            "csv_file": csvfile_instance,
+            "external_elements_count": len(JSON_RESPONSE_DATA),
+            "status": EnrichmentStatus.AWAITING_COLUMN_SELECTION,
+            "external_url": "https://random.com",
+            "external_elements_key_list": [
+                "json_header1",
+                "json_header2",
+                "json_header3",
+            ],
+        },
+    )
+    yield csvfile_instance
+    if os.path.exists(enrich_detail_instance.external_response.path):
+        os.remove(enrich_detail_instance.external_response.path)

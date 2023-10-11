@@ -52,7 +52,6 @@ def csv_enrich_detail_create(
         args=(),
         kwargs={
             "enrich_detail_uuid": str(enrich_model.uuid),
-            "csv_file_uuid": str(csv_file_instance.uuid),
         },
         serializer="json",  # didn't use pickle (which could reduce database requests) due to security concerns.
     )

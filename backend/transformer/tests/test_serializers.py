@@ -5,37 +5,10 @@ from unittest.mock import ANY
 
 import pytest
 
-from conftest import JSON_RESPONSE_DATA, create_enrich_detail_instance
-from csv_manager.enums import EnrichmentStatus
 from csv_manager.models import CSVFile
 from csv_manager.types import EnrichDetailSerializerType, SourceInstanceSerializerType
 from transformer.exceptions import SerializationError
 from transformer.serializers import serialize_instance, serialize_queryset
-
-
-@pytest.fixture
-def csvfile_instance_in_enrich_process(base_csv_file: CSVFile) -> CSVFile:
-    """
-    csvfile_instance is in status "awaiting_column_selection" which mean enriched csv file is not yet created
-    """
-    csvfile_instance = CSVFile.objects.create(source_instance=base_csv_file)
-    enrich_detail_instance = create_enrich_detail_instance(
-        json_data=JSON_RESPONSE_DATA,
-        create_kwargs={
-            "csv_file": csvfile_instance,
-            "external_elements_count": len(JSON_RESPONSE_DATA),
-            "status": EnrichmentStatus.AWAITING_COLUMN_SELECTION,
-            "external_url": "https://random.com",
-            "external_elements_key_list": [
-                "json_header1",
-                "json_header2",
-                "json_header3",
-            ],
-        },
-    )
-    yield csvfile_instance
-    if os.path.exists(enrich_detail_instance.external_response.path):
-        os.remove(enrich_detail_instance.external_response.path)
 
 
 class TestSerializers:
