@@ -66,16 +66,16 @@ docker exec -it atc-django bash
 ```
 you should see something like `root@868056ecf804:/opt/project/backend# `
 
-<u><b>Important:</b></u>
 
+> <u><b>Important:</b></u>
+> 
+>In the Docker configuration, the `node_modules` directory is set as an anonymous volume, which means it's isolated from the host system and changes inside the container won't affect the local `node_modules` directory and vice versa.
+>
+>* goto `package.json`
+>* you got hint to install packages
+>* if error occurred (permissions to add), please remove `node_modules` file which were created automatically (and which is empty) OR change permissions on that directory (`sudo chmod 777 node_modules/`)
 
-In the Docker configuration, the `node_modules` directory is set as an anonymous volume, which means it's isolated from the host system and changes inside the container won't affect the local `node_modules` directory and vice versa.
-
-* goto `package.json`
-* you got hint to install packages
-* if error occurred (permissions to add), please remove `node_modules` file which were created automatically (and which is empty) OR change permissions on that directory (`sudo chmod 777 node_modules/`)
-
-<u><b>Important: Celery</b></u>
+<u><b>Important: Run Celery in container with script</b></u>
 * there is an isssue with celery for running server using pycharm's django server. You need to run celery/celery-beat manually in container after you run this project with django server
 - run your project with green arrow
 - Type
@@ -83,7 +83,7 @@ In the Docker configuration, the `node_modules` directory is set as an anonymous
 docker exec -it atc-django bash -c "watchmedo auto-restart --pattern '*.py' --signal SIGINT --recursive -- celery -A transformer worker -l debug"
 ```
 
-<u><b>Important: Celery beat</b></u>
+<u><b>Important: Run Celery Beat in container with script</b></u>
 
 do same for celery-beat in other terminal:
 ```shell
@@ -104,6 +104,8 @@ Please use `docker-compose.windows.yml`.
 ## Commands
 
 Pipelines will not pass until you fix code formatting and type check errors both backend and frontend side.
+
+> Info: Use development mode
 
 ### Backend code
 Script to format backend code using `Ruff`, `black`, `mypy` is prepared in `backend/check.sh`.
@@ -131,12 +133,16 @@ docker exec -it atc-webpack bash -c "npm run prettier"
 ```
 
 ## Tests
+> Info: Use development mode
+
 To run tests, use the following command:
 ```shell
 docker-compose -f docker-compose.dev.yml exec django pytest
 ```
 
 ## Code Coverage Check in CI/CD
+> Info: Use development mode
+
 To execute the coverage check locally, run:
 
 ```shell
@@ -157,6 +163,12 @@ rm -f coverage.xml previous-coverage.xml .coverage
 
 The same coverage check is also integrated into the GitHub workflow. When you push your changes, the workflow will automatically fetch the latest coverage from the `main` branch, compare it with the coverage of your changes, and fail the job if the criteria mentioned above are not met.
 
+>There might be instances when you'll want to refresh the most recent coverage report. To do this, please follow these steps:
+> 1. Navigate to [GitHub Actions](https://github.com/Superdevs-Recruiting/Fullstack-Challenge-DawidS/actions?query=branch%3Amain)
+> 2. Choose the latest pull request.
+> 3. Navigate to the Artifacts section and manually delete the coverage-report.
+> 
+>With this action, the subsequent run will generate a new blank coverage-report for comparison. Once you execute the coverage script afterward, the report produced will serve as the baseline for future runs.
 
 
 ## Please check EXPLAIN_CODE.md
