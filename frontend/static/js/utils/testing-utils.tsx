@@ -4,29 +4,42 @@ import { configureStore } from '@reduxjs/toolkit';
 import { Provider } from 'react-redux';
 import { setupListeners } from '@reduxjs/toolkit/query';
 import { ValidateSliceCaseReducers } from '@reduxjs/toolkit/dist/createSlice';
-import {RootState, storeReducer} from '../redux/store';
+import { RootState, storeReducer } from '../redux/store';
+import { MemoryRouter as Router } from 'react-router-dom';
+
+interface RenderOptions {
+  preloadedState?: RootState;
+  store?: ReturnType<typeof configureStore>;
+  [key: string]: any;
+}
 
 function render(
   ui: React.ReactElement,
-  // used to setup redux state before rendering component
   extraReducers: ValidateSliceCaseReducers<any, any>[] = [],
-  {
-    preloadedState = {} as RootState,
-    store = configureStore({
+  options: RenderOptions = {},
+): RenderResult {
+  const { preloadedState, store: customStore, ...renderOptions } = options;
+
+  const storeToUse =
+    customStore ||
+    configureStore({
       reducer: storeReducer,
       preloadedState,
-    }),
-    ...renderOptions
-  } = {},
-): RenderResult {
-  setupListeners(store.dispatch);
+    });
+
+  setupListeners(storeToUse.dispatch);
 
   const Wrapper = ({ children }: { children: ReactElement }): JSX.Element => {
     for (const reducerAction of extraReducers) {
-      store.dispatch(reducerAction);
+      storeToUse.dispatch(reducerAction);
     }
-    return <Provider store={store}>{children}</Provider>;
+    return (
+      <Provider store={storeToUse}>
+        <Router>{children}</Router>
+      </Provider>
+    );
   };
+
   return rtlRender(ui, { wrapper: Wrapper, ...renderOptions });
 }
 

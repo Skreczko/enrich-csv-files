@@ -1,0 +1,28 @@
+{
+  "coveragePathIgnorePatterns": [
+    "<rootDir>/static/js/api/actions.ts",
+    "<rootDir>/static/js/redux/store.ts"
+  ],
+  "coverageThreshold": {
+    "global": {
+      "branches": 21,
+      "functions": 24,
+      "lines": 32,
+      "statements": 32
+    }
+  },
+  "moduleNameMapper": {
+    "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/__mocks__/fileMock.js"
+  },
+  "rootDir": "./",
+  "roots": [
+    "<rootDir>/static"
+  ],
+  "setupFiles": ["<rootDir>/static/js/utils/setupJest.ts"],
+  "setupFilesAfterEnv": ["@testing-library/jest-dom", "<rootDir>/static/js/utils/setupJestAfterEnv.ts"],
+  "testEnvironment": "jsdom",
+  "transform": {
+    "^.+\\.jsx?$": "babel-jest",
+    "^.+\\.tsx?$": "babel-jest"
+  }
+}

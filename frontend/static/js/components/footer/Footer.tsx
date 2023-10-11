@@ -3,7 +3,7 @@ import { CopyrightText, HighlightedText, PoweredByText, FooterWrapper } from './
 
 export const Footer: React.FC = () => {
   return (
-    <FooterWrapper>
+    <FooterWrapper data-testid={'footer'}>
       <CopyrightText>
         Copyright © {new Date().getFullYear()}{' '}
         <HighlightedText>ADVERITY Transformer Challenge</HighlightedText>. All rights reserved.
