@@ -1,5 +1,4 @@
 #!/bin/bash
-set -eu
 
 # Configuration
 REPO="Superdevs-Recruiting/Fullstack-Challenge-DawidS"
@@ -40,9 +39,13 @@ cd $DIR/..
 # Run tests and generate a current report
 pytest --cov=. --cov-report=term-missing --cov-report=xml:coverage.xml
 
-# Compare the current coverage report with the previous one
-scripts/check_coverage.py coverage.xml previous-coverage.xml
+# Compare the current coverage report with the previous one and remove coverages based on the result
+if ! scripts/check_coverage.py coverage.xml previous-coverage.xml; then
+    [ -f previous-coverage.xml ] && rm -f previous-coverage.xml
+#    [ -f coverage.xml ] && rm -f coverage.xml
+    exit 1
+else
+    [ -f previous-coverage.xml ] && rm -f previous-coverage.xml
+    #    [ -f coverage.xml ] && rm -f coverage.xml
+fi
 
-# Remove coverages as there is no need to keep them
-#rm -f coverage.xml previous-coverage.xml .coverage
-rm -f previous-coverage.xml

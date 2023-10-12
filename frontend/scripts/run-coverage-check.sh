@@ -1,5 +1,4 @@
 #!/bin/bash
-set -eu
 
 # Configuration
 REPO="Superdevs-Recruiting/Fullstack-Challenge-DawidS"
@@ -11,37 +10,41 @@ RESPONSE=$(curl -s -H "Authorization: token $TOKEN" "https://api.github.com/repo
 RUN_ID=$(echo "$RESPONSE" | jq '.workflow_runs[0].id')
 echo "RUN_ID: $RUN_ID"
 
-# Fetch the download URL for the artifact named "frontend-coverage-report"
+# Fetch the download URL for the artifact
 ARTIFACT_RESPONSE=$(curl -s -H "Authorization: token $TOKEN" "https://api.github.com/repos/$REPO/actions/runs/${RUN_ID}/artifacts")
-ARTIFACT_EXISTS=$(echo "$ARTIFACT_RESPONSE" | jq ".artifacts[]? | select(.name == \"$ARTIFACT_NAME\") | .name")
+ARTIFACT_URL=$(echo "$ARTIFACT_RESPONSE" | jq -r ".artifacts[] | select(.name == \"$ARTIFACT_NAME\") | .archive_download_url")
 
-# If the artifact exists, download and extract it
-if [ "$ARTIFACT_EXISTS" == "$ARTIFACT_NAME" ]; then
-    ARTIFACT_URL=$(echo "$ARTIFACT_RESPONSE" | jq -r ".artifacts[]? | select(.name == \"$ARTIFACT_NAME\") | .archive_download_url")
+# Download the artifact
+if [ "$ARTIFACT_URL" != "null" ] && [ ! -z "$ARTIFACT_URL" ]; then
     echo "ARTIFACT_URL: $ARTIFACT_URL"
     curl -L -o "artifact.zip" -H "Authorization: token $TOKEN" "$ARTIFACT_URL"
     echo A | unzip artifact.zip -d ./
-    mv ./coverage/lcov-report ./previous-lcov-report
+    mv cobertura-coverage.xml previous-coverage.xml
     rm artifact.zip
 else
-    echo "No previous artifact found. Proceeding without it..."
+    echo "No previous artifact found. Creating an empty one..."
+    echo '<coverage></coverage>' > previous-coverage.xml
 fi
 
-# Ensure a previous coverage report exists, if not create an empty one
-if [ ! -d previous-lcov-report ]; then
-    mkdir previous-lcov-report
-fi
-
-# Navigate to the appropriate directory
+# Navigate to the frontend directory
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-cd $DIR/.. # make sure to adjust this path to your frontend directory
+cd $DIR/../../frontend
 
-# Run tests and generate a current report
-npm test -- --coverage
+# Run tests and generate a current report in XML format
+npm test -- --coverage --coverageReporters=cobertura
 
-# Compare the current coverage report with the previous one
-# (You'll need a separate script/tool to do this. One option is to use diff or a dedicated coverage comparison tool)
-diff -rq coverage/lcov-report previous-lcov-report
+# Rename the generated XML report to cobertura-coverage.xml in frontend directory
+mv coverage/cobertura-coverage.xml ./cobertura-coverage.xml
 
-# Remove the previous coverage directory as there is no need to keep it
-rm -rf previous-lcov-report
+# Compare the current coverage report with the previous one and remove coverages based on the result
+if ! python3 ../backend/scripts/check_coverage.py cobertura-coverage.xml previous-coverage.xml; then
+    [ -f previous-coverage.xml ] && rm -f previous-coverage.xml
+#    [ -f cobertura-coverage.xml ] && rm -f cobertura-coverage.xml
+    rm -rf coverage/
+    exit 1
+else
+    [ -f previous-coverage.xml ] && rm -f previous-coverage.xml
+    #    [ -f cobertura-coverage.xml ] && rm -f cobertura-coverage.xml
+    rm -rf coverage/
+    exit 0
+fi
