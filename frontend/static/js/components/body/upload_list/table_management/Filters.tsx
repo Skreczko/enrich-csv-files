@@ -25,7 +25,7 @@ export const Filters: React.FC = () => {
   const filters: FileListFilters = useSelector((state: RootState) => state.fileListParam.filters);
 
   return (
-    <FiltersWrappers>
+    <FiltersWrappers data-testid={'filters'}>
       <img src={FilterImage} alt={'filter'} />
       <CustomDropdown
         clearable={true}

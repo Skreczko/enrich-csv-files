@@ -50,7 +50,7 @@ export const Sorting: React.FC = () => {
   const fetchListData = useFetchUploadList();
   const sort: SortList = useSelector((state: RootState) => state.fileListParam.sort);
   return (
-    <SortingWrapper>
+    <SortingWrapper data-testid={'sorting'}>
       <img src={SortImage} alt={'sort'} />
       <CustomDropdown
         options={sortOptions}

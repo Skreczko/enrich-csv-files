@@ -18,7 +18,7 @@ export const PageSizeDropdown: React.FC = () => {
   const paginator: PaginatorType = useSelector((state: RootState) => state.fileList.paginator);
 
   return (
-    <PageSizeWrapper>
+    <PageSizeWrapper data-testid={'page-size-dropdown'}>
       <CustomDropdown
         options={pageSizeOptions}
         value={paginator?.page_size}

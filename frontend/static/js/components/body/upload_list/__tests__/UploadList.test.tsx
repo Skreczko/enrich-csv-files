@@ -4,119 +4,66 @@ import UploadList from '../UploadList';
 import { setupServer } from 'msw/node';
 import { rest } from 'msw';
 import { FetchUploadListResponse } from '../../../../api/types';
+import { EnrichDetailStatus } from '../../../../api/enums';
 
 const uploadList = {
   result: [
     {
-      created: '2023-10-11T11:16:05.568Z',
+      created: '2023-10-12T14:07:35.536Z',
       enrich_detail: {
-        external_url: 'https://jsonplaceholder.typicode.com/users',
+        external_url: 'https://example.com',
+      },
+      original_file_name: '',
+      source_original_file_name: 'users_posts_audience.csv',
+      source_uuid: '0e1294fe-8bbc-42ef-ab24-c2c2515eb263',
+      status: EnrichDetailStatus.FAILED_FETCHING_RESPONSE_NOT_JSON,
+      uuid: '9e3cde12-5ca6-4516-8e0d-6d2b6ec3bb5a',
+    },
+    {
+      created: '2023-10-12T14:07:35.536Z',
+      enrich_detail: {
+        external_url: 'https://example.com',
+      },
+      original_file_name: '',
+      source_original_file_name: 'users_posts_audience.csv',
+      source_uuid: '0e1294fe-8bbc-42ef-ab24-c2c2515eb263',
+      status: EnrichDetailStatus.FAILED_ENRICHING,
+      uuid: '8df31f80-82c3-4786-b6c6-2138de4df8c5',
+    },
+    {
+      created: '2023-10-12T14:07:45.411Z',
+      enrich_detail: {
+        external_url: 'https://example.com',
       },
       original_file_name: 'users_posts_audience.csv_enriched.csv',
       source_original_file_name: 'users_posts_audience.csv',
-      source_uuid: '53cc712f-e4f7-4d58-b1c3-9c562184d491',
-      status: 'completed',
-      uuid: 'f7c45ed2-7875-4a3a-b804-3d2f7e1b0b96',
+      source_uuid: '0e1294fe-8bbc-42ef-ab24-c2c2515eb263',
+      status: EnrichDetailStatus.COMPLETED,
+      uuid: '316f53a2-61d9-4b9c-9010-718dd97a403d',
     },
     {
-      created: '2023-10-11T11:16:00.596Z',
+      created: '2023-10-12T14:07:35.536Z',
+      enrich_detail: {
+        external_url: 'https://example.com',
+      },
+      original_file_name: '',
+      source_original_file_name: 'users_posts_audience.csv',
+      source_uuid: '0e1294fe-8bbc-42ef-ab24-c2c2515eb263',
+      status: EnrichDetailStatus.AWAITING_COLUMN_SELECTION,
+      uuid: 'e2c91c35-ad99-43b4-81ee-b9be9e6ef664',
+    },
+    {
+      created: '2023-10-12T14:07:01.454Z',
       enrich_detail: null,
       original_file_name: 'users_posts_audience.csv',
       source_original_file_name: null,
       source_uuid: null,
-      status: 'completed',
-      uuid: '53cc712f-e4f7-4d58-b1c3-9c562184d491',
-    },
-    {
-      created: '2023-10-11T11:15:37.471Z',
-      enrich_detail: {
-        external_url: 'https://jsonplaceholder.typicode.com/users',
-      },
-      original_file_name: '',
-      source_original_file_name: 'users_posts_audience.csv',
-      source_uuid: '03ed8432-b89b-485e-a8f2-08c298bc6f06',
-      status: 'enriching',
-      uuid: '3116c802-724d-4122-bedd-fa7f83c48a75',
-    },
-    {
-      created: '2023-10-10T20:46:45.845Z',
-      enrich_detail: {
-        external_url: 'https://jsonplaceholder.typicode.com/users',
-      },
-      original_file_name: '',
-      source_original_file_name: 'users_posts_audience.csv',
-      source_uuid: '75898f67-5504-497e-9484-4fff2b20d9ba',
-      status: 'enriching',
-      uuid: '91892ff8-485e-4c61-a81c-e71e57e8a313',
-    },
-    {
-      created: '2023-10-10T20:46:33.764Z',
-      enrich_detail: null,
-      original_file_name: 'users_posts_audience.csv',
-      source_original_file_name: null,
-      source_uuid: null,
-      status: 'completed',
-      uuid: '75898f67-5504-497e-9484-4fff2b20d9ba',
-    },
-    {
-      created: '2023-10-10T20:45:52.703Z',
-      enrich_detail: {
-        external_url: 'https://jsonplaceholder.typicode.com/users',
-      },
-      original_file_name: '',
-      source_original_file_name:
-        '22222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222 (copy).csv',
-      source_uuid: '4522bb46-fdcf-4b3d-a0b7-880b011ca2a2',
-      status: 'enriching',
-      uuid: 'f5225a27-5557-4498-a008-7b16cb84b548',
-    },
-    {
-      created: '2023-10-10T20:45:00.171Z',
-      enrich_detail: {
-        external_url: 'https://jsonplaceholder.typicode.com/users',
-      },
-      original_file_name: '',
-      source_original_file_name: 'csv_header.csv',
-      source_uuid: '96546d7f-fb79-4b32-a912-a2fbf703d219',
-      status: 'enriching',
-      uuid: '9af6a9d1-66dc-40d1-b04b-ededd60a0930',
-    },
-    {
-      created: '2023-10-10T18:47:43.651Z',
-      enrich_detail: {
-        external_url: 'https://github.com/joannaB2/star-wars/blob/master/src/hooks/useGetPlanet.ts',
-      },
-      original_file_name: '',
-      source_original_file_name: 'csv_header.csv_enriched.csv',
-      source_uuid: '9de5f664-72b0-45fd-9c21-c7ac0290c167',
-      status: 'fetching_response',
-      uuid: '0277e902-e931-4181-bf85-739287353551',
-    },
-    {
-      created: '2023-10-10T14:38:02.356Z',
-      enrich_detail: {
-        external_url: 'https://jsonplaceholder.typicode.com/users',
-      },
-      original_file_name: '',
-      source_original_file_name: 'csv_header.csv',
-      source_uuid: '96546d7f-fb79-4b32-a912-a2fbf703d219',
-      status: 'fetching_response',
-      uuid: '35278756-63c4-4dd1-8cea-dfbfdf9b9b11',
-    },
-    {
-      created: '2023-10-10T12:57:45.822Z',
-      enrich_detail: {
-        external_url: 'https://jsonplaceholder.typicode.com/users',
-      },
-      original_file_name: 'csv_header.csv_enriched.csv',
-      source_original_file_name: 'csv_header.csv',
-      source_uuid: '96546d7f-fb79-4b32-a912-a2fbf703d219',
-      status: 'completed',
-      uuid: '9de5f664-72b0-45fd-9c21-c7ac0290c167',
+      status: EnrichDetailStatus.COMPLETED,
+      uuid: '0e1294fe-8bbc-42ef-ab24-c2c2515eb263',
     },
   ],
   paginator: {
-    total_pages: 4,
+    total_pages: 1,
     page: 1,
     page_size: 10,
   },
@@ -129,14 +76,13 @@ const server = setupServer(
 );
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
-afterEach(() => {});
 afterAll(() => server.close());
 
 describe('UploadList', () => {
   test.each([
     ['response with data', true],
     ['response without data', false],
-  ])('Default render > %s', async (_, dataProvided: boolean) => {
+  ])('Default render all components > %s', async (_, dataProvided: boolean) => {
     if (!dataProvided) {
       server.use(
         rest.get('/api/_internal/csv_list', (req, res, ctx) => {
@@ -155,7 +101,11 @@ describe('UploadList', () => {
     }
 
     render(<UploadList />);
-    // spinner when fetching data
+
+    // check if all required components are rendered -> spinner should be included
+    expect(screen.getByTestId('search-input')).toBeInTheDocument();
+    expect(screen.getByTestId('sorting')).toBeInTheDocument();
+    expect(screen.getByTestId('filters')).toBeInTheDocument();
     expect(screen.getByTestId('upload-list')).toBeInTheDocument();
     expect(screen.getByTestId('spinner')).toBeInTheDocument();
     expect(screen.queryAllByTestId('table-row')).toHaveLength(0);
@@ -163,7 +113,8 @@ describe('UploadList', () => {
     // data fetched
     if (dataProvided) {
       await waitFor(() => {
-        expect(screen.queryAllByTestId('table-row')).toHaveLength(10);
+        expect(screen.queryAllByTestId('table-row')).toHaveLength(5);
+        expect(screen.getByTestId('page-size-dropdown')).toBeInTheDocument();
       });
     } else {
       await waitFor(() => {
@@ -171,6 +122,45 @@ describe('UploadList', () => {
       });
       expect(screen.queryAllByTestId('table-row')).toHaveLength(0);
     }
+
+    // spinner should not be visible after data fetch
     expect(screen.queryAllByTestId('spinner')).toHaveLength(0);
+  });
+
+  test.each([
+    ['with paginator', true],
+    ['without paginator', false],
+  ])('Default render > %s', async (_, showPaginator: boolean) => {
+    if (showPaginator) {
+      server.use(
+        rest.get('/api/_internal/csv_list', (req, res, ctx) => {
+          return res.once(
+            ctx.json({
+              result: [], // not important for this test
+              paginator: {
+                total_pages: 10,
+                page: 1,
+                page_size: 10,
+              },
+            }),
+          );
+        }),
+      );
+    }
+
+    render(<UploadList />);
+    // spinner when fetching data
+    expect(screen.getByTestId('spinner')).toBeInTheDocument();
+
+    // data fetching
+    await waitFor(() => {
+      expect(screen.queryAllByTestId('spinner')).toHaveLength(0);
+    });
+
+    if (showPaginator) {
+      expect(screen.getByTestId('paginator')).toBeInTheDocument();
+    } else {
+      expect(screen.queryAllByTestId('paginator')).toHaveLength(0);
+    }
   });
 });
