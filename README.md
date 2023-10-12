@@ -157,7 +157,9 @@ docker exec -it atc-webpack bash -c "./scripts/run-coverage-check.sh"
 
 This script fetches the latest coverage report from the `main` branch on GitHub (stored as artifacts) and compares it with your local coverage. It's crucial to ensure that your code either maintains or improves upon the existing coverage. If there's a regression compared to the `main` branch or if the coverage doesn't meet a minimum of 80%, the workflow will fail.
 
-Files that are ignored during the coverage check are specified in the `.coveragerc` file.
+Files that are ignored during the backend coverage check are specified in the `.coveragerc` file.
+
+Files that are ignored during the frontend coverage check are specified in the `jest.config.json` file.
 
 Coverage files are removed in the last step. If you want to keep them, remove the line:
 
