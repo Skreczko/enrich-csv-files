@@ -167,14 +167,51 @@ Coverage files are removed in the last step. If you want to keep them, remove th
 rm -f coverage.xml previous-coverage.xml .coverage
 ```
 
+### Frontend Custom Rendering for Tests
+
+Our app's components are often wrapped within Redux's `Provider` and React Router's `Router` to access the app's state and routing features, respectively. Therefore, a custom rendering method is used in tests to replicate this environment.
+
+```typescript
+testing-utils.tsx
+
+function render(
+  ui: React.ReactElement,
+  extraReducers: ValidateSliceCaseReducers<any, any>[] = [],
+  options: RenderOptions = {},
+): {
+  store: { getState: () => RootState; dispatch: Dispatch<AnyAction> };
+  renderResult: RenderResult;
+} {
+  // ... (rest of the code)
+}
+```
+
+#### Accessing Store in Tests
+Thanks to our custom render method, the store is available in tests. You can access the store's state and dispatch actions, ensuring that your tests can simulate any state or event in the app.
+
+This custom render method returns the store, which lets you directly access the state or dispatch actions within your tests. For more details, refer to the testing-utils file.
+
+```typescript
+const { store } = render(<MyComponent />);
+expect(store.getState().myFeature).toEqual({/* expected state */});
+```
+
+To dispatch actions:
+
+```typescript
+store.dispatch(myAction());
+```
+
+This approach gives a more integrated and real-world scenario for testing components and ensures that your tests are robust and effective. Always refer to existing tests and the testing-utils file for best practices and utilities available for your tests.
+
 ### GitHub Workflow
 
-The same coverage check is also integrated into the GitHub workflow. When you push your changes, the workflow will automatically fetch the latest coverage from the `main` branch, compare it with the coverage of your changes, and fail the job if the criteria mentioned above are not met.
+Coverage check is also integrated into the GitHub workflow. When you push your changes, the workflow will automatically fetch the latest coverage from the `main` branch, compare it with the coverage of your changes, and fail the job if the criteria mentioned above are not met.
 
 >There might be instances when you'll want to refresh the most recent coverage report. To do this, please follow these steps:
 > 1. Navigate to [GitHub Actions](https://github.com/Superdevs-Recruiting/Fullstack-Challenge-DawidS/actions?query=branch%3Amain)
 > 2. Choose the latest pull request.
-> 3. Navigate to the Artifacts section and manually delete the coverage-report.
+> 3. Navigate to the Artifacts section and manually delete the coverage-report (backend) or cobertura-coverage.xml (frontend).
 > 
 >With this action, the subsequent run will generate a new blank coverage-report for comparison. Once you execute the coverage script afterward, the report produced will serve as the baseline for future runs.
 
