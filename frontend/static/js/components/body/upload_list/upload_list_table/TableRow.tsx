@@ -41,7 +41,7 @@ export const TableRow: React.FC<Props> = ({
   } = fileElement;
 
   return (
-    <TableRowWrapper>
+    <TableRowWrapper data-testid={'table-row'}>
       <CsvElementRow>
         <TableCell centred={true}>
           <p>{counter}</p>

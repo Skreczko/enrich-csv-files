@@ -6,7 +6,7 @@ type Props = {
 };
 
 export const Spinner: React.FC<Props> = ({ scale }) => (
-  <SpinnerWrapper scale={scale}>
+  <SpinnerWrapper scale={scale} data-testid={'spinner'}>
     <SpinnerDetails></SpinnerDetails>
   </SpinnerWrapper>
 );

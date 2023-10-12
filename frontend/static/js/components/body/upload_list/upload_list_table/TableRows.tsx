@@ -98,7 +98,7 @@ export const TableRows: React.FC = () => {
   };
 
   return (
-    <div>
+    <div data-testid={'table-table-rows'}>
       {fileList?.length ? (
         <>
           {fileList.map((fileElement, index) => (
