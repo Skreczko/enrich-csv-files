@@ -1,5 +1,5 @@
-import { EnrichDetailStatus } from '../../../../api/enums';
-import { FetchUploadListResponse } from '../../../../api/types';
+import { EnrichDetailStatus } from '../api/enums';
+import { FetchUploadListResponse } from '../api/types';
 
 export const basicUploadList = {
   result: [

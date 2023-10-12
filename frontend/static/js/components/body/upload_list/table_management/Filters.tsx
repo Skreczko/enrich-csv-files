@@ -28,6 +28,7 @@ export const Filters: React.FC = () => {
     <FiltersWrappers data-testid={'filters'}>
       <img src={FilterImage} alt={'filter'} />
       <CustomDropdown
+        data-testid={'filters-file_type'}
         clearable={true}
         options={fileTypeFilterOptions}
         value={filters.file_type}
@@ -45,6 +46,7 @@ export const Filters: React.FC = () => {
         width={'150px'}
       />
       <CustomDropdown
+        data-testid={'filters-status'}
         clearable={true}
         options={statusFilterOptions}
         value={filters.status}
@@ -62,6 +64,7 @@ export const Filters: React.FC = () => {
         width={'150px'}
       />
       <CustomDatePicker
+        data-testid={'filters-date_from'}
         onChange={(isoDateString): Promise<void> =>
           fetchListData({
             filters: {
@@ -78,6 +81,7 @@ export const Filters: React.FC = () => {
         width={'200px'}
       />
       <CustomDatePicker
+        data-testid={'filters-date_to'}
         onChange={(isoDateString): Promise<void> =>
           fetchListData({
             filters: {

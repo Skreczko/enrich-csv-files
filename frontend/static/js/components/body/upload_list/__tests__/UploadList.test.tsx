@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '../../../../utils/testing-utils';
 import UploadList from '../UploadList';
 import { setupServer } from 'msw/node';
 import { rest } from 'msw';
-import { basicUploadList } from './mockData';
+import { basicUploadList } from '../../../../utils/mockData';
 
 const server = setupServer(
   rest.get('/api/_internal/csv_list', (req, res, ctx) =>
