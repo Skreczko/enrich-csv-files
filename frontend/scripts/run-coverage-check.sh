@@ -31,6 +31,8 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $DIR/../../frontend
 
 # Run tests and generate a current report in XML format
+export TZ=UTC
+date
 npm test -- --coverage --coverageReporters=lcov --coverageReporters=text --coverageReporters=cobertura
 
 # Rename the generated XML report to cobertura-coverage.xml in frontend directory
