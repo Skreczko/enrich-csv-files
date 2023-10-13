@@ -4,23 +4,9 @@ import { setupServer } from 'msw/node';
 import { rest } from 'msw';
 import { basicUploadList } from '../../../../../utils/mockData';
 import { Filters } from '../Filters';
-import { FileListParamState } from '../../../../../redux/FileListParamSlice';
-import { SortList } from '../../../../../api/enums';
 import { FileTypeFilter, StatusFilter } from '../../../../../api/types';
 import { advanceTo } from 'jest-date-mock';
-
-const defaultFileListParamState: FileListParamState = {
-  search: '',
-  page: 1,
-  sort: SortList.CREATED_DESC,
-  page_size: 20,
-  filters: {
-    status: null,
-    file_type: null,
-    date_from: null,
-    date_to: null,
-  },
-};
+import { defaultFileListParamState } from '../../../../../utils/mockType';
 
 const server = setupServer(
   rest.get('/api/_internal/csv_list', (req, res, ctx) => {
@@ -86,6 +72,7 @@ describe('Filters', () => {
       });
     },
   );
+
   test.each([
     ['date from', true, 'Filter by: Created from'],
     ['date to', false, 'Filter by: Created to'],
