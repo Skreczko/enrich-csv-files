@@ -34,11 +34,9 @@ const server = setupServer(
 );
 
 beforeAll(() => {
-  process.env.TEST_ENV = 'true';
   server.listen({ onUnhandledRequest: 'error' });
 });
 afterAll(() => {
-  process.env.TEST_ENV = undefined;
   server.close();
 });
 
