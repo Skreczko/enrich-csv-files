@@ -3,8 +3,8 @@ import { fireEvent, render, screen, waitFor } from '../../../../../utils/testing
 import { setupServer } from 'msw/node';
 import { rest } from 'msw';
 import { basicUploadList } from '../../../../../utils/mockData';
-import { advanceTo } from 'jest-date-mock';
 import { SearchInput } from '../SearchInput';
+import { CsvFileElement } from '../../../../../api/types';
 
 const server = setupServer(
   rest.get('/api/_internal/csv_list', (req, res, ctx) => {
@@ -37,46 +37,46 @@ beforeAll(() => {
   process.env.TEST_ENV = 'true';
   server.listen({ onUnhandledRequest: 'error' });
 });
-beforeEach(() => {
-  advanceTo(new Date(Date.UTC(2023, 9, 29, 12, 0, 0)));
-});
 afterAll(() => {
   process.env.TEST_ENV = undefined;
   server.close();
 });
 
 describe('SearchInput', () => {
-  test('Default render', async () => {
-    const { store } = render(<SearchInput />);
+  let searchInput: HTMLElement;
+  let store: any;
 
+  // Initial setup for each test.
+  beforeEach(() => {
+    const rendered = render(<SearchInput />);
+    store = rendered.store;
+    searchInput = screen.getByTestId('search-input-input');
     expect(screen.getByTestId('search-input')).toBeInTheDocument();
-    const searchInput = screen.getByTestId('search-input-input');
     expect(searchInput).toBeInTheDocument();
-
-    // Initial state check
     expect(store.getState().fileListParam.search).toEqual('');
+  });
 
-    // Simulate typing in the search input
+  // Helper function to simulate user search and validate the result.
+  const simulateSearchAndCheck = async (
+    inputText: string,
+    expectedList: CsvFileElement[],
+  ): Promise<void> => {
+    fireEvent.change(searchInput, { target: { value: inputText } });
+    await waitFor(() => {
+      expect(store.getState().fileListParam.search).toEqual(inputText);
+      expect(store.getState().fileList.fileList).toEqual(expectedList);
+    });
+  };
+
+  test('Entering a correct search phrase retrieves the expected data', async () => {
     const correctText = '9e3cde12-5ca6-4516-8e0d-6d2b6ec3bb5a';
+    await simulateSearchAndCheck(correctText, [
+      { ...basicUploadList.result[0], fetchedDetailInfo: false },
+    ]);
+  });
 
-    fireEvent.change(searchInput, { target: { value: correctText } });
-
-    // Validate that the state reflects the action of typing in the search input
-    await waitFor(() => {
-      expect(store.getState().fileListParam.search).toEqual(correctText);
-      expect(store.getState().fileList.fileList).toEqual([
-        { ...basicUploadList.result[0], fetchedDetailInfo: false },
-      ]);
-    });
-
-    // Simulate random text typing in the search input
+  test('Entering a random search phrase retrieves an empty list', async () => {
     const incorrectText = 'random_value';
-    fireEvent.change(searchInput, { target: { value: incorrectText } });
-
-    // Validate that the state reflects the action of typing in the search input
-    await waitFor(() => {
-      expect(store.getState().fileListParam.search).toEqual(incorrectText);
-      expect(store.getState().fileList.fileList).toEqual([]);
-    });
+    await simulateSearchAndCheck(incorrectText, []);
   });
 });

@@ -8,6 +8,9 @@ import { FileTypeFilter, StatusFilter } from '../../../../../api/types';
 import { advanceTo } from 'jest-date-mock';
 import { defaultFileListParamState } from '../../../../../utils/mockType';
 
+const OPTION_LENGTH = 35;
+const MOCK_DATE = new Date(Date.UTC(2023, 9, 29, 12, 0, 0));
+
 const server = setupServer(
   rest.get('/api/_internal/csv_list', (req, res, ctx) => {
     return res(ctx.status(200), ctx.json(basicUploadList));
@@ -16,7 +19,7 @@ const server = setupServer(
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 beforeEach(() => {
-  advanceTo(new Date(Date.UTC(2023, 9, 29, 12, 0, 0)));
+  advanceTo(MOCK_DATE);
 });
 afterAll(() => server.close());
 
@@ -81,34 +84,28 @@ describe('Filters', () => {
     async (_, isDateFrom: boolean, inputPlaceholder: string) => {
       const { store } = render(<Filters />);
 
-      // find file type button
       const filterButton = screen.getByPlaceholderText(inputPlaceholder);
       expect(filterButton).toBeInTheDocument();
 
-      // check if parent is not opened
       expect(filterButton.classList.contains('react-datepicker-ignore-onclickoutside')).toBe(false);
 
       fireEvent.click(filterButton);
-
-      // check if parent is opened
       expect(filterButton.classList.contains('react-datepicker-ignore-onclickoutside')).toBe(true);
 
       // get all calendar options for day 29th Octorber 2023 - as its mocked
       const options = within(filterButton.parentElement.parentElement.parentElement).queryAllByRole(
         'option',
       );
-      expect(options).toHaveLength(35);
+      expect(options).toHaveLength(OPTION_LENGTH);
 
-      // click on "enriched" option
       fireEvent.click(options[0]);
 
-      // check if that information will be stored to redux store
       await waitFor(() => {
-        if (isDateFrom) {
-          expect(store.getState().fileListParam.filters.date_from).not.toEqual(null);
-        } else {
-          expect(store.getState().fileListParam.filters.date_to).not.toEqual(null);
-        }
+        const filterValue = isDateFrom
+          ? store.getState().fileListParam.filters.date_from
+          : store.getState().fileListParam.filters.date_to;
+
+        expect(filterValue).not.toBeNull();
       });
     },
   );

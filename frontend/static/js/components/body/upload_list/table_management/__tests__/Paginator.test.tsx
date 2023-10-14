@@ -3,7 +3,6 @@ import { fireEvent, render, screen, waitFor } from '../../../../../utils/testing
 import { setupServer } from 'msw/node';
 import { rest } from 'msw';
 import { basicUploadList } from '../../../../../utils/mockData';
-import { advanceTo } from 'jest-date-mock';
 import { Paginator } from '../Paginator';
 import { setPaginator } from '../../../../../redux/FileListSlice';
 
@@ -37,32 +36,31 @@ const server = setupServer(
 );
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
-beforeEach(() => {
-  advanceTo(new Date(Date.UTC(2023, 9, 29, 12, 0, 0)));
-});
 afterAll(() => server.close());
 
 describe('Paginator', () => {
-  test('Default render and next button functionality', async () => {
-    const { store } = render(<Paginator />, [
-      setPaginator({
-        ...basicUploadList.paginator,
-        total_pages: 18,
-      }),
-    ]);
+  let store: any;
+  const initialState = {
+    page: 1,
+    page_size: 10,
+    total_pages: 18,
+  };
 
+  beforeEach(() => {
+    const rendered = render(<Paginator />, [setPaginator(initialState)]);
+    store = rendered.store;
+  });
+
+  test('renders correctly', () => {
     expect(screen.getByTestId('paginator')).toBeInTheDocument();
     expect(screen.getByText('previous')).toBeInTheDocument();
     expect(screen.getByText('...')).toBeInTheDocument();
-    const nextButton = screen.getByText('next');
-    expect(nextButton).toBeInTheDocument();
+    expect(screen.getByText('next')).toBeInTheDocument();
+    expect(store.getState().fileList.paginator).toEqual(initialState);
+  });
 
-    // Initial paginator state check
-    expect(store.getState().fileList.paginator).toEqual({
-      page: 1,
-      page_size: 10,
-      total_pages: 18,
-    });
+  test('handles "next" button click', async () => {
+    const nextButton = screen.getByText('next');
 
     // Simulate clicking next
     fireEvent.click(nextButton);
@@ -70,9 +68,8 @@ describe('Paginator', () => {
     // Validate that the state reflects the action of clicking "next"
     await waitFor(() => {
       expect(store.getState().fileList.paginator).toEqual({
+        ...initialState,
         page: 2,
-        page_size: 10,
-        total_pages: 18,
       });
     });
   });
