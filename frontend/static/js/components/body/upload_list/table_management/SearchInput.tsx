@@ -21,11 +21,15 @@ export const SearchInput: React.FC = () => {
   // For programmatic changes, the ref remains false, preventing unnecessary dispatches.
   const isUserUpdate = useRef(false);
 
+  // Delay time based on an environment variable; if TEST_ENV is set to 'true',
+  // use 0ms; otherwise, use the default 1000ms
+  const debounceDelay = process.env.TEST_ENV === 'true' ? 0 : 1000;
+
   // Debounced function to delay dispatching the search action until the user stops typing.
   const debouncedSearch = useCallback(
     _.debounce((value: string) => {
       fetchListData({ ...params, search: value });
-    }, 1000),
+    }, debounceDelay),
     [params],
   );
 
@@ -50,7 +54,13 @@ export const SearchInput: React.FC = () => {
 
   return (
     <SearchInputWrapper data-testid={'search-input'}>
-      <StyledInput type='text' placeholder='Search...' onChange={onChange} value={searchValue} />
+      <StyledInput
+        data-testid={'search-input-input'}
+        type='text'
+        placeholder='Search...'
+        onChange={onChange}
+        value={searchValue}
+      />
       <SearchIconWrapper>
         <img src={SearchImage} alt={'search'} />
       </SearchIconWrapper>
