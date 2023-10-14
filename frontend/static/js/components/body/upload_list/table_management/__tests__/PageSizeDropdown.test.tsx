@@ -1,10 +1,10 @@
 import React from 'react';
-import { fireEvent, render, screen, waitFor, within } from '../../../../utils/testing-utils';
+import { fireEvent, render, screen, waitFor, within } from '../../../../../utils/testing-utils';
 import { setupServer } from 'msw/node';
 import { rest } from 'msw';
-import { basicUploadList } from '../../../../utils/mockData';
+import { basicUploadList } from '../../../../../utils/mockData';
 import { advanceTo } from 'jest-date-mock';
-import { PageSizeDropdown } from '../table_management/PageSizeDropdown';
+import { PageSizeDropdown } from '../PageSizeDropdown';
 
 const server = setupServer(
   rest.get('/api/_internal/csv_list', (req, res, ctx) => {

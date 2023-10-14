@@ -1,11 +1,11 @@
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '../../../../utils/testing-utils';
+import { fireEvent, render, screen, waitFor } from '../../../../../utils/testing-utils';
 import { setupServer } from 'msw/node';
 import { rest } from 'msw';
-import { basicUploadList } from '../../../../utils/mockData';
+import { basicUploadList } from '../../../../../utils/mockData';
 import { advanceTo } from 'jest-date-mock';
-import { Paginator } from '../table_management/Paginator';
-import { setPaginator } from '../../../../redux/FileListSlice';
+import { Paginator } from '../Paginator';
+import { setPaginator } from '../../../../../redux/FileListSlice';
 
 const server = setupServer(
   rest.get('/api/_internal/csv_list', (req, res, ctx) => {
