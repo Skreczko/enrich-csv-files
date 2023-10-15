@@ -144,6 +144,8 @@ export const TableModals: React.FC<Props> = ({
     }
   };
 
+  console.log(11, selectedFileElement)
+
   return (
     <>
       {openDeleteModal && (

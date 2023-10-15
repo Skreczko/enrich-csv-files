@@ -1,5 +1,106 @@
 import { EnrichDetailStatus } from '../api/enums';
-import { FetchUploadListResponse } from '../api/types';
+import { CsvFileElement, FetchUploadListResponse } from '../api/types';
+
+const selectedCsvFileSourceUuid = '0e1294fe-8bbc-42ef-ab24-c2c2515eb263';
+const selectedCsvFileUuid = '3947b72a-d907-44aa-92c2-6ce44813e230';
+const selectedEnrichDetailUuid = '65869971-86db-4ccd-8454-44c9add10847';
+
+export const csvElementDetailNotFetched = {
+  created: '2023-10-14T23:31:37.243Z',
+  enrich_detail: {
+    external_url: 'https://example.com',
+  },
+  original_file_name: 'users_posts_audience.csv_enriched.csv',
+  source_original_file_name: 'users_posts_audience.csv',
+  source_uuid: selectedCsvFileSourceUuid,
+  status: 'completed',
+  uuid: selectedCsvFileUuid,
+  fetchedDetailInfo: false,
+} as CsvFileElement;
+
+export const csvElementDetailFetched = {
+  created: '2023-10-14T23:31:37.243Z',
+  enrich_detail: {
+    created: '2023-10-14T23:31:37.245Z',
+    external_elements_count: 10,
+    external_elements_key_list: [
+      'id',
+      'name',
+      'username',
+      'email',
+      'address',
+      'phone',
+      'website',
+      'company',
+    ],
+    external_response: {
+      url: `/media/files/no_user/${selectedEnrichDetailUuid}.json`,
+      size: 5645,
+    },
+    external_url: 'https://example.com',
+    is_flat: true,
+    join_type: 'left',
+    json_root_path: '',
+    selected_header: 'post_id',
+    selected_key: 'id',
+    uuid: selectedEnrichDetailUuid,
+  },
+  file: {
+    url: `/media/home/user/media/files/no_user/${selectedCsvFileUuid}.csv`,
+    size: 178469,
+  },
+  file_headers: [
+    'impression_id',
+    'impression_city',
+    'posting_user_id',
+    'post_id',
+    'viewer_email',
+    'impression_country',
+    'timestamp',
+    'device',
+    'name',
+    'username',
+    'email',
+    'address_street',
+    'address_suite',
+    'address_city',
+    'address_zipcode',
+    'address_geo_lat',
+    'address_geo_lng',
+    'phone',
+    'website',
+    'company_name',
+    'company_catchPhrase',
+    'company_bs',
+  ],
+  file_row_count: 1000,
+  original_file_name: 'users_posts_audience.csv_enriched.csv',
+  source_original_file_name: 'users_posts_audience.csv',
+  source_uuid: selectedCsvFileSourceUuid,
+  status: 'completed',
+  uuid: selectedCsvFileUuid,
+  source_instance: {
+    created: '2023-10-12T14:50:44.629Z',
+    uuid: selectedCsvFileSourceUuid,
+    original_file_name: 'users_posts_audience.csv',
+    file: {
+      url: `/media/files/no_user/${selectedCsvFileSourceUuid}.csv`,
+      size: 146445,
+    },
+    file_row_count: 1000,
+    file_headers: [
+      'impression_id',
+      'impression_city',
+      'posting_user_id',
+      'post_id',
+      'viewer_email',
+      'impression_country',
+      'timestamp',
+      'device',
+    ],
+  },
+  fetchedDetailInfo: true,
+} as CsvFileElement;
 
 export const basicUploadList = {
   result: [
@@ -54,7 +155,7 @@ export const basicUploadList = {
       source_original_file_name: null,
       source_uuid: null,
       status: EnrichDetailStatus.COMPLETED,
-      uuid: '0e1294fe-8bbc-42ef-ab24-c2c2515eb263',
+      uuid: selectedCsvFileSourceUuid,
     },
   ],
   paginator: {
