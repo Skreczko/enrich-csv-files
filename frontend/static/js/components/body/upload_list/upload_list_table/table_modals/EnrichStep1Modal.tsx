@@ -69,6 +69,7 @@ export const EnrichStep1Modal: React.FC<Props> = ({
       subHeader={`Step 1/2: Provide external URL`}
       actionLabel={'Process'}
       actionLabelColor={'green'}
+      testId={'enrich-step-1-modal'}
     >
       <EnrichModalWrapper>
         <EnrichModalDescription>
@@ -79,29 +80,36 @@ export const EnrichStep1Modal: React.FC<Props> = ({
             data will create a new file, preserving the original.
           </p>
         </EnrichModalDescription>
-        <p className={'file'}>
+        <p className={'file'} data-testid={'filename-text'}>
           File: <b>{truncateString(selectedFileElement.original_file_name, 60)}</b>
         </p>
         <EnrichModalURLInput
+          data-testid={'url-input'}
           type='url'
           placeholder='Enter API endpoint'
           value={enrichInputValue}
           onChange={handleEnrichUrlInputChange}
         />
         {enrichInputError && (
-          <EnrichModalError>
+          <EnrichModalError data-testid={'error-info'}>
             <img src={ErrorImage} alt={'error'} />
             <small>Invalid URL format</small>
           </EnrichModalError>
         )}
         <EnrichModalJsonRootWrapper>
           <EnrichModalJsonRootInput
+            data-testid={'json-root-path'}
             type='text'
             placeholder='Enter URL JSON root path'
             value={enrichJsonRootPath}
             onChange={handleEnrichJsonKeyChange}
           />
-          <img src={QuestionMarkImage} alt={'question'} onClick={onOpenEnrichJsonRootPathModal} />
+          <img
+            data-testid={'open-enrich-json-root-path-modal'}
+            src={QuestionMarkImage}
+            alt={'question'}
+            onClick={onOpenEnrichJsonRootPathModal}
+          />
         </EnrichModalJsonRootWrapper>
       </EnrichModalWrapper>
     </CustomGenericModal>

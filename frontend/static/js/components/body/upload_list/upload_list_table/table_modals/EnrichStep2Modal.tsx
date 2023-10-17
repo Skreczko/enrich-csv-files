@@ -98,6 +98,7 @@ export const EnrichStep2Modal: React.FC<Props> = ({
       actionLabel={'Enrich'}
       actionLabelColor={'green'}
       size={'large'}
+      testId={'enrich-step-2-modal'}
     >
       <EnrichModalWrapper>
         <EnrichModalDescription>
@@ -122,7 +123,7 @@ export const EnrichStep2Modal: React.FC<Props> = ({
         </EnrichProcessSelectionWrapper>
         <EnrichProcessSelectionWrapper>
           <div className={'center'}>
-            <p>
+            <p data-testid={'filename-text'}>
               <b>{truncateString(selectedFileElement.source_original_file_name, 60)}</b>
             </p>
           </div>
@@ -130,7 +131,7 @@ export const EnrichStep2Modal: React.FC<Props> = ({
           <div></div>
 
           <div className={'center'}>
-            <p>
+            <p data-testid={'enrich-detail-url'}>
               <b>{truncateString(selectedFileElement.enrich_detail.external_url, 60)}</b>
             </p>
           </div>

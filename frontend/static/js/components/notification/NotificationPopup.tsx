@@ -71,7 +71,7 @@ export const NotificationPopup: React.FC = () => {
   }, [data]);
 
   return (
-    <NotificationWrapper open={!!data.length}>
+    <NotificationWrapper open={!!data.length} data-testid={'notification-popup'}>
       {data?.map(({ appearance, content, additionalContent, id }) => (
         <Message
           {...{ [appearance]: true }}
