@@ -22,7 +22,7 @@ export const csvElementDetailNotFetched = {
 
 // csv element used in 1 step of enriching process. enrich_detail not created yet. fetchedDetailInfo is false
 export const csvElementDetailEnrichStep1 = {
-  created: '2023-10-12T14:50:44.629Z',
+  created: '2023-10-14T23:31:37.243Z',
   enrich_detail: null,
   original_file_name: 'users_posts_audience.csv',
   source_original_file_name: null,
@@ -34,7 +34,7 @@ export const csvElementDetailEnrichStep1 = {
 
 // csv element used in 2 step of enriching process. enrich_detail created. fetchedDetailInfo is false
 export const csvElementDetailEnrichStep2NotFetched = {
-  created: '2023-10-17T00:19:39.808Z',
+  created: '2023-10-14T23:31:37.243Z',
   enrich_detail: {
     external_url: 'https://example.com',
   },
@@ -48,7 +48,7 @@ export const csvElementDetailEnrichStep2NotFetched = {
 
 // csv element used in 2 step of enriching process. enrich_detail created. fetchedDetailInfo is true
 export const csvElementDetailEnrichStep2 = {
-  created: '2023-10-17T00:19:39.808Z',
+  created: '2023-10-14T23:31:37.243Z',
   enrich_detail: {
     created: '2023-10-17T00:19:39.810Z',
     external_elements_count: 10,
@@ -81,6 +81,53 @@ export const csvElementDetailEnrichStep2 = {
   source_original_file_name: 'users_posts_audience.csv',
   source_uuid: selectedCsvFileSourceUuid,
   status: EnrichDetailStatus.AWAITING_COLUMN_SELECTION,
+  uuid: selectedCsvFileUuid,
+  source_instance: {
+    created: '2023-10-12T14:07:01.454Z',
+    uuid: selectedCsvFileSourceUuid,
+    original_file_name: 'users_posts_audience.csv',
+    file: {
+      url: `/media/files/no_user/${selectedCsvFileSourceUuid}.csv`,
+      size: 146445,
+    },
+    file_row_count: 1000,
+    file_headers: [
+      'impression_id',
+      'impression_city',
+      'posting_user_id',
+      'post_id',
+      'viewer_email',
+      'impression_country',
+      'timestamp',
+      'device',
+    ],
+  },
+  fetchedDetailInfo: true,
+} as CsvFileElement;
+
+// csv element used in 2 step of enriching process. status failed. enrich_detail created. fetchedDetailInfo is true
+export const csvElementDetailEnrichStep2Failed = {
+  created: '2023-10-14T23:31:37.243Z',
+  enrich_detail: {
+    created: '2023-10-18T12:36:56.476Z',
+    external_elements_count: null,
+    external_elements_key_list: null,
+    external_response: null,
+    external_url: 'https://example.com',
+    is_flat: false,
+    join_type: null,
+    json_root_path: 'RANDOM.NOT.CORRECT',
+    selected_header: '',
+    selected_key: '',
+    uuid: 'cad371ad-5bd6-44b0-bcb8-b295cca33f21',
+  },
+  file: null,
+  file_headers: null,
+  file_row_count: null,
+  original_file_name: '',
+  source_original_file_name: 'users_posts_audience.csv',
+  source_uuid: selectedCsvFileSourceUuid,
+  status: EnrichDetailStatus.FAILED_FETCHING_RESPONSE_EMPTY_JSON,
   uuid: selectedCsvFileUuid,
   source_instance: {
     created: '2023-10-12T14:07:01.454Z',

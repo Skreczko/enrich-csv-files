@@ -32,7 +32,7 @@ export const TableCellActions: React.FC<Props> = ({
   };
 
   return (
-    <TableCellActionsWrapper>
+    <TableCellActionsWrapper data-testid={'table-cell-actions'}>
       {status === EnrichDetailStatus.AWAITING_COLUMN_SELECTION && (
         <Popup
           content={'Enrichment is pending. Click and specify columns to merge.'}

@@ -23,7 +23,7 @@ export const TableRowDetailSection: React.FC<Props> = ({ fileElement }) => {
   }, []);
 
   return (
-    <DetailWrapper>
+    <DetailWrapper data-testid={'table-row-detail-section'}>
       {isLoading ? (
         <TableRowFullWidth>
           <Spinner />

@@ -15,6 +15,7 @@ describe('UploadListTable', () => {
       setPaginator(basicUploadList.paginator),
     ]);
     expect(screen.getByTestId('upload-list-table')).toBeInTheDocument();
+    expect(screen.queryAllByTestId('table-header')).toHaveLength(7);
 
     if (isLoading) {
       expect(screen.getByTestId('spinner')).toBeInTheDocument();

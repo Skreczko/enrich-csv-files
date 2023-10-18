@@ -12,7 +12,7 @@ import { TableRowStatusEnum } from './enums';
 import { FileListState } from '../../../../redux/FileListSlice';
 import { TableModals } from './table_modals/TableModals';
 
-const statusDetails: Record<EnrichDetailStatus, TableRowStatusDetails> = {
+export const statusDetails: Record<EnrichDetailStatus, TableRowStatusDetails> = {
   [EnrichDetailStatus.FETCHING_RESPONSE]: {
     popupText: 'Retrieving data from the provided URL.',
     progress: 10,
@@ -96,7 +96,6 @@ export const TableRows: React.FC = () => {
   const getFileIndex = (index: number): number => {
     return index + (paginator.page - 1) * paginator.page_size;
   };
-
   return (
     <div data-testid={'table-rows'}>
       {fileList?.length ? (
