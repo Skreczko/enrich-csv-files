@@ -28,7 +28,21 @@ export const csvElementDetailEnrichStep1 = {
   source_original_file_name: null,
   source_uuid: null,
   status: EnrichDetailStatus.COMPLETED,
-  uuid: '906908bb-32c6-43dc-9694-03dca063ca12',
+  uuid: selectedCsvFileUuid,
+  fetchedDetailInfo: false,
+} as CsvFileElement;
+
+// csv element used in 2 step of enriching process. enrich_detail created. fetchedDetailInfo is false
+export const csvElementDetailEnrichStep2NotFetched = {
+  created: '2023-10-17T00:19:39.808Z',
+  enrich_detail: {
+    external_url: 'https://example.com',
+  },
+  original_file_name: '',
+  source_original_file_name: 'users_posts_audience.csv',
+  source_uuid: selectedCsvFileSourceUuid,
+  status: EnrichDetailStatus.AWAITING_COLUMN_SELECTION,
+  uuid: selectedCsvFileUuid,
   fetchedDetailInfo: false,
 } as CsvFileElement;
 
@@ -67,7 +81,7 @@ export const csvElementDetailEnrichStep2 = {
   source_original_file_name: 'users_posts_audience.csv',
   source_uuid: selectedCsvFileSourceUuid,
   status: EnrichDetailStatus.AWAITING_COLUMN_SELECTION,
-  uuid: '55519f2a-153f-4c5d-8fe3-87dc11fb30a9',
+  uuid: selectedCsvFileUuid,
   source_instance: {
     created: '2023-10-12T14:07:01.454Z',
     uuid: selectedCsvFileSourceUuid,

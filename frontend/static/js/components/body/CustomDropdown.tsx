@@ -16,6 +16,7 @@ type Props = {
   options: DropdownOptions[];
   placeholderOnChoice: string;
   placeholderOnSelected: string;
+  testId?: string;
   value: DropdownValueType;
   width?: string;
 };
@@ -27,6 +28,7 @@ export const CustomDropdown: React.FC<Props> = ({
   options,
   placeholderOnChoice,
   placeholderOnSelected,
+  testId,
   value,
   width,
 }) => {
@@ -64,6 +66,7 @@ export const CustomDropdown: React.FC<Props> = ({
   return (
     <CustomDropdownWrapper width={width}>
       <Dropdown
+        data-testid={testId}
         clearable={clearable ?? false}
         onChange={handleChange}
         value={selectedValue}
