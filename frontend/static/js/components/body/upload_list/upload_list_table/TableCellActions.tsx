@@ -41,7 +41,10 @@ export const TableCellActions: React.FC<Props> = ({
           position={'top center'}
           size='mini'
           trigger={
-            <EnrichPendingButton onClick={onOpenEnrichStep2Modal}>
+            <EnrichPendingButton
+              data-testid={'open-enrich-step-2-modal-button'}
+              onClick={onOpenEnrichStep2Modal}
+            >
               <h5>action required</h5>
             </EnrichPendingButton>
           }
@@ -56,7 +59,10 @@ export const TableCellActions: React.FC<Props> = ({
             position={'top center'}
             size='mini'
             trigger={
-              <EnrichButton onClick={onOpenEnrichStep1Modal}>
+              <EnrichButton
+                data-testid={'open-enrich-step-1-modal-button'}
+                onClick={onOpenEnrichStep1Modal}
+              >
                 <h5>enrich</h5>
               </EnrichButton>
             }
@@ -70,6 +76,7 @@ export const TableCellActions: React.FC<Props> = ({
             size='mini'
             trigger={
               <img
+                data-testid={'open-preview'}
                 onClick={handlePreviewClick}
                 className={'preview'}
                 src={PreviewImage}
@@ -86,7 +93,13 @@ export const TableCellActions: React.FC<Props> = ({
         position={'top center'}
         size='mini'
         trigger={
-          <img className={'delete'} src={DeleteImage} alt={'delete'} onClick={onOpenDeleteModal} />
+          <img
+            data-testid={'open-delete-modal-button'}
+            className={'delete'}
+            src={DeleteImage}
+            alt={'delete'}
+            onClick={onOpenDeleteModal}
+          />
         }
       />
     </TableCellActionsWrapper>
