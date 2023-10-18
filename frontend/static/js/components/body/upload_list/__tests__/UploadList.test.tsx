@@ -54,7 +54,7 @@ describe('UploadList', () => {
       });
     } else {
       await waitFor(() => {
-        expect(screen.getByTestId('table-table-rows')).toBeInTheDocument();
+        expect(screen.getByTestId('table-rows')).toBeInTheDocument();
       });
       expect(screen.queryAllByTestId('table-row')).toHaveLength(0);
     }

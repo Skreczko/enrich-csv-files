@@ -98,7 +98,7 @@ export const TableRows: React.FC = () => {
   };
 
   return (
-    <div data-testid={'table-table-rows'}>
+    <div data-testid={'table-rows'}>
       {fileList?.length ? (
         <>
           {fileList.map((fileElement, index) => (
@@ -134,7 +134,7 @@ export const TableRows: React.FC = () => {
           )}
         </>
       ) : (
-        <NoRecordWrapper>
+        <NoRecordWrapper data-testid={'no-record'}>
           <img src={SandClockImage} alt={'sand-clock'} />
           <p>There are no uploaded files yet</p>
         </NoRecordWrapper>
