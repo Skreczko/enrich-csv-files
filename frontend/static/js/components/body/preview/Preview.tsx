@@ -52,7 +52,7 @@ const Preview: React.FC = () => {
   });
 
   return (
-    <PreviewWrapper>
+    <PreviewWrapper data-testid={'preview'}>
       <AutoSizer>
         {({ height, width }: Size): ReactNode => (
           <Grid

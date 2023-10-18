@@ -1,9 +1,19 @@
 import { EnrichDetailStatus } from '../api/enums';
 import { CsvFileElement, FetchUploadListResponse } from '../api/types';
 
-const selectedCsvFileSourceUuid = '0e1294fe-8bbc-42ef-ab24-c2c2515eb263';
+export const selectedCsvFileSourceUuid = '0e1294fe-8bbc-42ef-ab24-c2c2515eb263';
 export const selectedCsvFileUuid = '3947b72a-d907-44aa-92c2-6ce44813e230';
 const selectedEnrichDetailUuid = '65869971-86db-4ccd-8454-44c9add10847';
+export const fileHeaders = [
+  'impression_id',
+  'impression_city',
+  'posting_user_id',
+  'post_id',
+  'viewer_email',
+  'impression_country',
+  'timestamp',
+  'device',
+];
 
 // csv element enriched with external url. fetchedDetailInfo is false
 // used as default for list view
@@ -91,16 +101,7 @@ export const csvElementDetailEnrichStep2 = {
       size: 146445,
     },
     file_row_count: 1000,
-    file_headers: [
-      'impression_id',
-      'impression_city',
-      'posting_user_id',
-      'post_id',
-      'viewer_email',
-      'impression_country',
-      'timestamp',
-      'device',
-    ],
+    file_headers: fileHeaders,
   },
   fetchedDetailInfo: true,
 } as CsvFileElement;
@@ -138,16 +139,7 @@ export const csvElementDetailEnrichStep2Failed = {
       size: 146445,
     },
     file_row_count: 1000,
-    file_headers: [
-      'impression_id',
-      'impression_city',
-      'posting_user_id',
-      'post_id',
-      'viewer_email',
-      'impression_country',
-      'timestamp',
-      'device',
-    ],
+    file_headers: fileHeaders,
   },
   fetchedDetailInfo: true,
 } as CsvFileElement;
@@ -185,14 +177,7 @@ export const csvElementDetailFetched = {
     size: 178469,
   },
   file_headers: [
-    'impression_id',
-    'impression_city',
-    'posting_user_id',
-    'post_id',
-    'viewer_email',
-    'impression_country',
-    'timestamp',
-    'device',
+    ...fileHeaders,
     'name',
     'username',
     'email',
@@ -223,16 +208,7 @@ export const csvElementDetailFetched = {
       size: 146445,
     },
     file_row_count: 1000,
-    file_headers: [
-      'impression_id',
-      'impression_city',
-      'posting_user_id',
-      'post_id',
-      'viewer_email',
-      'impression_country',
-      'timestamp',
-      'device',
-    ],
+    file_headers: fileHeaders,
   },
   fetchedDetailInfo: true,
 } as CsvFileElement;
