@@ -74,6 +74,7 @@ export const NotificationPopup: React.FC = () => {
     <NotificationWrapper open={!!data.length} data-testid={'notification-popup'}>
       {data?.map(({ appearance, content, additionalContent, id }) => (
         <Message
+          data-testid={'notification-bar'}
           {...{ [appearance]: true }}
           key={id}
           size='tiny'
