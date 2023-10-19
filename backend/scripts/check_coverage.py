@@ -148,12 +148,14 @@ def get_coverage(file_name):
         )
     return coverage
 
+
 def get_files_to_ignore() -> list[str]:
     files_to_ignore = []
     # backend files
 
     # frontend files
-    files_to_ignore.extend([
+    files_to_ignore.extend(
+        [
             "static/js/api/enums.ts",
             "static/js/components/body/upload_csv/types.ts",
             "static/js/components/body/upload_list/table_management/types.ts",
@@ -165,7 +167,8 @@ def get_files_to_ignore() -> list[str]:
             "static/js/redux/TaskListReducer.ts",
             "static/js/redux/UploadSectionSlice.ts",
             "static/js/router/config/routes.ts",
-        ])
+        ]
+    )
     return files_to_ignore
 
 
