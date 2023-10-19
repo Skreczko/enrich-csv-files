@@ -45,7 +45,7 @@ const server = setupServer(
       const chunkNumber = req.url.searchParams.get('chunk_number');
       const defaultChunkSize = 200;
       const response = {
-        chunk_number: 0,
+        chunk_number: Number(chunkNumber),
         chunk_size: defaultChunkSize,
         headers: fileHeaders,
         total_rows: 1000,
