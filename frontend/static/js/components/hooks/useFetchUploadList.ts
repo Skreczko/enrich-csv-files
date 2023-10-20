@@ -17,6 +17,7 @@ export const useFetchUploadList = (): ((
   const [isFirstRun, setIsFirstRun] = useState(true);
 
   const extractParamsFromURL = (): { [key: string]: string } => {
+    // only used for search input, as only "search" queryParam can be used in URL ie. http://localhost:8000/?search=e2c91c35-ad99-43b4-81ee-b9be9e6ef664
     const queryParams = new URLSearchParams(location.search);
     const paramsObject: { [key: string]: string } = {};
     queryParams.forEach((value, key) => {

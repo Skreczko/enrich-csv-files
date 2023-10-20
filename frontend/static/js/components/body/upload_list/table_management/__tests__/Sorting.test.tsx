@@ -3,9 +3,9 @@ import { fireEvent, render, screen, waitFor, within } from '../../../../../utils
 import { setupServer } from 'msw/node';
 import { rest } from 'msw';
 import { basicUploadList } from '../../../../../utils/mockData';
-import { defaultFileListParamState } from '../../../../../utils/mockType';
 import { Sorting } from '../Sorting';
 import { SortList } from '../../../../../api/enums';
+import { fileListParamInitialState } from '../../../../../redux/FileListParamSlice';
 
 const server = setupServer(
   rest.get('/api/_internal/csv_list', (req, res, ctx) => {
@@ -47,7 +47,7 @@ describe('Filters', () => {
     // check if that information will be stored to redux store
     await waitFor(() => {
       expect(store.getState().fileListParam).toEqual({
-        ...defaultFileListParamState,
+        ...fileListParamInitialState,
         sort: SortList.STATUS_ASC,
       });
     });

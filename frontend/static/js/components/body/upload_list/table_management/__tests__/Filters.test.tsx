@@ -6,7 +6,7 @@ import { basicUploadList } from '../../../../../utils/mockData';
 import { Filters } from '../Filters';
 import { FileTypeFilter, StatusFilter } from '../../../../../api/types';
 import { advanceTo } from 'jest-date-mock';
-import { defaultFileListParamState } from '../../../../../utils/mockType';
+import { fileListParamInitialState } from '../../../../../redux/FileListParamSlice';
 
 const OPTION_LENGTH = 35;
 const MOCK_DATE = new Date(Date.UTC(2023, 9, 29, 12, 0, 0));
@@ -65,9 +65,9 @@ describe('Filters', () => {
       // check if that information will be stored to redux store
       await waitFor(() => {
         expect(store.getState().fileListParam).toEqual({
-          ...defaultFileListParamState,
+          ...fileListParamInitialState,
           filters: {
-            ...defaultFileListParamState.filters,
+            ...fileListParamInitialState.filters,
             file_type: fileTypeFilter,
             status: statusFilter,
           },
