@@ -6,11 +6,6 @@ import { setupListeners } from '@reduxjs/toolkit/query';
 import { ValidateSliceCaseReducers } from '@reduxjs/toolkit/dist/createSlice';
 import { RootState, storeReducer } from '../redux/store';
 import { MemoryRouter as Router } from 'react-router-dom';
-import {
-  useFetchPreviewChunk,
-  UseFetchPreviewChunkResult,
-} from '../components/hooks/useFetchPreviewChunk';
-import { selectedCsvFileSourceUuid } from './mockData';
 import { ToolkitStore } from '@reduxjs/toolkit/dist/configureStore';
 import { renderHook, WaitForNextUpdate } from '@testing-library/react-hooks';
 
