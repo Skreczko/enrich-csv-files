@@ -167,6 +167,7 @@ def get_files_to_ignore() -> list[str]:
             "static/js/redux/TaskListReducer.ts",
             "static/js/redux/UploadSectionSlice.ts",
             "static/js/router/config/routes.ts",
+            "static/js/utils/testing-utils.tsx",
             "static/js/components/hooks/useFetchPreviewChunk.ts", # main functions are covered. Ignored debounce in tests.
         ]
     )
