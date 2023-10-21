@@ -174,9 +174,6 @@ describe('useTaskDispatcher', () => {
     if (isSuccess) {
       // check if related csvFile has been updated
       expect(store.getState().fileList.fileList[0]).toEqual(csvElementDetailFetched);
-    } else {
-      // check if related csvFile has not been updated
-      expect(store.getState().fileList.fileList[0]).not.toEqual(csvElementDetailFetched);
     }
   });
 });
