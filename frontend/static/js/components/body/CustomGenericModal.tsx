@@ -12,6 +12,7 @@ type Props = {
   open: boolean;
   size?: 'mini' | 'tiny' | 'small' | 'large' | 'fullscreen';
   subHeader?: string;
+  testId?: string;
 };
 
 export const CustomGenericModal: React.FC<Props> = ({
@@ -24,8 +25,9 @@ export const CustomGenericModal: React.FC<Props> = ({
   open,
   size,
   subHeader,
+  testId,
 }) => (
-  <Modal onClose={onClose} open={open} closeOnDimmerClick={false} size={size}>
+  <Modal data-testid={testId} onClose={onClose} open={open} closeOnDimmerClick={false} size={size}>
     <Modal.Header>{header}</Modal.Header>
     <Modal.Content>
       {!!subHeader && (
@@ -37,11 +39,12 @@ export const CustomGenericModal: React.FC<Props> = ({
       <Modal.Description>{children}</Modal.Description>
     </Modal.Content>
     <Modal.Actions>
-      <Button color='grey' onClick={onClose}>
+      <Button data-testid={'close-button'} color='grey' onClick={onClose}>
         Close
       </Button>
       {onAction && (
         <Button
+          data-testid={'action-button'}
           color={actionLabelColor}
           onClick={(): void => {
             onAction();

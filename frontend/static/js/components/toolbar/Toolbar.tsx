@@ -23,7 +23,7 @@ export const Toolbar: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <ToolbarWrapper>
+    <ToolbarWrapper data-testid={'toolbar'}>
       {navLinks.map(({ link, imgSrc, name }) => (
         <NavLink
           key={name.replace(/ /g, '-')}

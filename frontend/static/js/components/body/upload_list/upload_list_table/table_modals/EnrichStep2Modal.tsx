@@ -98,6 +98,7 @@ export const EnrichStep2Modal: React.FC<Props> = ({
       actionLabel={'Enrich'}
       actionLabelColor={'green'}
       size={'large'}
+      testId={'enrich-step-2-modal'}
     >
       <EnrichModalWrapper>
         <EnrichModalDescription>
@@ -122,7 +123,7 @@ export const EnrichStep2Modal: React.FC<Props> = ({
         </EnrichProcessSelectionWrapper>
         <EnrichProcessSelectionWrapper>
           <div className={'center'}>
-            <p>
+            <p data-testid={'filename-text'}>
               <b>{truncateString(selectedFileElement.source_original_file_name, 60)}</b>
             </p>
           </div>
@@ -130,7 +131,7 @@ export const EnrichStep2Modal: React.FC<Props> = ({
           <div></div>
 
           <div className={'center'}>
-            <p>
+            <p data-testid={'enrich-detail-url'}>
               <b>{truncateString(selectedFileElement.enrich_detail.external_url, 60)}</b>
             </p>
           </div>
@@ -155,6 +156,7 @@ export const EnrichStep2Modal: React.FC<Props> = ({
                   placeholderOnSelected={'Selected header:'}
                   placeholderOnChoice={'Csv headers'}
                   width={'100%'}
+                  testId={'dropdown-csv-header'}
                 />
                 {selectedCsvHeaderError && (
                   <EnrichModalError>
@@ -176,10 +178,16 @@ export const EnrichStep2Modal: React.FC<Props> = ({
               placeholderOnSelected={'Selected join type:'}
               placeholderOnChoice={'Join type'}
               width={'100%'}
+              testId={'dropdown-join-type'}
             />
-            <img src={QuestionMarkImage} alt={'question'} onClick={setOpenJoinTypeModal} />
+            <img
+              data-testid={'open-enrich-json-join-type-info-modal'}
+              src={QuestionMarkImage}
+              alt={'question'}
+              onClick={setOpenJoinTypeModal}
+            />
             {selectedJoinTypeError && (
-              <EnrichModalError>
+              <EnrichModalError data-testid={'error-info'}>
                 <img src={ErrorImage} alt={'error'} />
                 <small>Select join type</small>
               </EnrichModalError>
@@ -187,11 +195,17 @@ export const EnrichStep2Modal: React.FC<Props> = ({
           </EnrichStep2CustomDropdownWrapper>
           <EnrichStep2CustomDropdownWrapper>
             <Checkbox
+              data-testid={'checkbox-flatten-structure'}
               label='Flatten JSON structure'
               checked={flattenJson}
               onChange={(e, { checked }): void => setFlattenJson(checked)}
             />
-            <img src={QuestionMarkImage} alt={'question'} onClick={setOpenFlattenStructureModal} />
+            <img
+              data-testid={'open-enrich-json-flatten-structure-info-modal'}
+              src={QuestionMarkImage}
+              alt={'question'}
+              onClick={setOpenFlattenStructureModal}
+            />
           </EnrichStep2CustomDropdownWrapper>
           <EnrichStep2CustomDropdownWrapper>
             {!selectedFileElement?.fetchedDetailInfo ? (
@@ -214,6 +228,7 @@ export const EnrichStep2Modal: React.FC<Props> = ({
                   placeholderOnSelected={'Selected JSON key:'}
                   placeholderOnChoice={'JSON key'}
                   width={'100%'}
+                  testId={'dropdown-json-key'}
                 />
                 <Popup
                   content={
@@ -226,7 +241,7 @@ export const EnrichStep2Modal: React.FC<Props> = ({
                   trigger={<img src={InfoImage} alt={'info'} />}
                 />
                 {selectedJsonKeyError && (
-                  <EnrichModalError>
+                  <EnrichModalError data-testid={'error-info'}>
                     <img src={ErrorImage} alt={'error'} />
                     <small>Select JSON key</small>
                   </EnrichModalError>

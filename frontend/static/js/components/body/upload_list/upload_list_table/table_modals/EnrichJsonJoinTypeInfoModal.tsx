@@ -23,6 +23,7 @@ export const EnrichJsonJoinTypeInfoModal: React.FC<Props> = ({ onClose, open }) 
       header={'JSON join types'}
       subHeader={'Examples'}
       size={'large'}
+      testId={'enrich-json-join-type-info-modal'}
     >
       <p>
         In this project, you have three options for joining data from a CSV file and a URL JSON

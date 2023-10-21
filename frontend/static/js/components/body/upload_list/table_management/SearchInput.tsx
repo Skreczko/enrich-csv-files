@@ -49,8 +49,14 @@ export const SearchInput: React.FC = () => {
   };
 
   return (
-    <SearchInputWrapper>
-      <StyledInput type='text' placeholder='Search...' onChange={onChange} value={searchValue} />
+    <SearchInputWrapper data-testid={'search-input'}>
+      <StyledInput
+        data-testid={'search-input-input'}
+        type='text'
+        placeholder='Search...'
+        onChange={onChange}
+        value={searchValue}
+      />
       <SearchIconWrapper>
         <img src={SearchImage} alt={'search'} />
       </SearchIconWrapper>

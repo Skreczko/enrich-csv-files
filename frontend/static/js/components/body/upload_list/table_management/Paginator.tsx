@@ -17,22 +17,24 @@ export const Paginator: React.FC = () => {
   };
 
   return (
-    <PaginatorWrapper
-      previousLabel={'previous'}
-      nextLabel={'next'}
-      breakLabel={'...'}
-      breakClassName={'page'}
-      initialPage={page - 1}
-      pageCount={total_pages || 1}
-      marginPagesDisplayed={2}
-      pageRangeDisplayed={2}
-      onPageChange={onChangePageNumber}
-      containerClassName={'pagination'}
-      disabledClassName={'disabled'}
-      activeClassName={'active'}
-      nextClassName={'page'}
-      previousClassName={'page'}
-      pageClassName={'page'}
-    />
+    <div data-testid={'paginator'}>
+      <PaginatorWrapper
+        previousLabel={'previous'}
+        nextLabel={'next'}
+        breakLabel={'...'}
+        breakClassName={'page'}
+        initialPage={page - 1}
+        pageCount={total_pages || 1}
+        marginPagesDisplayed={2}
+        pageRangeDisplayed={2}
+        onPageChange={onChangePageNumber}
+        containerClassName={'pagination'}
+        disabledClassName={'disabled'}
+        activeClassName={'active'}
+        nextClassName={'page'}
+        previousClassName={'page'}
+        pageClassName={'page'}
+      />
+    </div>
   );
 };

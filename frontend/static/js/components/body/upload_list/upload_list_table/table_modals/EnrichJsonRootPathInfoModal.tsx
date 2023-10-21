@@ -15,6 +15,7 @@ export const EnrichJsonRootPathInfoModal: React.FC<Props> = ({ onClose, open }) 
       onClose={onClose}
       header={'URL JSON root path setup'}
       subHeader={'Examples'}
+      testId={'enrich-json-root-path-info-modal'}
     >
       <p>
         Please open the URL you provided in a browser and inspect its structure. Below are some
@@ -25,7 +26,7 @@ export const EnrichJsonRootPathInfoModal: React.FC<Props> = ({ onClose, open }) 
       <EnrichModalJsonRootPathModalBody>
         <div>
           <pre>
-            <code>{jsonFirstExample}</code>
+            <code data-testid={'json-first-example'}>{jsonFirstExample}</code>
           </pre>
         </div>
         <div>

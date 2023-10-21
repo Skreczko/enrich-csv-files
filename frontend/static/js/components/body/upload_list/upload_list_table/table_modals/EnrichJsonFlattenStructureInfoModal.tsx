@@ -25,6 +25,7 @@ export const EnrichJsonFlattenStructureInfoModal: React.FC<Props> = ({ onClose, 
       header={'JSON flatten structure'}
       subHeader={'Examples'}
       size={'fullscreen'}
+      testId={'enrich-json-flatten-structure-info-modal'}
     >
       <p>
         Flattening a JSON structure involves transforming nested keys into a flat, tabular form.

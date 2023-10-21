@@ -149,6 +149,31 @@ def get_coverage(file_name):
     return coverage
 
 
+def get_files_to_ignore() -> list[str]:
+    files_to_ignore = []
+    # backend files
+
+    # frontend files
+    files_to_ignore.extend(
+        [
+            "static/js/api/enums.ts",
+            "static/js/components/body/upload_csv/types.ts",
+            "static/js/components/body/upload_list/table_management/types.ts",
+            "static/js/components/body/upload_list/upload_list_table/enums.ts",
+            "static/js/components/notification/helpers.ts",
+            "static/js/redux/FileListParamSlice.ts",
+            "static/js/redux/NotificationPopupSlice.ts",
+            "static/js/redux/PreviewListReducer.ts",
+            "static/js/redux/TaskListReducer.ts",
+            "static/js/redux/UploadSectionSlice.ts",
+            "static/js/router/config/routes.ts",
+            "static/js/utils/testing-utils.tsx",
+            "static/js/components/hooks/useFetchPreviewChunk.ts", # main functions are covered. Ignored debounce in tests.
+        ]
+    )
+    return files_to_ignore
+
+
 def main():
     if len(sys.argv) != 3:
         print("Need two filenames")
@@ -158,7 +183,10 @@ def main():
     old_coverage = get_coverage(sys.argv[2])
     failed_lines = False
 
+    files_to_ignore = get_files_to_ignore()
     for filename, new_data in new_coverage.items():
+        if filename in files_to_ignore:
+            continue
         old_data = old_coverage.get(filename)
 
         if old_data and new_data.line_rate == 0:

@@ -21,8 +21,9 @@ export const DeleteModal: React.FC<Props> = ({ onAction, onClose, open, selected
     header={'Delete CSV record'}
     actionLabel={'Delete'}
     actionLabelColor={'red'}
+    testId={'delete-modal'}
   >
-    <p>
+    <p data-testid={'delete-modal-text'}>
       Are you sure you want to delete{' '}
       <b>{truncateString(selectedFileElement.original_file_name, 60)}</b>?
     </p>

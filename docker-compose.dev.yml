@@ -34,6 +34,7 @@ services:
       - '8001:8001'
     volumes:
       - ./frontend/:/home/user/frontend/
+      - ./backend/scripts/:/home/user/backend/scripts/
       - ./media/:/home/user/media/:delegated
       - /home/user/frontend/node_modules
 

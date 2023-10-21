@@ -39,7 +39,7 @@ const UploadList: React.FC = () => {
   }, []);
 
   return (
-    <UploadListWrapper>
+    <UploadListWrapper data-testid={'upload-list'}>
       <TableManagement />
       <UploadListTable />
       <TableNavigation />

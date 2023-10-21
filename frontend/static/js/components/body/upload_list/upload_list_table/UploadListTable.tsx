@@ -11,7 +11,7 @@ export const UploadListTable: React.FC = () => {
   const { isLoading }: FileListState = useSelector((state: RootState) => state.fileList);
 
   return (
-    <CustomTable>
+    <CustomTable data-testid={'upload-list-table'}>
       <TableHeader />
       {isLoading ? (
         <TableRowFullWidth>

@@ -16,15 +16,15 @@ type ScrollInfo = {
   visibleRowStopIndex: number;
 };
 
-export const useFetchPreviewChunk = (
-  uuid: string,
-): {
+export type UseFetchPreviewChunkResult = {
   initialLoading: boolean;
   chunkLoading: boolean;
   notFound: boolean;
   foundPreviewDetail: PreviewDetail;
   handleScrollDebounced: (scrollInfo: ScrollInfo) => void;
-} => {
+};
+
+export const useFetchPreviewChunk = (uuid: string): UseFetchPreviewChunkResult => {
   const dispatch = useDispatch();
   const previewList: PreviewType = useSelector((state: RootState) => state.previewList);
 

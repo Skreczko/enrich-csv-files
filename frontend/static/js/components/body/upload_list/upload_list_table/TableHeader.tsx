@@ -14,7 +14,9 @@ export const columns: string[] = [
 export const TableHeader: React.FC = () => (
   <TableHeaderWrapper>
     {columns.map(column => (
-      <TableHeaderCell key={column.replace(/\s/g, '-')}>{column}</TableHeaderCell>
+      <TableHeaderCell data-testid={'table-header'} key={column.replace(/\s/g, '-')}>
+        {column}
+      </TableHeaderCell>
     ))}
   </TableHeaderWrapper>
 );

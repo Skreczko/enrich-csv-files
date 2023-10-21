@@ -16,7 +16,7 @@ import { EnrichJsonFlattenStructureInfoModal } from './EnrichJsonFlattenStructur
 import { updateFileElement } from '../../../../../redux/FileListSlice';
 import { EnrichDetailStatus } from '../../../../../api/enums';
 
-type Props = {
+export type TableModalsProps = {
   selectedFileElement: CsvFileElement;
   openDeleteModal: boolean;
   onCloseDeleteModal: () => void;
@@ -26,7 +26,7 @@ type Props = {
   onCloseEnrichStep2Modal: () => void;
 };
 
-export const TableModals: React.FC<Props> = ({
+export const TableModals: React.FC<TableModalsProps> = ({
   selectedFileElement,
   openDeleteModal,
   onCloseDeleteModal,

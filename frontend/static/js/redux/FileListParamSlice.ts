@@ -10,20 +10,22 @@ export type FileListParamState = {
   filters: FileListFilters;
 };
 
+export const fileListParamInitialState: FileListParamState = {
+  search: '',
+  page: 1,
+  sort: SortList.CREATED_DESC,
+  page_size: 20,
+  filters: {
+    status: null,
+    file_type: null,
+    date_from: null,
+    date_to: null,
+  },
+};
+
 const fileListParamSlice = createSlice({
   name: 'fileListParamReducer',
-  initialState: {
-    search: '',
-    page: 1,
-    sort: SortList.CREATED_DESC,
-    page_size: 20,
-    filters: {
-      status: null,
-      file_type: null,
-      date_from: null,
-      date_to: null,
-    },
-  } as FileListParamState,
+  initialState: fileListParamInitialState,
   reducers: {
     setSearch: (state, { payload: value }: PayloadAction<string>) => {
       state.search = value;

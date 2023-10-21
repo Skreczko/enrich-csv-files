@@ -12,7 +12,7 @@ import { lightGrey } from '../../../../App.styled';
 import { TableRowDetailSection } from './TableRowDetailSection';
 import { TableCellActions } from './TableCellActions';
 
-type Props = {
+export type TableRowProps = {
   counter: number;
   fileElement: CsvFileElement;
   onOpenDeleteModal: () => void;
@@ -21,7 +21,7 @@ type Props = {
   statusDetail: TableRowStatusDetails;
 };
 
-export const TableRow: React.FC<Props> = ({
+export const TableRow: React.FC<TableRowProps> = ({
   counter,
   fileElement,
   onOpenDeleteModal,
@@ -41,12 +41,13 @@ export const TableRow: React.FC<Props> = ({
   } = fileElement;
 
   return (
-    <TableRowWrapper>
+    <TableRowWrapper data-testid={'table-row'}>
       <CsvElementRow>
-        <TableCell centred={true}>
+        <TableCell data-testid={'table-cell'} centred={true}>
           <p>{counter}</p>
         </TableCell>
         <TableCell
+          data-testid={'table-cell'}
           pointer={true}
           paddingLeft={10}
           onClick={(): void => setOpenDetails(!openDetails)}
@@ -54,7 +55,7 @@ export const TableRow: React.FC<Props> = ({
           <img src={LoupeImage} alt={'loupe'} />
           <p>{fileName || '...'}</p>
         </TableCell>
-        <TableCell column={true}>
+        <TableCell data-testid={'table-cell'} column={true}>
           <p>{moment(created).format('HH:mm')}</p>
           <p className={'padding-left'}>{moment(created).format('YYYY-MM-DD')}</p>
         </TableCell>
@@ -65,11 +66,17 @@ export const TableRow: React.FC<Props> = ({
           position={'top center'}
           size='mini'
           trigger={
-            <TableCell centred={true} pointer={true}>
+            <TableCell data-testid={'table-cell'} centred={true} pointer={true}>
               <PopupTrigger>
-                {'imgSrc' in statusDetail && <img src={statusDetail.imgSrc} alt={status} />}
+                {'imgSrc' in statusDetail && (
+                  <img data-testid={'status-icon'} src={statusDetail.imgSrc} alt={status} />
+                )}
                 {'progress' in statusDetail && (
-                  <ProgressBar height={10} backgroundColor={lightGrey}>
+                  <ProgressBar
+                    data-testid={'status-progress-bar'}
+                    height={10}
+                    backgroundColor={lightGrey}
+                  >
                     <ProgressBarFiller
                       width={statusDetail.progress}
                       backgroundColor={statusDetail.backgroundColor}
@@ -80,13 +87,13 @@ export const TableRow: React.FC<Props> = ({
             </TableCell>
           }
         />
-        <TableCell paddingLeft={10} pointer={!sourceFileName}>
+        <TableCell data-testid={'table-cell'} paddingLeft={10} pointer={!sourceFileName}>
           {!!sourceFileName && <img src={MaximizeImage} alt={'maximize'} />}
           <Link to={{ pathname: '/', search: `search=${uuid}` }} target='_blank'>
             <p>{sourceFileName}</p>
           </Link>
         </TableCell>
-        <TableCell paddingLeft={10}>
+        <TableCell data-testid={'table-cell'} paddingLeft={10}>
           <p>{enrich_detail?.external_url}</p>
         </TableCell>
         <TableCellActions

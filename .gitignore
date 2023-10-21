@@ -10,3 +10,5 @@ media
 /backend/.coverage
 /backend/coverage.xml
 /backend/previous-coverage.xml
+/frontend/coverage/
+/frontend/cobertura-coverage.xml

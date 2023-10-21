@@ -18,13 +18,17 @@ export const NotificationPopupHeader: React.FC<Props> = ({
   content,
   removeNotification,
 }) => (
-  <Message.Header>
+  <Message.Header data-testid={'notification-header'}>
     <MessageHeaderWrapper>
       <NotificationContentWrapper>
-        <img src={NotificationAppearance[appearance].imgSrc} alt={appearance} />
-        <p>{content}</p>
+        <img
+          data-testid={'notification-img'}
+          src={NotificationAppearance[appearance].imgSrc}
+          alt={appearance}
+        />
+        <p data-testid={'notification-content'}>{content}</p>
       </NotificationContentWrapper>
-      <NotificationCloseButton onClick={removeNotification}>
+      <NotificationCloseButton data-testid={'close-button'} onClick={removeNotification}>
         <p>Close</p>
       </NotificationCloseButton>
     </MessageHeaderWrapper>
