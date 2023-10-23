@@ -24,6 +24,7 @@ export const UploadFileDragAndDrop: React.FC<Props> = ({ onDrop }) => {
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>): void => {
     e.preventDefault();
+    setIsDragging(true);
   };
 
   const handleDragLeave = (e: React.DragEvent<HTMLDivElement>): void => {
@@ -35,6 +36,7 @@ export const UploadFileDragAndDrop: React.FC<Props> = ({ onDrop }) => {
 
   return (
     <DragAndDropWrapper
+      data-testid={'upload-file-drag-and-drop'}
       ref={dropRef}
       onDragEnter={handleDragEnter}
       onDragOver={handleDragOver}
@@ -42,12 +44,12 @@ export const UploadFileDragAndDrop: React.FC<Props> = ({ onDrop }) => {
       onDrop={handleDrop}
     >
       {isDragging ? (
-        <DropWrapper>
+        <DropWrapper data-testid={'drop-zone-visible'}>
           <img src={DropImage} alt={'drop'} />
           <p>Drop here</p>
         </DropWrapper>
       ) : (
-        <DragWrapper>
+        <DragWrapper data-testid={'drop-zone-invisible'}>
           <img src={DragImage} alt={'drag'} />
           <p>Drag and drop CSV files</p>
         </DragWrapper>

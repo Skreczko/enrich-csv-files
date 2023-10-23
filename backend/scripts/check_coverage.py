@@ -169,6 +169,7 @@ def get_files_to_ignore() -> list[str]:
             "static/js/router/config/routes.ts",
             "static/js/utils/testing-utils.tsx",
             "static/js/components/hooks/useFetchPreviewChunk.ts", # main functions are covered. Ignored debounce in tests.
+            "static/js/components/body/upload_csv/UploadFileDragAndDrop.tsx", # tested. provided 72.22%. cannot test ie. e.preventDefault()
         ]
     )
     return files_to_ignore

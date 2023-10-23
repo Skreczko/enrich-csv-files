@@ -23,9 +23,15 @@ export const UploadFileButton: React.FC<Props> = ({ onAdd }) => {
   };
 
   return (
-    <CustomButton onClick={handleClick} margin={'50px 0 0 0'}>
+    <CustomButton data-testid={'upload-file-button'} onClick={handleClick} margin={'50px 0 0 0'}>
       <p>add file</p>
-      <HiddenUploadInput ref={inputRef} type='file' multiple onChange={handleFileInput} />
+      <HiddenUploadInput
+        data-testid={'upload-file-hidden-upload-input'}
+        ref={inputRef}
+        type='file'
+        multiple
+        onChange={handleFileInput}
+      />
     </CustomButton>
   );
 };
