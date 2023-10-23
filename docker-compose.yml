@@ -34,7 +34,7 @@ services:
       - '8001:8001'
     volumes:
       - ./frontend/:/home/user/frontend/
-      - ${PWD}/media/:/home/user/media/:delegated
+      - ./media/:/home/user/media/:delegated
       - /home/user/frontend/node_modules
 
   # Main backend application
@@ -58,7 +58,7 @@ services:
       - webpack
     volumes:
       - ${PWD}/backend/:/home/user/backend/:delegated
-      - ${PWD}/media/:/home/user/media/:delegated
+      - ./media/:/home/user/media/:delegated
       - ./frontend/:/home/user/frontend/
     restart: on-failure
 
@@ -79,7 +79,7 @@ services:
     command: watchmedo auto-restart --pattern '*.py' --signal SIGINT --recursive -- celery -A transformer worker -l debug
     volumes:
       - ${PWD}/backend/:/home/user/backend/:delegated
-      - ${PWD}/media/:/home/user/media/:delegated
+      - ./media/:/home/user/media/:delegated
 
   # Worker for processing asynchronous tasks using Celery with auto-restart on code changes
   celery-beat:
@@ -98,4 +98,4 @@ services:
     command: watchmedo auto-restart --pattern '*.py' --signal SIGINT --recursive -- celery -A transformer beat -l debug
     volumes:
       - ${PWD}/backend/:/home/user/backend/:delegated
-      - ${PWD}/media/:/home/user/media/:delegated
+      - ./media/:/home/user/media/:delegated
