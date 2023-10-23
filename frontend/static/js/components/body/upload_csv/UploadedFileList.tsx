@@ -35,7 +35,7 @@ export const UploadedFileList: React.FC<Props> = ({
   };
 
   return (
-    <UploadedFileListWrapper>
+    <UploadedFileListWrapper data-testid={'uploaded-file-list'}>
       <FileListWrapper>
         {files.map(fileElement => (
           <UploadedFileListRowDetail
@@ -47,7 +47,11 @@ export const UploadedFileList: React.FC<Props> = ({
         ))}
       </FileListWrapper>
       <UploadButtonWrapper>
-        <CustomButton onClick={handleClick} disabled={isLocked}>
+        <CustomButton
+          data-testid={'upload-file-button-onclick'}
+          onClick={handleClick}
+          disabled={isLocked}
+        >
           <p>upload</p>
         </CustomButton>
       </UploadButtonWrapper>

@@ -157,7 +157,7 @@ const UploadFile: React.FC = () => {
         dispatch(updateFileDetail({ uuid: fileElement.uuid, status: FileStatusEnum.UPLOAD_ERROR }));
         setIncorrectFileNotification(
           generateHTMLErrorMessages(
-            e.response.data.error,
+            { error: [e.response.data.error] } as ErrorType,
             truncateString(fileElement.fileName, 80),
           ),
         );
@@ -167,7 +167,7 @@ const UploadFile: React.FC = () => {
   };
 
   return (
-    <UploadFileWrapper>
+    <UploadFileWrapper data-testid={'upload-file'}>
       <FileUploadControls onFilesAdd={onFilesAdd} />
       {!!fileElements.length && (
         <UploadedFileList

@@ -54,12 +54,13 @@ export const UploadedFileListRowDetail: React.FC<Props> = ({
 
   return (
     <>
-      <ProgressBar>
+      <ProgressBar data-testid={'uploaded-file-progress-bar'}>
         <ProgressBarFiller width={uploadingPercent} />
         <FileName color={uploadingPercent > 0 ? 'white' : 'black'}>{name}</FileName>
       </ProgressBar>
       <div>({(size / 1024 ** 2).toFixed(2)} MB)</div>
       <UploadStatusImageWrapper
+        data-testid={'uploaded-file-remove-file-icon'}
         onClick={(): void => {
           isLoaded && onFileRemove(fileElement.uuid);
         }}

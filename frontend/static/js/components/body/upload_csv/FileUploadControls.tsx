@@ -8,7 +8,7 @@ type Props = {
 };
 
 export const FileUploadControls: React.FC<Props> = ({ onFilesAdd }) => (
-  <FileUploadControlsWrapper>
+  <FileUploadControlsWrapper data-testid={'file-upload-controls'}>
     <UploadFileDragAndDrop onDrop={onFilesAdd} />
     <UploadFileButton onAdd={onFilesAdd} />
   </FileUploadControlsWrapper>

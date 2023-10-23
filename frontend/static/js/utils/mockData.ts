@@ -1,5 +1,7 @@
 import { EnrichDetailStatus } from '../api/enums';
 import { CsvFileElement, FetchUploadListResponse } from '../api/types';
+import { FileStatusEnum, FileType } from '../components/body/upload_csv/types';
+import { v4 as uuidv4 } from 'uuid';
 
 export const selectedCsvFileSourceUuid = '0e1294fe-8bbc-42ef-ab24-c2c2515eb263';
 export const selectedCsvFileUuid = '3947b72a-d907-44aa-92c2-6ce44813e230';
@@ -13,6 +15,28 @@ export const fileHeaders = [
   'impression_country',
   'timestamp',
   'device',
+];
+
+export const createMockFileType = (
+  fileName: string,
+  fileType = 'text/csv',
+  status: FileStatusEnum = FileStatusEnum.LOADED,
+): FileType => {
+  const mockContent = 'Some,comma,separated,values';
+  const file = new File([mockContent], fileName, { type: fileType });
+
+  return {
+    fileName,
+    status,
+    uuid: uuidv4(),
+    file,
+  };
+};
+
+export const mockFileTypes: FileType[] = [
+  createMockFileType('users_posts_audience.csv'),
+  createMockFileType('users_posts_audience2.csv'),
+  createMockFileType('users_posts_audience3.csv'),
 ];
 
 // csv element enriched with external url. fetchedDetailInfo is false
