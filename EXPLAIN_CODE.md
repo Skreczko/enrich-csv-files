@@ -1,22 +1,20 @@
-### store files
+## For future development
+
+### Store files
 Files should be stored in external services, ie S3.
 
-### celery
+### Celery
 adding priority to celery. Create function to assign priority by file size.
 
-### monitoring
+### Monitoring
 Datadog could be applied / or logs.
 
-## urls.py
+## Project
+### urls.py
 Decided to change path to re_path, as I wanted to keep original project structure provided by Jakub.
 That allowed me to pass URL paths directly to React Router. 
 
 Optimization as lazy_import for urls paths by custom function (lazy_function_view)
-
-## docker-compose.yml
-Decided to include to django container only necessary folders or files from "frontend". For this case, 
-everything is bundled and included in "bundles" folder except files/folders which I took into account. Added warning comment. If needed, we remove that and include
-whole "frontend" folder.
 
 ## List of uploaded csv section
 
