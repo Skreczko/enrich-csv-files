@@ -32,10 +32,10 @@ export const TableRow: React.FC<TableRowProps> = ({
   const [openDetails, setOpenDetails] = useState(false);
 
   const {
-    uuid,
     original_file_name: fileName,
     created,
     source_original_file_name: sourceFileName,
+    source_uuid: sourceUuid,
     status,
     enrich_detail,
   } = fileElement;
@@ -89,7 +89,7 @@ export const TableRow: React.FC<TableRowProps> = ({
         />
         <TableCell data-testid={'table-cell'} paddingLeft={10} pointer={!sourceFileName}>
           {!!sourceFileName && <img src={MaximizeImage} alt={'maximize'} />}
-          <Link to={{ pathname: '/', search: `search=${uuid}` }} target='_blank'>
+          <Link to={{ pathname: '/', search: `search=${sourceUuid}` }} target='_blank'>
             <p>{sourceFileName}</p>
           </Link>
         </TableCell>
