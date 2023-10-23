@@ -76,7 +76,7 @@ you should see something like `root@868056ecf804:/opt/project/backend# `
 >* if error occurred (permissions to add), please remove `node_modules` file which were created automatically (and which is empty) OR change permissions on that directory (`sudo chmod 777 node_modules/`)
 
 <u><b>Important: Run Celery in container with script</b></u>
-* there is an isssue with celery for running server using pycharm's django server. You need to run celery/celery-beat manually in container after you run this project with django server
+* if there is an isssue with celery for running server using pycharm's django server, you need to run celery/celery-beat manually in container after you run this project with django server
 - run your project with green arrow
 - Type
 ```shell
@@ -89,8 +89,6 @@ do same for celery-beat in other terminal:
 ```shell
 docker exec -it atc-django bash -c "watchmedo auto-restart --pattern '*.py' --signal SIGINT --recursive -- celery -A transformer beat -l debug"
 ```
-
-<u>that issue will be fixed in future development</u>
 
 ### For Windows users (only development mode)
 Please use `docker-compose.windows.yml`.
