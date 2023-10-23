@@ -215,6 +215,22 @@ Coverage check is also integrated into the GitHub workflow. When you push your c
 > 
 >With this action, the subsequent run will generate a new blank coverage-report for comparison. Once you execute the coverage script afterward, the report produced will serve as the baseline for future runs.
 
+## Error Tracking with Sentry
+
+In this project, we've integrated [Sentry](https://sentry.io/), a powerful error tracking and monitoring tool, to ensure high-quality code stability and visibility into potential issues.
+
+### Capturing Exceptions
+
+Throughout the codebase, we've strategically placed `capture_exception` calls to log specific events or errors we deem important. This helps us gain insights into any unexpected behavior or failures in real-time.
+
+Whenever an exception occurs in these specific sections of our code, Sentry will automatically capture the error details, allowing for prompt investigation and resolution.
+
+If you're developing or debugging, keep an eye on the Sentry dashboard for real-time updates about the health and performance of the application.
+
+### Credentials
+
+Credentials for accessing Sentry, including the password and email for logging in, are stored in the `.env` file.
+
 
 ## Please check EXPLAIN_CODE.md
 
