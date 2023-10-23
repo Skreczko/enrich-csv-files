@@ -178,10 +178,13 @@ if DEBUG:
     # django-debug-toolbar https://pypi.org/project/django-debug-toolbar/
     from transformer.dev_settings import *
 
-    INSTALLED_APPS += [
-        "debug_toolbar",
-    ]
-    MIDDLEWARE += [
-        "django.middleware.common.CommonMiddleware",
-        "debug_toolbar.middleware.DebugToolbarMiddleware",
-    ]
+    try:
+        import debug_toolbar
+        INSTALLED_APPS += ["debug_toolbar"]
+        MIDDLEWARE += [
+            "django.middleware.common.CommonMiddleware",
+            "debug_toolbar.middleware.DebugToolbarMiddleware",
+        ]
+
+    except ImportError:
+        pass
